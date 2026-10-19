@@ -12,6 +12,18 @@ function toggleFavTeam(id) {
   saveLocal();
 }
 const clubFilter = () => S.clubFilter || "all";
+/* Program page: ?club=1 shows the club's own teams; ?club=1&program=athens-city-schools shows that school's. */
+const urlProgram = () => { try { return new URLSearchParams(location.search).get("program") || ""; } catch (e) { return ""; } };
+function clubProgram(d) { const k = urlProgram(); return k && programsOf(d.teams).some((p) => p.key === k) ? k : ""; }
+const programTeams = (d) => { const k = clubProgram(d); return d.teams.filter((t) => programKey(programOf(t)) === k); };
+const pageName = (d) => { const k = clubProgram(d); return k ? programsOf(d.teams).find((p) => p.key === k).name : clubName(); };
+const pageLogo = (d) => { const k = clubProgram(d); return (k && programsOf(d.teams).find((p) => p.key === k).logo) || clubLogo(); };
+function programNavHTML(d) {
+  const progs = programsOf(d.teams); if (!progs.length) return "";
+  const cur = clubProgram(d), base = location.pathname + "?club=1";
+  const link = (k, name) => `<a class="cprog ${cur === k ? "on" : ""}" href="${k ? base + "&program=" + encodeURIComponent(k) : base}"${cur === k ? ' aria-current="page"' : ""}>${esc(name)}</a>`;
+  return link("", clubName()) + progs.map((p) => link(p.key, p.name)).join("");
+}
 const clubQuery = () => S.clubQ || "";
 
 /* Text badges for a team (age group, Girls/Boys, identifier). */
@@ -26,7 +38,9 @@ const gameWhen = (g) => { const t = kickoffMs(g); if (!Number.isFinite(t)) retur
 /* ---------- page shell (drawn once) ---------- */
 function buildClubShell() {
   const el = $("club");
-  el.innerHTML = `<header class="clubtop"><img id="club-logo-img" src="${esc(clubLogo())}" alt=""><div><h1 id="club-title">${esc(clubName())}</h1><p>Club scoreboard <span id="club-sync"></span></p></div></header>
+  const d = CLUB.data, prog = clubProgram(d);
+  el.innerHTML = `<header class="clubtop"><img id="club-logo-img" src="${esc(pageLogo(d))}" alt=""><div><h1 id="club-title">${esc(pageName(d))}</h1><p>${prog ? "Soccer" : "Club scoreboard"} <span id="club-sync"></span></p></div></header>
+    <nav class="cprogs" id="club-progs" aria-label="Clubs and schools"></nav>
     <div class="clubctl" role="search">
       <div class="cfilters" id="club-filters" role="group" aria-label="Show teams"></div>
       <div class="csearch"><label class="sr" for="club-q">Search teams</label><input id="club-q" type="search" placeholder="Search teams, age groups, birth years, coaches" autocomplete="off" value="${esc(clubQuery())}"></div>
@@ -40,20 +54,23 @@ renderClub = function () {
   const d = CLUB.data;
   if (!d) { $("club").innerHTML = '<div class="empty">Loading the club…</div>'; HOME.built = false; return; }
   if (!HOME.built || !$("club-body")) buildClubShell();
-  const t = $("club-title"); if (t && t.textContent !== clubName()) t.textContent = clubName();
-  const lg = $("club-logo-img"); if (lg && lg.getAttribute("src") !== clubLogo()) lg.setAttribute("src", clubLogo());
+  const t = $("club-title"); if (t && t.textContent !== pageName(d)) t.textContent = pageName(d);
+  const lg = $("club-logo-img"); if (lg && lg.getAttribute("src") !== pageLogo(d)) lg.setAttribute("src", pageLogo(d));
+  if (document.title !== pageName(d)) document.title = pageName(d);
+  setIfChanged("club-progs", programNavHTML(d));
+  const pd = Object.assign({}, d, { teams: programTeams(d), allTeams: d.teams });
   setIfChanged("club-sync", CLUB.on ? (CLUB.ok ? '<span class="sync run">Live</span>' : '<span class="sync lost">Reconnecting</span>') : "");
-  const counts = divisionCounts(d.teams);
+  const counts = divisionCounts(pd.teams);
   if (!counts.some((c) => c.key === clubFilter())) S.clubFilter = "all";
   setIfChanged("club-filters", counts.map((c) => `<button class="cfbtn" data-cact="filter" data-v="${c.key}" aria-pressed="${clubFilter() === c.key}">${c.label} <span class="cfn">${c.count}</span></button>`).join(""));
-  setIfChanged("club-body", clubBodyHTML(d));
+  setIfChanged("club-body", clubBodyHTML(pd, !!clubProgram(d)));
 };
 
-function clubBodyHTML(d) {
+function clubBodyHTML(d, isProgram) {
   const now = T();
   d.teams.forEach((t) => t.games.forEach((g) => { if (g.s && g.s.scorers) g.s.scorers = g.s.scorers.filter((x) => x.by || x.t > 0); }));
   const shown = d.teams.filter((t) => teamMatches(t, clubFilter(), clubQuery()));
-  const missingFavs = favTeams().filter((id) => !d.teams.some((t) => t.id === id));
+  const missingFavs = favTeams().filter((id) => !(d.allTeams || d.teams).some((t) => t.id === id));
   const bucket = (g) => gameBucket(g, g.s, now);
   const nowD = new Date(now);
   const season = new Date(nowD.getMonth() >= 7 ? nowD.getFullYear() : nowD.getFullYear() - 1, 7, 1).getTime();
@@ -63,7 +80,11 @@ function clubBodyHTML(d) {
   const wkStart = new Date(sun.getFullYear(), sun.getMonth(), sun.getDate() - 2).getTime(), wkEnd = new Date(sun.getFullYear(), sun.getMonth(), sun.getDate(), 23, 59, 59).getTime();
   const inWk = (g) => { const v = kickoffMs(g); return Number.isFinite(v) && v >= wkStart && v <= wkEnd; };
   const wkLabel = new Date(wkStart + 864e5).toLocaleDateString("en-US", { month: "short", day: "numeric" }) + "–" + new Date(wkEnd).toLocaleDateString("en-US", { month: "short", day: "numeric" });
-  const recOf = (t) => { let w = 0, l = 0, dr = 0; t.games.forEach((g) => { if (!inSeason(g)) return; const r = sResult(g.s); if (r === "W") w++; else if (r === "L") l++; else if (r === "D") dr++; }); return `${w}-${dr}-${l}`; };
+  // Spring sports (school teams) finish before the August season cutoff, so their last season is shown in the off-season.
+  const lastSeason = new Date(new Date(season).getFullYear() - 1, 7, 1).getTime();
+  const inLast = (g) => { const v = kickoffMs(g); return Number.isFinite(v) && v >= lastSeason && v < season; };
+  const hasLast = (t) => t.games.some((g) => inLast(g) && g.s && g.s.fullDone);
+  const recOf = (t, inS = inSeason) => { let w = 0, l = 0, dr = 0; t.games.forEach((g) => { if (!inS(g)) return; const r = sResult(g.s); if (r === "W") w++; else if (r === "L") l++; else if (r === "D") dr++; }); return `${w}-${dr}-${l}`; };
   const hasRecord = (t) => t.games.some((g) => inSeason(g) && g.s && g.s.fullDone);
 
   const gameLine = (t, g) => { const s = g.s; let st;
@@ -86,7 +107,7 @@ function clubBodyHTML(d) {
     return `<article class="ccard tcard ${live ? "live" : ""}" aria-label="${esc(teamShortTitle(t))}">
       <div class="ct">${teamBadge(t, "cl")}<div class="ctt"><a class="cta" href="${teamLink(t.id)}"><h3>${esc(teamShortTitle(t))}</h3></a>
         <div class="tbadges">${badgesHTML(t)}${live ? '<span class="livepill">Live</span>' : ""}</div>
-        <div class="fine">${t.placing ? `<span class="cplace">${esc(placeText(t.placing))}</span> · ` : ""}${hasRecord(t) ? recOf(t) + " this season (W-D-L)" : esc(t.format || "")}</div></div>${starHTML(t, "cact")}</div>
+        <div class="fine">${t.placing ? `<span class="cplace">${esc(placeText(t.placing))}</span> · ` : ""}${hasRecord(t) ? recOf(t) + " this season (W-D-L)" : hasLast(t) ? "Last season " + recOf(t, inLast) + " (W-D-L)" : esc(t.format || "")}</div></div>${starHTML(t, "cact")}</div>
       ${nextBlock}
       ${wk.length ? `<div class="gls" aria-label="Also this weekend">${wk.map((g) => `<a class="gla" href="${gameLink(t.id, g.id)}">${gameLine(t, g)}</a>`).join("")}</div>` : ""}
       ${needs ? `<p class="fine cneeds">${needs} past game${needs === 1 ? "" : "s"} need${needs === 1 ? "s" : ""} a result.</p>` : ""}
@@ -100,9 +121,9 @@ function clubBodyHTML(d) {
   // My teams (favorites), then the weekend, then everyone else; each team appears once.
   const favs = shown.filter((t) => isFavTeam(t.id));
   const used = new Set(favs.map((t) => t.id));
-  if (favs.length || missingFavs.length) {
+  if (favs.length || missingFavs.length || d.teams.some((t) => isFavTeam(t.id))) {
     h += `<section class="cs"><h2>My teams</h2>${favs.length ? `<div class="cgrid">${favs.map((t) => teamCard(t, { weekend: t.games.some(inWk) })).join("")}</div>` : ""}
-      ${!favs.length && favTeams().length && missingFavs.length < favTeams().length ? '<p class="fine">Your starred teams are hidden by the current filter.</p>' : ""}
+      ${!favs.length && d.teams.some((t) => isFavTeam(t.id)) ? '<p class="fine">Your starred teams are hidden by the current filter.</p>' : ""}
       ${missingFavs.length ? `<p class="fine">${missingFavs.length} starred team${missingFavs.length === 1 ? " is" : "s are"} no longer listed. <button class="btn small" data-cact="favclean">Remove ${missingFavs.length === 1 ? "it" : "them"}</button></p>` : ""}</section>`;
   }
   const wkTeams = shown.filter((t) => !used.has(t.id) && t.games.some(inWk))
@@ -110,7 +131,8 @@ function clubBodyHTML(d) {
     .sort((a, b) => (b.live - a.live) || (a.first - b.first));
   wkTeams.forEach(({ t }) => used.add(t.id));
   h += `<section class="cs"><h2>Playing this weekend <span class="wk">${wkLabel}</span></h2>${wkTeams.length ? `<div class="cgrid">${wkTeams.map(({ t }) => teamCard(t, { weekend: true })).join("")}</div>` : '<p class="muted">No other teams play this weekend.</p>'}</section>`;
-  const rest = shown.filter((t) => !used.has(t.id)).sort((a, b) => teamShortTitle(a).localeCompare(teamShortTitle(b), "en", { numeric: true }));
+  const level = (t) => ({ varsity: 0, jv: 1, "middle school": 2 })[String(teamInfo(t).ageGroup).toLowerCase()] ?? 3;
+  const rest = shown.filter((t) => !used.has(t.id)).sort((a, b) => (level(a) - level(b)) || teamShortTitle(a).localeCompare(teamShortTitle(b), "en", { numeric: true }));
   if (rest.length) h += `<section class="cs"><h2>${favs.length || wkTeams.length ? "Remaining teams" : "Teams"}</h2><div class="cgrid">${rest.map((t) => teamCard(t)).join("")}</div></section>`;
   // Recent results
   const results = []; shown.forEach((t) => t.games.forEach((g) => { if (g.s && g.s.fullDone && inSeason(g)) results.push({ t, g }); }));
@@ -121,8 +143,8 @@ function clubBodyHTML(d) {
   if (!shown.length && d.teams.length) h = `<div class="empty cempty"><p>No teams match${clubQuery() ? ` “${esc(clubQuery())}”` : ""}${clubFilter() !== "all" ? ` in ${esc((divisionCounts(d.teams).find((c) => c.key === clubFilter()) || {}).label || "")}` : ""}.</p><button class="btn small primary-s" data-cact="clearfilters">Clear filters</button></div>`;
   else if (clubFilter() !== "all" || clubQuery()) h = `<p class="fine cshowing">Showing ${shown.length} of ${d.teams.length} teams. <button class="btn small" data-cact="clearfilters">Clear filters</button></p>` + h;
   // Coach tools and club settings, as before
-  if (CLUB.on && S.master) h += `<section class="cs"><h2>Coach tools</h2><button class="btn small primary-s" data-cact="puball" ${UI.pubBusy ? "disabled" : ""}>${UI.pubBusy ? "Loading teams…" : "Load all teams"}</button>${CLUB.msg ? `<p class="fine">${esc(CLUB.msg)}</p>` : '<p class="fine">Adds every team saved on this device to the club page. Teams already here aren’t changed.</p>'}</section>`;
-  if (!CLUB.on || S.master) h += `<section class="cs"><h2>Club settings</h2>${CLUB.edit ? `<div class="card"><label class="fld">Club name<input id="club-name" value="${esc(clubName())}"></label>
+  if (CLUB.on && S.master && !isProgram) h += `<section class="cs"><h2>Coach tools</h2><button class="btn small primary-s" data-cact="puball" ${UI.pubBusy ? "disabled" : ""}>${UI.pubBusy ? "Loading teams…" : "Load all teams"}</button>${CLUB.msg ? `<p class="fine">${esc(CLUB.msg)}</p>` : '<p class="fine">Adds every team saved on this device to the club page. Teams already here aren’t changed.</p>'}</section>`;
+  if ((!CLUB.on || S.master) && !isProgram) h += `<section class="cs"><h2>Club settings</h2>${CLUB.edit ? `<div class="card"><label class="fld">Club name<input id="club-name" value="${esc(clubName())}"></label>
       <div class="fld">Club logo<div class="logorow"><img src="${esc(clubLogo())}" alt=""><label class="btn small filebtn">Upload<input type="file" accept="image/*" id="club-logo" hidden></label></div></div>
       <div class="gacts"><button class="btn small primary-s" data-cact="save">Save</button><button class="btn small" data-cact="cancel">Cancel</button></div></div>` : `<button class="btn small" data-cact="edit">Edit club name and logo</button>`}</section>`;
   h += `<p class="fine cfoot">Tap a team or game to follow it. Star teams to keep them under My teams on this device. ${CLUB.on ? "Scores update every few seconds." : ""}</p>`;
@@ -152,6 +174,9 @@ function teamInfoFieldsHTML(c) {
       <label class="fld">Birth year or range<input data-cfg="team" data-f="birthYear" value="${esc(i.birthYear)}" placeholder="e.g. 2014 or 2014-2015" inputmode="numeric"></label></div>
     <div class="grid2"><label class="fld">Age group<input data-cfg="team" data-f="ageGroup" value="${esc(i.ageGroup)}" placeholder="e.g. U12"></label>
       <label class="fld">Team identifier (optional)<input data-cfg="team" data-f="ident" value="${esc(i.ident)}" placeholder="e.g. White, Red"></label></div>
+    <label class="fld">Club or school program<input data-cfg="team" data-f="program" value="${esc(c.program || "")}" list="prog-list" placeholder="Leave blank for ${esc(clubName())}" autocomplete="off"></label>
+    <datalist id="prog-list">${programsOf(typeof pickerTeams === "function" ? pickerTeams() : []).map((p) => `<option value="${esc(p.name)}">`).join("")}</datalist>
+    <p class="fine" style="margin-top:-4px">Teams in a school program (like Athens City Schools) get their own page, linked from the club page.</p>
     ${pending.length ? `<p class="fine tinfonote">${pending.map((k) => esc(INFO_LABEL[k]) + (sug[k] ? " (suggested from the team name)" : " (not set)")).join(", ")}: not confirmed yet. <button class="btn small" data-act="teaminfoconfirm">Confirm these details</button></p>` : '<p class="fine">Details confirmed.</p>'}</div>`;
 }
 /* Normalize what's typed before the tracker saves it: "2014/15" → "2014-2015", "u12" → "U12". */

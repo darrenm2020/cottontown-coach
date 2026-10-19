@@ -57,6 +57,18 @@ function teamBadgeList(t) {
   return [i.ageGroup, i.division ? divisionLabel(i.division) : "", i.birthYear && i.ageGroup ? "Born " + i.birthYear.replace("-", "–") : "", i.ident].filter(Boolean);
 }
 
+/* ---------- programs ---------- */
+/* Which club or school program a team belongs to (e.g. "Athens City Schools"). Blank means the club itself.
+   Each program gets its own page: ?club=1&program=<key>. */
+const programOf = (t) => String((t && t.program) || "").trim();
+const programKey = (n) => String(n || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+function programsOf(teams) {
+  const m = new Map();
+  teams.forEach((t) => { const p = programOf(t); if (!p) return; const k = programKey(p);
+    if (!m.has(k)) m.set(k, { key: k, name: p, logo: t.logo || null, count: 0 }); const x = m.get(k); x.count++; if (!x.logo && t.logo) x.logo = t.logo; });
+  return [...m.values()].sort((a, b) => a.name.localeCompare(b.name));
+}
+
 /* ---------- games ---------- */
 const kickoffMs = (g) => { if (!g || !g.dt) return NaN; const v = new Date(g.dt).getTime(); return v; };
 /* Where a game belongs: live, final, today (not started yet), upcoming, needs-result (date passed, no result), undated. */
@@ -80,7 +92,7 @@ function nextGameOf(games, stateOf, now) {
 function teamDivisionKey(t) { const d = teamInfo(t).division; return d || "unspecified"; }
 function teamSearchText(t) {
   const i = teamInfo(t);
-  return [t.name, t.short, t.sub, teamShortTitle(t), i.ageGroup, i.birthYear, i.birthYear.replace("-", " "), yearsShort(i.birthYear), i.ident, divisionLabel(i.division), ...(t.coaches || [])].filter(Boolean).join(" ").toLowerCase();
+  return [t.name, t.short, t.sub, programOf(t), teamShortTitle(t), i.ageGroup, i.birthYear, i.birthYear.replace("-", " "), yearsShort(i.birthYear), i.ident, divisionLabel(i.division), ...(t.coaches || [])].filter(Boolean).join(" ").toLowerCase();
 }
 function teamMatches(t, filter, q) {
   if (filter && filter !== "all" && teamDivisionKey(t) !== filter) return false;

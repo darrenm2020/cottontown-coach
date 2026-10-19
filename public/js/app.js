@@ -628,7 +628,7 @@ async function unlock(){
   const el=$('code');const code=el?el.value.trim():'';
   if(!code){say('Enter the coach code first');renderHint();return;}
   try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind:'verify',team:S.team,code})});
-    if(r.ok){const j=await r.json();S.auth[S.team]=code;if(j.master)S.master=code;saveLocal();say('Unlocked. This device can run '+CFG().name+' games.');
+    if(r.ok){const j=await r.json();S.auth[S.team]=code;if(j.master)S.master=code;if(S.tab==='setup')S.tab='bench';saveLocal();say('Unlocked. This device can run '+CFG().name+' games.');
       resetSync();try{const s=await getState(S.team);applyServer(s);}catch(e){SY.first=false;}}
     else if(r.status===401)say('That code didn’t work');else say('Couldn’t check the code. Try again.');
   }catch(e){say('Couldn’t reach the server. Try again.');}
@@ -650,7 +650,7 @@ function slug(s){return (s||'team').toLowerCase().replace(/[^a-z0-9]+/g,'-').rep
 const PUB_VER='2026-10-18e';
 /* APP_VER changes with every deploy that coach devices should pick up. When the published page's APP_VER
    differs from the running one, a coach device reloads itself if no clock is running, or shows a Refresh button. */
-const APP_VER='2026-10-19a';
+const APP_VER='2026-10-19b';
 const VER={tag:null,ready:false};
 async function checkVersion(){
   if(!SY.on||!canEdit()||document.visibilityState!=='visible')return;
@@ -1041,6 +1041,7 @@ function act(a,ds){
   renderAll();
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&UI.sheet){UI.sheet=null;renderSheet();}});
+document.addEventListener('submit',e=>{if(e.target&&e.target.dataset&&e.target.dataset.form==='unlock'){e.preventDefault();unlock();}});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b||b.disabled)return;act(b.dataset.act,b.dataset);});
 document.addEventListener('input',e=>{if(e.target&&e.target.id==='nt-name')UI.ntName=e.target.value;});
 document.addEventListener('change',e=>{
@@ -1241,9 +1242,10 @@ function renderHint(){
 function renderTabs(){
   if(CFG()&&!isParent()&&S.tab==='plan'&&!usePlan())S.tab='bench';
   const g=G();const d=replay(g);const benchN=PLAYERS.filter(p=>av(g,p.id)&&!d.on.has(p.id)).length;
-  if(isParent()&&!['bench','stats','players','log'].includes(S.tab))S.tab='bench';
-  const tabs=isParent()?[['bench','Bench',g.started?benchN:''],['stats','Stats',''],['players','Team',''],['log','Goals',g.goals.length||'']]
-    :[['bench','Bench',benchN],...(usePlan()?[['plan','Plan','']]:[]),['players','Players',''],['log','Log',d.batches.length||''],['stats','Stats',''],['minutes','Minutes',''],['season','Season',''],['practice','Practice',''],['setup','Setup','']];
+  if(isParent()&&!['bench','stats','players','log','setup'].includes(S.tab))S.tab='bench';
+  // Game-day order: who's here, the plan, the game itself, what happened, then season and team tools.
+  const tabs=isParent()?[['bench','Bench',g.started?benchN:''],['log','Goals',g.goals.length||''],['stats','Stats',''],['players','Team',''],['setup','Setup','']]
+    :[['players','Players',''],...(usePlan()?[['plan','Plan','']]:[]),['bench','Bench',benchN],['log','Log',d.batches.length||''],['stats','Stats',''],['minutes','Minutes',''],['season','Season',''],['practice','Practice',''],['setup','Setup','']];
   $('tabs').innerHTML=tabs.map(([t,l,c])=>`<button class="tab" role="tab" data-act="tab" data-t="${t}" aria-selected="${S.tab===t}">${l}${c!==''?`<span class="ct">${c}</span>`:''}</button>`).join('');
 }
 function upNext(g,d,id){
@@ -1420,6 +1422,12 @@ function renderMinutes(){
   h+=keeperHTML(keeperStats(games.map((x,i)=>({g:x.g,rep:reps[i]}))),'Keepers, all games');
   return h;
 }
+/* Setup for a device that's following along: the coach code sits at the top, clear of anything pinned to the bottom of the screen. */
+function renderCoachUnlock(){
+  return `<div class="card unlockcard"><h3>Coach code</h3><p class="fine" style="margin-top:-4px">Enter the coach code to run ${esc(CFG().name)} games from this device.</p>
+    <form class="codebox" data-form="unlock"><input id="code" type="password" autocomplete="current-password" enterkeyhint="go" placeholder="Coach code" aria-label="Coach code"><button class="btn small primary-s" type="submit">Unlock</button></form>
+    ${authTeamHTML()}</div>`;
+}
 function renderSetup(){
   const c=CFG();let h='';
   if(SY.on&&!isHead())return `<div class="notice">You’re signed in as ${esc(ROLE_NAME[myRole()]||'a coach')} for this team. Only a head coach can change the roster, schedule and team settings.</div>`+authSetupHTML();
@@ -1489,8 +1497,7 @@ function renderTeam(d){
     const r=st.fullDone?(sc.us>sc.them?'W':sc.us<sc.them?'L':(st.pk?(pkScore(st).us>pkScore(st).them?'W':'L'):'D')):'';
     return `<div class="sched">${logoImg(oppLogoOf(x),'cls')}<div class="sgrow"><b>${x.opp?esc(x.opp):esc(x.title)}</b><div class="fine">${esc(whenText(x))}${x.field?', '+esc(x.field):''}</div></div><div class="sres">${r?`<span class="res r${r}">${r}</span> `:''}${st.started?`${st.fullDone?'':'Live '}${sc.us}–${sc.them}`:x.place?`<a class="maplink" href="${mapUrl(x.place)}" target="_blank" rel="noopener">Map</a>`:''}</div></div>`;}).join('');
   h+=`<h3>Club</h3><a class="maplink" href="${clubLink()}">See every team’s scores</a>`;
-  h+=`<h3>Coaches</h3><p class="fine" style="margin-top:-4px">Enter the coach code to run the game from this device.</p><div class="codebox"><input id="code" type="password" autocomplete="off" placeholder="Coach code" aria-label="Coach code"><button class="btn small" data-act="unlock">Unlock</button></div>`;
-  h+=authTeamHTML();
+  h+=`<p class="fine">Coaches: enter your code on the Setup tab.</p>`;
   return h;
 }
 function teamStatsHTML(g){const t=teamShots(g);
@@ -1518,7 +1525,7 @@ function renderGoals(d){
 }
 function renderPanel(){
   renderTabs();const d=replay(G());const b=$('tbody');
-  if(isParent())b.innerHTML=S.tab==='stats'?renderParentStats(d):S.tab==='players'?renderTeam(d):S.tab==='log'?renderGoals(d):renderParentBench(d);
+  if(isParent())b.innerHTML=S.tab==='setup'?renderCoachUnlock():S.tab==='stats'?renderParentStats(d):S.tab==='players'?renderTeam(d):S.tab==='log'?renderGoals(d):renderParentBench(d);
   else b.innerHTML=S.tab==='plan'&&usePlan()?renderPlan(d):S.tab==='players'?renderPlayers(d):S.tab==='log'?renderLog(d):S.tab==='stats'?renderStats(d):S.tab==='minutes'?renderMinutes():S.tab==='season'?renderSeason():S.tab==='practice'?renderPractice():S.tab==='setup'?renderSetup():renderBench(d);
   if(UI.focus){const el=$(UI.focus);UI.focus=null;if(el){el.focus();try{el.select();}catch(e){}}}
 }
@@ -1596,7 +1603,8 @@ function tick(){
 
 /* ---------- Club page ---------- */
 const CLUB={data:null,on:false,ok:false,edit:false};
-const clubLink=()=>location.pathname+'?club=1';
+// A school program's teams link back to their own program page.
+const clubLink=()=>{const c=CFG();const p=c&&c.program?programKey(c.program):'';return location.pathname+'?club=1'+(p?'&program='+encodeURIComponent(p):'');};
 const teamLink=id=>location.pathname+'?team='+encodeURIComponent(id);
 const gameLink=(id,gid)=>teamLink(id)+'&game='+encodeURIComponent(gid);
 function summarizeGame(g,pname){

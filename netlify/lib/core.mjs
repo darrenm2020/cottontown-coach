@@ -636,6 +636,7 @@ export function teamInfoOf(c) {
   const out = {};
   for (const k of ["division", "birthYear", "ageGroup", "ident"]) if (typeof c[k] === "string") out[k] = clip(c[k], 40);
   if (out.division !== undefined && !["girls", "boys", "coed", ""].includes(out.division)) out.division = "";
+  if (typeof c.program === "string" && c.program.trim()) out.program = clip(c.program.trim(), 60);
   return out;
 }
 

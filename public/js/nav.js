@@ -48,7 +48,7 @@ function gamePickHTML(){
 function pickerTeams(){
   const m=new Map();
   (UI.teamList||[]).forEach(t=>m.set(t.id,Object.assign({},t)));
-  Object.keys(S.T).forEach(id=>{const c=S.T[id].cfg;if(!c)return;const t=Object.assign({id},m.get(id)||{},{name:c.name,short:c.short||'',sub:c.sub||''});INFO_FIELDS.forEach(k=>{if(typeof c[k]==='string')t[k]=c[k];});m.set(id,t);});
+  Object.keys(S.T).forEach(id=>{const c=S.T[id].cfg;if(!c)return;const t=Object.assign({id},m.get(id)||{},{name:c.name,short:c.short||'',sub:c.sub||''});INFO_FIELDS.forEach(k=>{if(typeof c[k]==='string')t[k]=c[k];});t.program=c.program||'';m.set(id,t);});
   return [...m.values()];
 }
 function teamPickListHTML(){
@@ -56,7 +56,7 @@ function teamPickListHTML(){
   const mine=t=>isAdmin()||!!myRole(t.id)||(t.id===S.team&&!!myCode())||!!S.auth[t.id];
   const favs=list.filter(t=>isFavTeam(t.id)),rest=list.filter(t=>!isFavTeam(t.id));
   const yours=rest.filter(mine),others=rest.filter(t=>!mine(t));
-  const row=t=>`<div class="grow trow ${t.id===S.team?'cur':''}"><button class="trbtn" data-act="navteam" data-id="${esc(t.id)}"><span class="grt"><b>${esc(teamShortTitle(t))}</b><small>${teamBadgeList(t).map(esc).join(' · ')}${teamBadgeList(t).length?' · ':''}${t.id===S.team?'Open now':myRole(t.id)?ROLE_NAME[myRole(t.id)]:isAdmin()?'Admin':'View only'}</small></span></button>${starHTML(t,'act')}</div>`;
+  const row=t=>`<div class="grow trow ${t.id===S.team?'cur':''}"><button class="trbtn" data-act="navteam" data-id="${esc(t.id)}"><span class="grt"><b>${esc(teamShortTitle(t))}</b><small>${programOf(t)?esc(programOf(t))+' · ':''}${teamBadgeList(t).map(esc).join(' · ')}${teamBadgeList(t).length?' · ':''}${t.id===S.team?'Open now':myRole(t.id)?ROLE_NAME[myRole(t.id)]:isAdmin()?'Admin':'View only'}</small></span></button>${starHTML(t,'act')}</div>`;
   if(!list.length)return `<div class="empty"><p>No teams match.</p><button class="btn small primary-s" data-act="navclear">Clear filters</button></div>`;
   return (favs.length?`<h4>My teams</h4>${favs.map(row).join('')}`:'')
     +(yours.length&&(others.length||favs.length)?'<h4>Your teams</h4>':'')+yours.map(row).join('')

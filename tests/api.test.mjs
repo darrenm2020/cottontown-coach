@@ -209,6 +209,10 @@ test("club and team list carry team info and coach names, never coach emails", a
   // An invalid division from an old client is treated as unspecified.
   await a.post({ kind: "config", team: "t1", config: { ...team, division: "mixed" }, code: "main-1234" });
   assert.equal((await a.get("?list=1")).body.teams.find((t) => t.id === "t1").division, "");
+  // A school program travels with the team so it can have its own page.
+  await a.post({ kind: "config", team: "t1", config: { ...team, program: "  Athens City Schools " }, code: "main-1234" });
+  assert.equal((await a.get("?club=1")).body.teams.find((t) => t.id === "t1").program, "Athens City Schools");
+  assert.equal((await a.get("?list=1")).body.teams.find((t) => t.id === "t1").program, "Athens City Schools");
 });
 
 test("stats helpers can only add goals and stats", async () => {

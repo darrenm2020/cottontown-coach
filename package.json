@@ -6,6 +6,7 @@
     "local": "node scripts/dev-server.mjs",
     "dev": "npx netlify-cli dev --offline --port 8888",
     "seed": "node scripts/seed-dev.mjs",
+    "add-teams": "node scripts/add-teams.mjs",
     "test": "node --test tests/*.test.mjs",
     "check": "node scripts/check.mjs"
   },

@@ -166,3 +166,14 @@ details.signin summary{cursor:pointer;color:var(--crimson);font-weight:600}
 .tinfo select{min-height:40px;border:1.5px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font:inherit;width:100%}
 .tinfonote{color:#7a3d00}
 @media (max-width:520px){.cfbtn{flex:1 1 auto;padding:8px 12px}.tcard h3{font-size:22px}}
+
+/* Leave room at the bottom so the last controls can scroll clear of anything the host pins there (like Netlify's badge on iPhone). */
+.main{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
+.unlockcard .codebox input{font-size:16px}
+
+/* Club and school program pages */
+.cprogs{display:flex;gap:8px;overflow-x:auto;padding:10px 16px 2px;scrollbar-width:none}
+.cprogs:empty{display:none}
+.cprog{flex:0 0 auto;padding:9px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);text-decoration:none;font-weight:600;font-size:14px;min-height:40px;display:inline-flex;align-items:center}
+.cprog.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.cprog:focus-visible{outline:3px solid var(--crimson);outline-offset:2px}

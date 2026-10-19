@@ -189,6 +189,31 @@ test("home page: order, one card per team, next game details, filters across sec
   assert.ok(h.includes("No teams match") && h.includes('data-cact="clearfilters"'));
 });
 
+test("school programs get their own page; the club page keeps its own teams", () => {
+  const { run } = loadApp();
+  const now = new Date(2026, 9, 21, 12, 0).getTime();
+  const d = clubData(now);
+  d.teams.push({ id: "ahs-girls", name: "Athens High School Girls Varsity", program: "Athens City Schools", division: "girls", ageGroup: "Varsity", logo: "data:image/png;base64,AA", games: [] },
+    { id: "llca-boys", name: "Lindsay Lane Boys Varsity", program: "Lindsay Lane Christian Academy", division: "boys", ageGroup: "Varsity", games: [] });
+  run(`S={v:2,team:'cottontown',cur:{},T:{},auth:{},favTeams:['ahs-girls'],clubFilter:'all',clubQ:''};OFF=${now}-Date.now();globalThis.D=${JSON.stringify(d)};`);
+  const ids = () => JSON.parse(run("JSON.stringify(programTeams(D).map(t=>t.id))"));
+  assert.ok(!ids().includes("ahs-girls") && !ids().includes("llca-boys") && ids().includes("white"), "the club page shows only the club's teams");
+  let nav = run("programNavHTML(D)");
+  assert.ok(nav.includes(">Athens City Schools<") && nav.includes("program=lindsay-lane-christian-academy") && /aria-current="page">Cottontown United/.test(nav));
+  // A starred school team isn't reported as missing on the club page.
+  assert.ok(!run("clubBodyHTML(Object.assign({},D,{teams:programTeams(D),allTeams:D.teams}))").includes("no longer listed"));
+  run("location.search='?club=1&program=athens-city-schools'");
+  assert.deepEqual(ids(), ["ahs-girls"]);
+  assert.equal(run("pageName(D)"), "Athens City Schools");
+  assert.equal(run("pageLogo(D)"), "data:image/png;base64,AA", "the school's logo heads its page");
+  assert.equal(run("teamShortTitle(D.teams.find(t=>t.id==='ahs-girls'))"), "Varsity Girls");
+  run("location.search='?club=1&program=nope'");
+  assert.equal(run("pageName(D)"), "Cottontown United", "an unknown program falls back to the club page");
+  // A school team's links go back to its own page.
+  run("S.T['ahs-girls']={cfg:{id:'ahs-girls',name:'x',program:'Athens City Schools',players:[],games:[]},games:{}};S.team='ahs-girls'");
+  assert.equal(run("clubLink()"), "/?club=1&program=athens-city-schools");
+});
+
 test("favorites are per device and never grant editing", () => {
   const { run } = loadApp();
   run("S={v:2,team:'cottontown',cur:{},T:{},auth:{},favTeams:[]};SY.on=true;");
