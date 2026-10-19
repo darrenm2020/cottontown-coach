@@ -194,6 +194,23 @@ test("review fixes: locked games keep half, availability and goals; main session
   assert.equal((await rotated.get("?me=1", { "x-session": s })).body.user, null);
 });
 
+test("club and team list carry team info and coach names, never coach emails", async () => {
+  const { a } = await setup();
+  await a.post({ kind: "config", team: "t1", config: { ...team, division: "girls", birthYear: "2013-2014", ageGroup: "U14", ident: "", bogus: "x" }, code: "main-1234" });
+  await a.post({ kind: "user-save", user: { name: "Randy Wells", email: "randy@example.com", roles: { t1: "head" } }, code: "main-1234" });
+  const club = await a.get("?club=1");
+  const t1 = club.body.teams.find((t) => t.id === "t1");
+  assert.deepEqual([t1.division, t1.birthYear, t1.ageGroup, t1.ident], ["girls", "2013-2014", "U14", ""]);
+  assert.deepEqual(t1.coaches, ["Randy Wells"]);
+  assert.ok(!JSON.stringify(club.body).includes("randy@example.com"), "no emails on the public club page");
+  const list = (await a.get("?list=1")).body.teams.find((t) => t.id === "t1");
+  assert.equal(list.ageGroup, "U14");
+  assert.equal(list.coaches, undefined);
+  // An invalid division from an old client is treated as unspecified.
+  await a.post({ kind: "config", team: "t1", config: { ...team, division: "mixed" }, code: "main-1234" });
+  assert.equal((await a.get("?list=1")).body.teams.find((t) => t.id === "t1").division, "");
+});
+
 test("stats helpers can only add goals and stats", async () => {
   const { a } = await setup();
   const r = await a.post({ kind: "user-save", user: { name: "Parent Helper", roles: { t1: "stats" } }, code: "main-1234" });

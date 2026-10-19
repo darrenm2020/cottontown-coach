@@ -335,7 +335,11 @@ function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}
 /* ---------- Accessors ---------- */
 const TS=()=>S.T[S.team];
 const CFG=()=>TS()&&TS().cfg;
-function curIdx(){const n=CFG().games.length;if(S.cur[S.team]===undefined){const ts=TS();const k=CFG().games.findIndex(gc=>!gc.imported&&!(ts.games[gc.id]&&ts.games[gc.id].fullDone));S.cur[S.team]=k<0?0:k;}let i=S.cur[S.team]||0;if(i>=n)i=n-1;if(i<0)i=0;return i;}
+/* The game to open first: a live one, else today's, else the next upcoming, else the most recent past game. */
+function defaultGameIdx(){const ts=TS(),now=T();const L=CFG().games.map((gc,i)=>({i,b:gameBucket(gc,ts.games[gc.id],now),t:kickoffMs(gc)}));
+  const pick=(b,dir)=>L.filter(x=>x.b===b).sort((a,c)=>dir*((Number.isFinite(a.t)?a.t:0)-(Number.isFinite(c.t)?c.t:0)))[0];
+  const x=pick('live',1)||pick('today',1)||pick('upcoming',1)||pick('needs-result',-1)||pick('final',-1);return x?x.i:0;}
+function curIdx(){const n=CFG().games.length;if(S.cur[S.team]===undefined){S.cur[S.team]=defaultGameIdx();}let i=S.cur[S.team]||0;if(i>=n)i=n-1;if(i<0)i=0;return i;}
 const GC=()=>CFG().games[curIdx()];
 function stateOf(gc){const ts=TS();if(!ts.games[gc.id])ts.games[gc.id]=freshGame(gc);return ts.games[gc.id];}
 const G=()=>stateOf(GC());
@@ -508,8 +512,10 @@ function countdown(gc){if(!gc.dt)return '';const d=new Date(gc.dt);if(isNaN(d))r
 const mapUrl=q=>'https://maps.apple.com/?q='+encodeURIComponent(q);
 
 /* ---------- Sync ---------- */
-const SY={on:false,ok:false,first:true,team:null,lastSent:{},rev:{},inflight:{},editT:{},savedAt:0,localAt:0,lock:{}};
-function resetSync(){SY.first=true;SY.team=S.team;SY.lastSent={};SY.rev={};SY.inflight={};SY.editT={};
+const SY={on:false,ok:false,first:true,team:null,sid:0,lastSent:{},rev:{},inflight:{},editT:{},savedAt:0,localAt:0,lock:{}};
+/* Each team switch (or sign-in) starts a new sync session with its own records. A save that finishes after
+   the switch only updates the session that sent it, never the new team's. */
+function resetSync(){SY.sid++;SY.first=true;SY.team=S.team;SY.lastSent={};SY.rev={};SY.inflight={};SY.editT={};SY.cfgDenied=undefined;
   // Lock state is per team (game ids like g1 repeat across teams), so it starts over with each team.
   SY.lock={};UI.unlock={};UI.revert={};}
 const myCode=()=>S.auth[S.team]||'';
@@ -536,18 +542,25 @@ function save(){
 async function push(key){
   const team=S.team;const ts=TS();const obj=key==='cfg'?ts.cfg:ts.games[key];if(!obj)return;
   const body=key==='cfg'?Object.assign({kind:'config',team,config:obj},creds()):Object.assign({kind:'game',team,gid:key,game:obj,unlock:!!UI.unlock[key]},creds());
-  SY.lastSent[key]=JSON.stringify(obj);SY.inflight[key]=(SY.inflight[key]||0)+1;let rerender=false;
+  // This save's own session: its records stay with it even if the coach switches teams before it finishes.
+  const ses={sid:SY.sid,lastSent:SY.lastSent,rev:SY.rev,inflight:SY.inflight,editT:SY.editT};
+  const current=()=>ses.sid===SY.sid&&SY.team===team&&S.team===team;
+  const sent=JSON.stringify(obj);
+  ses.lastSent[key]=sent;ses.inflight[key]=(ses.inflight[key]||0)+1;let rerender=false;
   try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    if(r.status===401){delete S.auth[team];if(S.sess&&!myRole()){S.sess='';ME.user=null;}saveLocal();say('Your sign-in or coach code wasn’t accepted. This device is now view only.');rerender=true;}
+    if(r.status===401){delete S.auth[team];if(current()){if(S.sess&&!myRole()){S.sess='';ME.user=null;}say('Your sign-in or coach code wasn’t accepted. This device is now view only.');rerender=true;}saveLocal();}
     else if(r.status===403||r.status===409){
       // Not allowed (role) or locked (finished game): put the server's copy back instead of retrying.
-      const j=await r.json().catch(()=>({}));SY.rev[key]=0;if(key!=='cfg')UI.revert[key]=true;
-      if(key==='cfg'){const again=SY.cfgDenied===SY.lastSent.cfg;SY.cfgDenied=SY.lastSent.cfg;if(again){SY.inflight[key]--;return;}}
-      say(r.status===409?'This game is final and locked. Unlock it on the Players tab to change the result.':(j.error||'You can’t change that.'));rerender=true;}
-    else if(r.ok){const j=await r.json();if(SY.team===team&&j.rev>(SY.rev[key]||0))SY.rev[key]=j.rev;SY.ok=true;SY.savedAt=Date.now();setTimeout(renderSync,3100);}
-    else{SY.ok=false;SY.lastSent[key]='';}
-  }catch(e){SY.ok=false;SY.lastSent[key]='';}
-  SY.inflight[key]--;SY.editT[key]=Date.now();
+      const j=await r.json().catch(()=>({}));ses.rev[key]=0;
+      if(current()){
+        if(key!=='cfg')UI.revert[key]=true;
+        if(key==='cfg'){const again=SY.cfgDenied===sent;SY.cfgDenied=sent;if(again){ses.inflight[key]--;return;}}
+        say(r.status===409?'This game is final and locked. Unlock it on the Players tab to change the result.':(j.error||'You can’t change that.'));rerender=true;}}
+    else if(r.ok){const j=await r.json();if(j.rev>(ses.rev[key]||0))ses.rev[key]=j.rev;if(current()){SY.ok=true;SY.savedAt=Date.now();setTimeout(renderSync,3100);}}
+    else{ses.lastSent[key]='';if(current())SY.ok=false;}
+  }catch(e){ses.lastSent[key]='';if(current())SY.ok=false;}
+  ses.inflight[key]--;ses.editT[key]=Date.now();
+  if(!current())return;
   if(rerender)renderAll();else renderSync();
 }
 /* ?game=ID from the club page opens that game once the team has loaded. */
@@ -1414,6 +1427,7 @@ function renderSetup(){
   h+=`<div class="card"><h3>Team</h3>
     <label class="fld">Team name<input data-cfg="team" data-f="name" value="${esc(c.name)}"></label>
     <div class="grid2"><label class="fld">Short name for the scoreboard<input data-cfg="team" data-f="short" value="${esc(c.short||'')}"></label><label class="fld">Subtitle<input data-cfg="team" data-f="sub" value="${esc(c.sub||'')}" placeholder="e.g. Girls 2014/15"></label></div>
+    ${teamInfoFieldsHTML(c)}
     <div class="fld">Logo<div class="logorow">${c.logo?`<img src="${esc(c.logo)}" alt="">`:'<span class="muted">No logo yet</span>'}<label class="btn small filebtn">Upload<input type="file" accept="image/*" data-cfg="logo" hidden></label>${c.logo?'<button class="btn small" data-act="logodel">Remove</button>':''}</div></div>
     <div class="set"><span>Rotation plan<small class="fine" style="display:block">Plan who plays when, block by block. Adds a Plan tab and planned subs. When off, sub alerts still sound and you tap bench players to line up who goes in.</small></span><button class="tog ${c.usePlan?'on':''}" data-act="cfgplan" aria-pressed="${!!c.usePlan}">${c.usePlan?'On':'Off'}</button></div>
     <div class="set"><span>Goal song (the Cottontown chant)</span><button class="tog ${c.song?'on':''}" data-act="cfgsong" aria-pressed="${!!c.song}">${c.song?'On':'Off'}</button></div></div>`;
@@ -1467,8 +1481,11 @@ function renderTeam(d){
   PLAYERS.filter(p=>av(g,p.id)).forEach(p=>{const pos=POS.find(x=>d.L[x]===p.id);
     h+=`<div class="prow pteam"><div class="pn"><b>${esc(p.name)}</b>${jn(p)} ${p.guest?'<span class="tag">Guest</span>':''}${goalTag(g,p.id)}</div><div class="pst">${!g.started?'Here':pos?'On the field ('+pos+')':'Bench'}</div></div>`;});
   const tsd=x=>{const v=new Date(x.dt).getTime();return isNaN(v)?Infinity:v;};
-  const up=CFG().games.filter(x=>!stateOf(x).fullDone).sort((a,b)=>tsd(a)-tsd(b)),done=CFG().games.filter(x=>stateOf(x).fullDone).sort((a,b)=>tsd(b)-tsd(a));
-  h+=`<h3>Schedule</h3>`+(up.length?'':'<p class="muted">No games scheduled.</p>')+up.concat([null]).concat(done).map(x=>{if(!x)return done.length?'<h3>Results</h3>':'';const st=stateOf(x);const sc=scoreOf(st);
+  // Schedule shows live, today's and future games only; past games without a result and undated games are listed apart.
+  const nowT=T(),bk=x=>gameBucket(x,TS().games[x.id],nowT);
+  const up=CFG().games.filter(x=>['live','today','upcoming'].includes(bk(x))).sort((a,b)=>tsd(a)-tsd(b)),done=CFG().games.filter(x=>stateOf(x).fullDone).sort((a,b)=>tsd(b)-tsd(a));
+  const needs=CFG().games.filter(x=>bk(x)==='needs-result').sort((a,b)=>tsd(b)-tsd(a)),undated=CFG().games.filter(x=>bk(x)==='undated');
+  h+=`<h3>Schedule</h3>`+(up.length?'':'<p class="muted">No upcoming games scheduled.</p>')+up.concat(undated.length?['undated']:[],undated,needs.length?['needs']:[],needs,[null]).concat(done).map(x=>{if(x==='undated')return '<h3>Date not set</h3>';if(x==='needs')return '<h3>Needs result</h3>';if(!x)return done.length?'<h3>Results</h3>':'';const st=stateOf(x);const sc=scoreOf(st);
     const r=st.fullDone?(sc.us>sc.them?'W':sc.us<sc.them?'L':(st.pk?(pkScore(st).us>pkScore(st).them?'W':'L'):'D')):'';
     return `<div class="sched">${logoImg(oppLogoOf(x),'cls')}<div class="sgrow"><b>${x.opp?esc(x.opp):esc(x.title)}</b><div class="fine">${esc(whenText(x))}${x.field?', '+esc(x.field):''}</div></div><div class="sres">${r?`<span class="res r${r}">${r}</span> `:''}${st.started?`${st.fullDone?'':'Live '}${sc.us}–${sc.them}`:x.place?`<a class="maplink" href="${mapUrl(x.place)}" target="_blank" rel="noopener">Map</a>`:''}</div></div>`;}).join('');
   h+=`<h3>Club</h3><a class="maplink" href="${clubLink()}">See every team’s scores</a>`;

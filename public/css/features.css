@@ -124,3 +124,45 @@ details.signin summary{cursor:pointer;color:var(--crimson);font-weight:600}
    and the name is the team switcher, so show it (shortened if long). */
 @media (min-width:900px){.top .brand>div{display:block;min-width:0}.top .brand{max-width:42vw}}
 .top .brand .t1,.top .brand .t2{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---------- Club home page: filters, search, team cards, favorites ---------- */
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.clubctl{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-direction:column;gap:10px}
+.cfilters{display:flex;flex-wrap:wrap;gap:8px}
+.cfbtn{min-height:46px;padding:8px 18px;border-radius:24px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font:700 18px "Barlow Condensed",sans-serif;cursor:pointer}
+.cfbtn .cfn{display:inline-block;min-width:22px;margin-left:4px;padding:1px 7px;border-radius:12px;background:var(--surface-2);font:600 13px "Barlow",sans-serif;color:var(--muted)}
+.cfbtn[aria-pressed="true"]{background:var(--crimson);border-color:var(--crimson);color:#fff}
+.cfbtn[aria-pressed="true"]::before{content:"✓ "}
+.cfbtn[aria-pressed="true"] .cfn{background:rgba(255,255,255,.25);color:#fff}
+.cfbtn:focus-visible,.starbtn:focus-visible,.trbtn:focus-visible{outline:3px solid #ffd166;outline-offset:2px}
+.csearch input{width:100%;box-sizing:border-box;min-height:46px;border:2px solid var(--line);border-radius:12px;padding:8px 14px;font:inherit;font-size:16px;background:var(--surface);color:var(--ink)}
+.csearch input:focus{border-color:var(--crimson);outline:none}
+.cshowing{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.cempty{padding:30px 16px}
+.tcard .ct{align-items:flex-start}
+.tcard .ctt{flex:1;min-width:0}
+.tcard h3{margin:0;font:700 24px/1.1 "Barlow Condensed",sans-serif;color:var(--ink)}
+.tcard a.cta{color:inherit;text-decoration:none}
+.tbadges{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0}
+.tbadge{display:inline-block;padding:2px 8px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface-2);color:var(--ink);font:600 12.5px "Barlow",sans-serif}
+.tbadge.warnb{border-color:#e0a800;background:#fff7e0;color:#7a3d00}
+.starbtn{flex:0 0 auto;width:44px;height:44px;border-radius:50%;border:2px solid var(--line);background:var(--surface);color:var(--muted);font-size:22px;line-height:1;cursor:pointer}
+.starbtn.on{border-color:#e0a800;color:#b07d00;background:#fff7e0}
+.cnext{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:center;margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--surface-2)}
+.cnl{font:700 12px "Barlow",sans-serif;text-transform:uppercase;letter-spacing:.05em;color:var(--crimson)}
+.cnext b{font:700 18px "Barlow Condensed",sans-serif}
+.cnacts{grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap}
+.cneeds{color:#7a3d00}
+.cnone{margin:8px 0 0}
+/* Team switcher rows: a pick button plus a star */
+.trow{display:flex;gap:6px;padding:4px 6px}
+.trbtn{flex:1;min-width:0;display:flex;text-align:left;border:0;background:none;color:inherit;font:inherit;padding:4px;cursor:pointer}
+.navp .cfilters{margin:6px 0}
+.navp .csearch{margin-bottom:6px}
+.navp .starbtn{width:40px;height:40px;font-size:19px}
+/* Setup: team details */
+.tinfo{margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--surface-2)}
+.tinfo h4{margin:0 0 4px;font:700 17px "Barlow Condensed",sans-serif}
+.tinfo select{min-height:40px;border:1.5px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font:inherit;width:100%}
+.tinfonote{color:#7a3d00}
+@media (max-width:520px){.cfbtn{flex:1 1 auto;padding:8px 12px}.tcard h3{font-size:22px}}

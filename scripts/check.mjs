@@ -48,7 +48,7 @@ console.log(`drills: ${drills.length} (${Object.entries(byTopic).map(([k, v]) =>
 for (const f of ["7v7", "9v9", "11v11"]) console.log(`  ${f}: ${drills.filter((d) => d.ages.includes(f)).length}`);
 
 // --- browser scripts: parse each, then all of them together in load order ---
-const order = ["app.js", "auth.js", "drills.js", "practice.js", "season.js", "nav.js", "admin.js", "main.js"];
+const order = ["teaminfo.js", "app.js", "auth.js", "drills.js", "practice.js", "season.js", "nav.js", "admin.js", "home.js", "main.js"];
 const html = readFileSync(join(root, "public/index.html"), "utf8");
 for (const f of order) if (!html.includes(`js/${f}`)) problems.push(`index.html doesn't load js/${f}`);
 for (const f of order) {

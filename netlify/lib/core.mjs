@@ -565,6 +565,9 @@ export async function handle(req, { store, env }) {
   }
 
   if (q.get("club")) {
+    // Coach display names (never emails) so the club page can search by coach.
+    const coachNames = {};
+    Object.values(await loadUsers(store)).forEach((u) => { if (u.disabled) return; Object.keys(u.roles || {}).forEach((t) => (coachNames[t] = coachNames[t] || []).push(clip(u.name, 60))); });
     const idx = (await store.get("teams", { type: "json" })) || [];
     if (!idx.some((t) => t.id === "cottontown")) idx.unshift({ id: "cottontown", name: "Cottontown United" });
     const club = await store.get("club", { type: "json" });
@@ -582,7 +585,7 @@ export async function handle(req, { store, env }) {
               half: g.half || 30, s: v && v.game ? summarize(v.game, pname) : null };
           })
         );
-        return { id: t.id, name: c.name || t.name, short: c.short || "", sub: c.sub || "", logo: c.logo || null, format: c.format || "", placing: c.placing || null, games };
+        return { id: t.id, name: c.name || t.name, short: c.short || "", sub: c.sub || "", logo: c.logo || null, format: c.format || "", placing: c.placing || null, ...teamInfoOf(c), coaches: coachNames[t.id] || [], games };
       })
     );
     return json({ now, club: club ? { name: club.name, logo: club.logo } : null, teams });
@@ -590,7 +593,13 @@ export async function handle(req, { store, env }) {
   if (q.get("list")) {
     const idx = (await store.get("teams", { type: "json" })) || [];
     if (!idx.some((t) => t.id === "cottontown")) idx.unshift({ id: "cottontown", name: "Cottontown United" });
-    return json({ now, teams: idx });
+    // Each team's short name and info, for the team switcher's titles, badges and filters.
+    const teams = await Promise.all(idx.slice(0, 60).map(async (t) => {
+      const cfg = await store.get("team-" + t.id, { type: "json" });
+      const c = cfg && cfg.team;
+      return c ? { id: t.id, name: c.name || t.name, short: c.short || "", sub: c.sub || "", ...teamInfoOf(c) } : t;
+    }));
+    return json({ now, teams });
   }
 
   const team = q.get("team") || "cottontown";
@@ -619,6 +628,15 @@ export async function handle(req, { store, env }) {
 function sameRoster(a, b) {
   const strip = (c) => ({ ...c, fixes: undefined, games: (c.games || []).map(({ plan, out, ...g }) => g) });
   return same(strip(a), strip(b));
+}
+
+// Structured team info saved by coaches. A field is only included once a coach has set it (blank counts as set),
+// so the page can tell a confirmed "Unspecified" from one that still needs confirming.
+export function teamInfoOf(c) {
+  const out = {};
+  for (const k of ["division", "birthYear", "ageGroup", "ident"]) if (typeof c[k] === "string") out[k] = clip(c[k], 40);
+  if (out.division !== undefined && !["girls", "boys", "coed", ""].includes(out.division)) out.division = "";
+  return out;
 }
 
 export function summarize(g, pname) {

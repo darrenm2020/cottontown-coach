@@ -22,7 +22,7 @@ function posMinutes(g){
 }
 function seasonData(){
   const games=seasonGames();const rows={};
-  PLAYERS.forEach(p=>rows[p.id]={p,gp:0,starts:0,min:0,pos:{},g:0,a:0,sv:0,pos_stats:{},par:0,games:[]});
+  PLAYERS.forEach(p=>rows[p.id]={p,gp:0,starts:0,min:0,pos:{},g:0,a:0,sv:0,pos_stats:{},par:0,games:[],availG:0,outG:0,unknownG:0});
   let teamMin=0,counted=0;
   for(const {gc,g} of games){
     const tracked=!!(g.events&&(g.events.length||Object.keys(g.start||{}).length))&&!g.imported;
@@ -37,6 +37,9 @@ function seasonData(){
       const gl=g.goals.filter(x=>x.side==='us'&&x.by===id).length,as=g.goals.filter(x=>x.side==='us'&&x.ast===id).length;
       if(m>0||gl||as){r.gp++;r.games.push({gc,res,score:sc.us+'–'+sc.them,min:m,g:gl,a:as});}
       if(tracked&&startIds.has(id))r.starts++;
+      // Availability in tracked games: marked available, or played at all, counts; marked out (and didn't play) doesn't;
+      // no record (e.g. added to the roster later) is unknown and left out of the average rather than guessed.
+      if(tracked){const a=g.avail||{};if(m>0||a[id]===true)r.availG++;else if(a[id]===false)r.outG++;else r.unknownG++;}
       r.min+=m;Object.entries(pm[id]||{}).forEach(([k,v])=>r.pos[k]=(r.pos[k]||0)+v);
       r.g+=gl;r.a+=as;r.sv+=(g.saves||[]).filter(s=>s.gk===id).length;
       coach.concat(par).filter(s=>s.id===id).forEach(s=>r.pos_stats[s.k]=(r.pos_stats[s.k]||0)+1);
@@ -45,11 +48,14 @@ function seasonData(){
     if(tracked)teamMin+=Object.values(pm).reduce((n,o)=>n+Object.values(o).reduce((a,b)=>a+b,0),0);
   }
   const list=Object.values(rows);
-  // Fair play: a field player averaging under 75% of the team's per-game average (in games they were available for).
-  const field=list.filter(r=>!pureGK(r.p)&&r.gp>0);
-  const avg=field.length?field.reduce((n,r)=>n+r.min/r.gp,0)/field.length:0;
-  list.forEach(r=>{r.avg=r.gp?r.min/r.gp:0;r.low=!pureGK(r.p)&&r.gp>0&&avg>0&&r.avg<avg*0.75;});
-  return {games,list,counted,avg};
+  // Fair play: minutes per tracked game the player was available for (zero-minute games included), compared with
+  // the team's average for field players. Keeper-only players are left out; keeper minutes of other players count.
+  list.forEach(r=>{r.avg=r.availG?r.min/r.availG:0;});
+  const field=list.filter(r=>!pureGK(r.p)&&r.availG>0);
+  const avg=field.length?field.reduce((n,r)=>n+r.avg,0)/field.length:0;
+  list.forEach(r=>{r.low=!pureGK(r.p)&&r.availG>0&&avg>0&&r.avg<avg*0.75;});
+  const unknown=list.filter(r=>r.unknownG>0);
+  return {games,list,counted,avg,unknown};
 }
 const posStatTotal=r=>Object.values(r.pos_stats).reduce((a,b)=>a+b,0);
 const posMix=r=>{const tot=Object.values(r.pos).reduce((a,b)=>a+b,0)||1;
@@ -63,14 +69,15 @@ function renderSeason(){
   const rec=['W','D','L'].map(k=>res.filter(x=>x===k).length).join('-');
   h+=`<p class="fine">${sd.games.length} game${sd.games.length===1?'':'s'} (${rec} W-D-L). Minutes and positions come from the ${sd.counted} game${sd.counted===1?'':'s'} tracked live; results-only games count goals.</p>`;
   const lows=sd.list.filter(r=>r.low);
-  if(lows.length)h+=`<div class="notice">Fair play check: ${lows.map(r=>esc(r.p.name)).join(', ')} ${lows.length>1?'are':'is'} averaging under 75% of the team’s minutes per game (${mins(sd.avg)} min). Worth a look in the next rotation.</div>`;
-  h+=`<div class="rwrap"><table class="rtable season"><thead><tr><th>Player</th><th>GP</th><th>Starts</th><th>Min</th><th>Avg</th><th>Positions</th><th>G</th><th>A</th><th>Great plays</th></tr></thead><tbody>`;
+  if(lows.length)h+=`<div class="notice">Fair play check: ${lows.map(r=>esc(r.p.name)).join(', ')} ${lows.length>1?'are':'is'} averaging under 75% of the team’s minutes per available game (${mins(sd.avg)} min). Worth a look in the next rotation.</div>`;
+  if(sd.unknown.length)h+=`<p class="fine">Availability wasn’t recorded for ${sd.unknown.map(r=>esc(r.p.name)+' ('+r.unknownG+' game'+(r.unknownG===1?'':'s')+')').join(', ')}, so those games aren’t counted in their average.</p>`;
+  h+=`<div class="rwrap"><table class="rtable season"><thead><tr><th>Player</th><th>GP</th><th title="Tracked games available">Avail</th><th>Starts</th><th>Min</th><th title="Minutes per available tracked game">Avg</th><th>Positions</th><th>G</th><th>A</th><th>Great plays</th></tr></thead><tbody>`;
   sd.list.slice().sort((a,b)=>b.min-a.min||a.p.name.localeCompare(b.p.name)).forEach(r=>{
-    h+=`<tr class="${r.low?'low':''}"><td class="pn"><button class="lnk" data-act="seacard" data-id="${r.p.id}">${esc(r.p.name)}</button>${jn(r.p)}</td><td>${r.gp}</td><td>${r.starts}</td><td>${mins(r.min)}</td><td>${r.gp?mins(r.avg):'·'}</td>
+    h+=`<tr class="${r.low?'low':''}"><td class="pn"><button class="lnk" data-act="seacard" data-id="${r.p.id}">${esc(r.p.name)}</button>${jn(r.p)}</td><td>${r.gp}</td><td>${r.availG}${r.unknownG?`<span class="fine" title="Availability not recorded for ${r.unknownG} game${r.unknownG===1?'':'s'}">+?</span>`:''}</td><td>${r.starts}</td><td>${mins(r.min)}</td><td>${r.availG?mins(r.avg):'·'}</td>
       <td><div class="pmix">${posMix(r)}</div></td><td class="${r.g?'':'z'}">${r.g||'·'}</td><td class="${r.a?'':'z'}">${r.a||'·'}</td><td class="${posStatTotal(r)?'':'z'}">${posStatTotal(r)||'·'}</td></tr>`;});
   h+=`</tbody></table></div><div class="pmlegend">${['GK','DEF','MID','FWD'].map(k=>`<span><i class="pm-${k}"></i>${GRP_LABEL[k]}</span>`).join('')}</div>`;
   h+=`<div class="gacts"><button class="btn small" data-act="seacsv">Download season (spreadsheet)</button></div>`;
-  h+=`<p class="fine">Tap a name for that player’s card: season totals and positive stats only, ready to share with their family.</p>`;
+  h+=`<p class="fine">Avg is minutes per tracked game the player was available for, including games where they didn’t play. Tap a name for that player’s card: season totals and positive stats only, ready to share with their family.</p>`;
   return h;
 }
 
@@ -98,8 +105,8 @@ function cardText(id){
 const csvCell=v=>{const s=String(v??'');return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;};
 function seasonCSV(){
   const sd=seasonData();const keys=POS_STATS.filter(k=>sd.list.some(r=>r.pos_stats[k]));
-  const head=['Player','Number','Games','Starts','Minutes','Avg minutes','Keeper min','Defense min','Midfield min','Forward min','Goals','Assists','Saves',...keys.map(k=>STATS[k])];
-  const rows=sd.list.map(r=>[r.p.name,r.p.num||'',r.gp,r.starts,mins(r.min),r.gp?mins(r.avg):'',mins(r.pos.GK||0),mins(r.pos.DEF||0),mins(r.pos.MID||0),mins(r.pos.FWD||0),r.g,r.a,r.sv,...keys.map(k=>r.pos_stats[k]||0)]);
+  const head=['Player','Number','Games','Tracked games available','Availability not recorded','Starts','Minutes','Avg minutes per available game','Keeper min','Defense min','Midfield min','Forward min','Goals','Assists','Saves',...keys.map(k=>STATS[k])];
+  const rows=sd.list.map(r=>[r.p.name,r.p.num||'',r.gp,r.availG,r.unknownG,r.starts,mins(r.min),r.availG?mins(r.avg):'',mins(r.pos.GK||0),mins(r.pos.DEF||0),mins(r.pos.MID||0),mins(r.pos.FWD||0),r.g,r.a,r.sv,...keys.map(k=>r.pos_stats[k]||0)]);
   const per=[[],['Minutes by game'],['Player',...sd.games.map(x=>(x.gc.dt||'').slice(0,10)+' '+(x.gc.opp||x.gc.title))]].concat(
     sd.list.map(r=>[r.p.name,...sd.games.map(x=>{const m=r.games.find(y=>y.gc.id===x.gc.id);return m?mins(m.min):'';})]));
   return [head,...rows,...per].map(r=>r.map(csvCell).join(',')).join('\r\n');

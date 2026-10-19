@@ -26,39 +26,61 @@ function resultChip(st){
 }
 function gamePickHTML(){
   if(NAV.open!=='game'||!CFG())return '';
-  const now=Date.now(),day=new Date().toDateString();
-  const games=CFG().games.map((gc,i)=>({gc,i,st:TS().games[gc.id],t:new Date(gc.dt).getTime()}));
-  const live=games.filter(x=>x.st&&x.st.started&&!x.st.fullDone);
-  const done=games.filter(x=>x.st&&x.st.fullDone).sort((a,b)=>(b.t||0)-(a.t||0));
-  const rest=games.filter(x=>!(x.st&&x.st.started));
-  const today=rest.filter(x=>!isNaN(x.t)&&new Date(x.t).toDateString()===day);
-  const up=rest.filter(x=>!today.includes(x)).sort((a,b)=>(isNaN(a.t)?Infinity:a.t)-(isNaN(b.t)?Infinity:b.t));
+  const now=T();
+  const games=CFG().games.map((gc,i)=>({gc,i,st:TS().games[gc.id],t:kickoffMs(gc)}));
+  const by=b=>games.filter(x=>gameBucket(x.gc,x.st,now)===b);
+  const asc=(a,b)=>a.t-b.t,desc=(a,b)=>b.t-a.t;
+  const live=by('live'),today=by('today').sort(asc),up=by('upcoming').sort(asc),needs=by('needs-result').sort(desc),undated=by('undated');
+  const done=by('final').sort((a,b)=>(Number.isFinite(b.t)?b.t:0)-(Number.isFinite(a.t)?a.t:0));
   const row=x=>`<button class="grow ${x.i===curIdx()?'cur':''}" data-act="navgame" data-i="${x.i}">${logoImg(oppLogoOf(x.gc),'glg')}<span class="grt"><b>${esc(gameLabel(x.gc))}</b><small>${esc(whenText(x.gc))}${x.gc.field?', '+esc(x.gc.field):''}</small></span><span class="grr">${resultChip(x.st)}</span></button>`;
-  const sec=(t,l)=>l.length?`<h4>${t}</h4>${l.map(row).join('')}`:'';
+  const sec=(t,l,note)=>l.length?`<h4>${t}</h4>${note?`<p class="fine">${note}</p>`:''}${l.map(row).join('')}`:'';
   const shown=NAV.allRes?done:done.slice(0,8);
   return `<div class="ovbg" data-act="navclose"></div><div class="ovp navp" role="dialog" aria-label="Games">
-    <div class="sh"><div><b>${esc(CFG().name)}</b><div class="fine">${games.length} game${games.length===1?'':'s'}</div></div><button class="btn small" data-act="navclose">Close</button></div>
-    ${sec('Live now',live)}${sec('Today',today)}${sec('Coming up',up)}${sec('Results',shown)}
+    <div class="sh"><div><b>${esc(teamShortTitle(CFG()))}</b><div class="fine">${games.length} game${games.length===1?'':'s'}</div></div><button class="btn small" data-act="navclose">Close</button></div>
+    ${sec('Live now',live)}${sec('Today',today)}${sec('Coming up',up)}
+    ${sec('Needs result',needs,'These dates have passed without a result. Open one to enter the score.')}
+    ${sec('Date not set',undated)}${sec('Results',shown)}
     ${done.length>shown.length?`<button class="btn small" data-act="navallres">Show all ${done.length} results</button>`:''}
     ${!games.length?'<p class="fine">No games yet.</p>':''}
     ${canEdit()&&isHead()?'<div class="gacts"><button class="btn small" data-act="navaddgame">+ Add a game</button></div>':''}</div>`;
 }
+/* Every team with its info: the live list from the server, plus teams on this device. */
+function pickerTeams(){
+  const m=new Map();
+  (UI.teamList||[]).forEach(t=>m.set(t.id,Object.assign({},t)));
+  Object.keys(S.T).forEach(id=>{const c=S.T[id].cfg;if(!c)return;const t=Object.assign({id},m.get(id)||{},{name:c.name,short:c.short||'',sub:c.sub||''});INFO_FIELDS.forEach(k=>{if(typeof c[k]==='string')t[k]=c[k];});m.set(id,t);});
+  return [...m.values()];
+}
+function teamPickListHTML(){
+  const all=pickerTeams(),list=all.filter(t=>teamMatches(t,clubFilter(),clubQuery()));
+  const mine=t=>isAdmin()||!!myRole(t.id)||(t.id===S.team&&!!myCode())||!!S.auth[t.id];
+  const favs=list.filter(t=>isFavTeam(t.id)),rest=list.filter(t=>!isFavTeam(t.id));
+  const yours=rest.filter(mine),others=rest.filter(t=>!mine(t));
+  const row=t=>`<div class="grow trow ${t.id===S.team?'cur':''}"><button class="trbtn" data-act="navteam" data-id="${esc(t.id)}"><span class="grt"><b>${esc(teamShortTitle(t))}</b><small>${teamBadgeList(t).map(esc).join(' · ')}${teamBadgeList(t).length?' · ':''}${t.id===S.team?'Open now':myRole(t.id)?ROLE_NAME[myRole(t.id)]:isAdmin()?'Admin':'View only'}</small></span></button>${starHTML(t,'act')}</div>`;
+  if(!list.length)return `<div class="empty"><p>No teams match.</p><button class="btn small primary-s" data-act="navclear">Clear filters</button></div>`;
+  return (favs.length?`<h4>My teams</h4>${favs.map(row).join('')}`:'')
+    +(yours.length&&(others.length||favs.length)?'<h4>Your teams</h4>':'')+yours.map(row).join('')
+    +(others.length?`<h4>${yours.length||favs.length?'Other teams':'Teams'}</h4>${others.map(row).join('')}`:'');
+}
 function teamPickHTML(){
   if(NAV.open!=='team')return '';
-  const list=teamsList();
-  const mine=t=>isAdmin()||!!myRole(t.id)||(t.id===S.team&&!!myCode())||!!S.auth[t.id];
-  const yours=list.filter(mine),others=list.filter(t=>!mine(t));
-  const row=t=>`<button class="grow ${t.id===S.team?'cur':''}" data-act="navteam" data-id="${esc(t.id)}"><span class="grt"><b>${esc(t.name)}</b><small>${t.id===S.team?'Open now':myRole(t.id)?ROLE_NAME[myRole(t.id)]:isAdmin()?'Admin':'View only'}</small></span></button>`;
+  const counts=divisionCounts(pickerTeams());
   return `<div class="ovbg" data-act="navclose"></div><div class="ovp navp" role="dialog" aria-label="Teams">
     <div class="sh"><div><b>Teams</b><div class="fine">${esc(clubName())}</div></div><button class="btn small" data-act="navclose">Close</button></div>
+    <div class="cfilters" role="group" aria-label="Show teams">${counts.map(c=>`<button class="cfbtn" data-act="navfilter" data-v="${c.key}" aria-pressed="${clubFilter()===c.key}">${c.label} <span class="cfn">${c.count}</span></button>`).join('')}</div>
+    <div class="csearch"><label class="sr" for="nav-q">Search teams</label><input id="nav-q" type="search" placeholder="Search teams" autocomplete="off" value="${esc(clubQuery())}"></div>
     ${!UI.teamList&&SY.on?'<p class="fine">Loading teams…</p>':''}
-    ${yours.length&&others.length?'<h4>Your teams</h4>':''}${yours.map(row).join('')}
-    ${others.length?`<h4>${yours.length?'Other teams':'Teams'}</h4>${others.map(row).join('')}`:''}
+    <div id="nav-tlist">${teamPickListHTML()}</div>
     <div class="gacts"><a class="btn small" href="${clubLink()}">Club scoreboard</a>${isAdmin()?'<button class="btn small primary-s" data-act="adminopen">Club admin</button>':''}</div></div>`;
 }
 OVERLAYS.unshift(gamePickHTML,teamPickHTML);
 
-['teampick','gamepick','navclose','navgame','navteam','navallres'].forEach(a=>VIEW_OK.add(a));
+['teampick','gamepick','navclose','navgame','navteam','navallres','navfilter','navclear','fav'].forEach(a=>VIEW_OK.add(a));
+EXT.navfilter=ds=>{S.clubFilter=ds.v;saveLocal();};
+EXT.navclear=()=>{S.clubFilter='all';S.clubQ='';saveLocal();const q=$('nav-q');if(q){q.value='';q.blur();}};
+// Stars in the team switcher (favorites live on this device; they never grant editing).
+EXT.fav=ds=>{toggleFavTeam(ds.id);};
+document.addEventListener('input',e=>{if(e.target&&e.target.id==='nav-q'){S.clubQ=e.target.value;saveLocal();const el=$('nav-tlist');if(el)el.innerHTML=teamPickListHTML();}});
 EXT.teampick=()=>{NAV.open=NAV.open==='team'?'':'team';if(!UI.teamList)loadTeamList().then(()=>renderAll());};
 EXT.gamepick=()=>{NAV.open=NAV.open==='game'?'':'game';};
 EXT.navclose=()=>{NAV.open='';};
