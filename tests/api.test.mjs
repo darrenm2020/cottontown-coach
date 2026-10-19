@@ -142,6 +142,58 @@ test("head coaches manage their own team's coaches, and only theirs", async () =
   assert.deepEqual(all.find((u) => u.id === ashley).roles, { t2: "assistant" });
 });
 
+test("review fixes: crafted coach ids, email takeover, assistant schedule edits", async () => {
+  const { store, a } = await setup();
+  const admin = await a.post({ kind: "user-save", user: { name: "Club Admin", admin: true }, code: "main-1234" });
+  let r = await a.post({ kind: "user-save", user: { name: "Kyle", roles: { t1: "head" } }, code: "main-1234" });
+  await a.post({ kind: "user-code", id: r.body.user.id, newCode: "kyle-1234", code: "main-1234" });
+  const kyle = (await a.post({ kind: "login", code: "kyle-1234" })).body.session;
+  // __proto__ and friends are never treated as a coach.
+  for (const id of ["__proto__", "constructor", "toString"]) {
+    r = await a.post({ kind: "team-coach", team: "t1", id, role: "head", session: kyle });
+    assert.equal(r.status, 404, id);
+    assert.equal((await a.post({ kind: "team-coach-code", team: "t1", id, newCode: "evil-12345", session: kyle })).status, 404, id);
+  }
+  assert.equal(({}).roles, undefined, "nothing leaked onto Object.prototype");
+  assert.equal((await a.post({ kind: "login", code: "evil-12345" })).status, 401);
+  // A head coach adding the admin to their team can't attach an email to the admin's account.
+  await a.post({ kind: "team-coach", team: "t1", id: admin.body.user.id, email: "attacker@example.com", role: "assistant", session: kyle });
+  const users = (await a.get("?users=1", { "x-code": "main-1234" })).body.users;
+  assert.equal(users.find((u) => u.id === admin.body.user.id).email, "", "admin email unchanged");
+  // Assistants can't change the schedule or team name, but can change who's out and rotation plans.
+  r = await a.post({ kind: "user-save", user: { name: "Ash", roles: { t1: "assistant" } }, code: "main-1234" });
+  await a.post({ kind: "user-code", id: r.body.user.id, newCode: "ash-12345", code: "main-1234" });
+  const ash = (await a.post({ kind: "login", code: "ash-12345" })).body.session;
+  const moved = { ...team, games: [{ ...team.games[0], dt: "2026-11-01T09:00" }] };
+  assert.equal((await a.post({ kind: "config", team: "t1", config: moved, session: ash })).status, 403);
+  assert.equal((await a.post({ kind: "config", team: "t1", config: { ...team, name: "Renamed" }, session: ash })).status, 403);
+  const outOnly = { ...team, games: [{ ...team.games[0], out: ["ana"] }] };
+  assert.equal((await a.post({ kind: "config", team: "t1", config: outOnly, session: ash })).status, 200);
+  // Game records only for scheduled games.
+  assert.equal((await a.post({ kind: "game", team: "t1", gid: "nope", game: { started: true }, code: "main-1234" })).status, 404);
+  // Backups carry no code hashes.
+  await takeBackup(store, "2026-10-20");
+  const snap = JSON.stringify(await store.get("backup/2026-10-20"));
+  assert.ok(!snap.includes("codeHash") && !snap.includes('"auth-'), "no hashes in backups");
+});
+
+test("review fixes: locked games keep half, availability and goals; main sessions end when the code changes", async () => {
+  const { store, a } = await setup();
+  const g = { started: true, fullDone: true, half: 30, avail: { ana: true }, goals: [{ side: "us", t: 1, u: "goal1" }], del: [] };
+  await a.post({ kind: "game", team: "t1", gid: "g1", game: g, code: "main-1234" });
+  const rec = await store.get("game-t1-g1");
+  rec.doneAt = Date.now() - LOCK_AFTER - 1;
+  await store.setJSON("game-t1-g1", rec);
+  assert.equal((await a.post({ kind: "game", team: "t1", gid: "g1", game: { ...g, half: 35 }, code: "main-1234" })).status, 409);
+  assert.equal((await a.post({ kind: "game", team: "t1", gid: "g1", game: { ...g, avail: { ana: false } }, code: "main-1234" })).status, 409);
+  assert.equal((await a.post({ kind: "game", team: "t1", gid: "g1", game: { ...g, del: ["goal1"] }, code: "main-1234" })).status, 409);
+  // Main-code session ends when COACH_CODE changes.
+  const s = (await a.post({ kind: "login", code: "main-1234" })).body.session;
+  assert.equal((await a.get("?me=1", { "x-session": s })).body.user.name, "Main code");
+  const rotated = api(store, { COACH_CODE: "new-main-999" });
+  assert.equal((await rotated.get("?me=1", { "x-session": s })).body.user, null);
+});
+
 test("stats helpers can only add goals and stats", async () => {
   const { a } = await setup();
   const r = await a.post({ kind: "user-save", user: { name: "Parent Helper", roles: { t1: "stats" } }, code: "main-1234" });

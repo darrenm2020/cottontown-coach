@@ -197,7 +197,7 @@ const OPP_LOGOS={"cullman": "assets/opp/cullman.jpg", "vero": "assets/opp/vero.j
 function libLogo(name){const n=String(name||'');if(/cullman/i.test(n))return OPP_LOGOS.cullman;if(/nasc|north alabama/i.test(n))return OPP_LOGOS.nasc;
   if(/vero/i.test(n))return OPP_LOGOS.vero;if(/\bafc\b|alabaster|alabama fc/i.test(n))return OPP_LOGOS.alfc;return '';}
 const oppLogoOf=gc=>(gc&&(gc.oppLogo||libLogo(gc.opp)))||'';
-const logoImg=(src,cls)=>src?`<img class="${cls}" src="${src}" alt="">`:'';
+const logoImg=(src,cls)=>src?`<img class="${cls}" src="${esc(src)}" alt="">`:'';
 const CU_HISTORY=[
  ['h01','2025-03-22T09:30','NUSA Spring Hill 14G','Merrimack 12N',2,3],['h02','2025-03-22T14:15','AYSO United G2014 Premier','Merrimack 13N',0,8],
  ['h03','2025-03-23T11:00','NUSA Spring Hill 14G','Merrimack 13N',1,8],['h04','2025-04-12T09:00','Fredericksburg FC Ffc 01 Red','Jack Allen (11v11)',0,9],
@@ -509,7 +509,9 @@ const mapUrl=q=>'https://maps.apple.com/?q='+encodeURIComponent(q);
 
 /* ---------- Sync ---------- */
 const SY={on:false,ok:false,first:true,team:null,lastSent:{},rev:{},inflight:{},editT:{},savedAt:0,localAt:0,lock:{}};
-function resetSync(){SY.first=true;SY.team=S.team;SY.lastSent={};SY.rev={};SY.inflight={};SY.editT={};}
+function resetSync(){SY.first=true;SY.team=S.team;SY.lastSent={};SY.rev={};SY.inflight={};SY.editT={};
+  // Lock state is per team (game ids like g1 repeat across teams), so it starts over with each team.
+  SY.lock={};UI.unlock={};UI.revert={};}
 const myCode=()=>S.auth[S.team]||'';
 /* Coaches can still use codes. Signing in (js/auth.js) is optional: a signed-in coach edits the teams they have a role on. */
 const ME={user:null,favs:[],cfg:null};
@@ -527,7 +529,8 @@ function save(){
   saveLocal();SY.localAt=Date.now();if(!SY.on)renderSync();
   if(!SY.on||!canEdit()||SY.team!==S.team||SY.first)return;
   const c=CFG();if(!c)return;
-  if(JSON.stringify(c)!==SY.lastSent.cfg){SY.editT.cfg=Date.now();push('cfg');}
+  // A settings change this device isn't allowed to make (e.g. an assistant's) isn't retried until the team changes on the server.
+  const cj=JSON.stringify(c);if(cj!==SY.lastSent.cfg&&cj!==SY.cfgDenied){SY.editT.cfg=Date.now();push('cfg');}
   c.games.forEach(gc=>{const st=TS().games[gc.id];if(!st)return;if(JSON.stringify(st)!==SY.lastSent[gc.id]){SY.editT[gc.id]=Date.now();push(gc.id);}});
 }
 async function push(key){
@@ -539,6 +542,7 @@ async function push(key){
     else if(r.status===403||r.status===409){
       // Not allowed (role) or locked (finished game): put the server's copy back instead of retrying.
       const j=await r.json().catch(()=>({}));SY.rev[key]=0;if(key!=='cfg')UI.revert[key]=true;
+      if(key==='cfg'){const again=SY.cfgDenied===SY.lastSent.cfg;SY.cfgDenied=SY.lastSent.cfg;if(again){SY.inflight[key]--;return;}}
       say(r.status===409?'This game is final and locked. Unlock it on the Players tab to change the result.':(j.error||'You can’t change that.'));rerender=true;}
     else if(r.ok){const j=await r.json();if(SY.team===team&&j.rev>(SY.rev[key]||0))SY.rev[key]=j.rev;SY.ok=true;SY.savedAt=Date.now();setTimeout(renderSync,3100);}
     else{SY.ok=false;SY.lastSent[key]='';}
@@ -1056,7 +1060,7 @@ function renderBrand(){
   const c=CFG();
   $('bname').textContent=c.name;$('bsub').textContent=(c.sub||'Game tracker')+(c.placing?' · '+placeText(c.placing):'');
   const ini=c.name.split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase();
-  $('blogo').innerHTML=c.logo?`<img src="${c.logo}" alt="${esc(c.name)}">`:`<span class="badge">${esc(ini)}</span>`;
+  $('blogo').innerHTML=c.logo?`<img src="${esc(c.logo)}" alt="${esc(c.name)}">`:`<span class="badge">${esc(ini)}</span>`;
   document.title=c.name+' game tracker';
 }
 function renderGames(){
@@ -1410,7 +1414,7 @@ function renderSetup(){
   h+=`<div class="card"><h3>Team</h3>
     <label class="fld">Team name<input data-cfg="team" data-f="name" value="${esc(c.name)}"></label>
     <div class="grid2"><label class="fld">Short name for the scoreboard<input data-cfg="team" data-f="short" value="${esc(c.short||'')}"></label><label class="fld">Subtitle<input data-cfg="team" data-f="sub" value="${esc(c.sub||'')}" placeholder="e.g. Girls 2014/15"></label></div>
-    <div class="fld">Logo<div class="logorow">${c.logo?`<img src="${c.logo}" alt="">`:'<span class="muted">No logo yet</span>'}<label class="btn small filebtn">Upload<input type="file" accept="image/*" data-cfg="logo" hidden></label>${c.logo?'<button class="btn small" data-act="logodel">Remove</button>':''}</div></div>
+    <div class="fld">Logo<div class="logorow">${c.logo?`<img src="${esc(c.logo)}" alt="">`:'<span class="muted">No logo yet</span>'}<label class="btn small filebtn">Upload<input type="file" accept="image/*" data-cfg="logo" hidden></label>${c.logo?'<button class="btn small" data-act="logodel">Remove</button>':''}</div></div>
     <div class="set"><span>Rotation plan<small class="fine" style="display:block">Plan who plays when, block by block. Adds a Plan tab and planned subs. When off, sub alerts still sound and you tap bench players to line up who goes in.</small></span><button class="tog ${c.usePlan?'on':''}" data-act="cfgplan" aria-pressed="${!!c.usePlan}">${c.usePlan?'On':'Off'}</button></div>
     <div class="set"><span>Goal song (the Cottontown chant)</span><button class="tog ${c.song?'on':''}" data-act="cfgsong" aria-pressed="${!!c.song}">${c.song?'On':'Off'}</button></div></div>`;
   h+=`<div class="card"><h3>Format</h3><div class="seg">${FORMATS.map(f=>`<button data-act="fmt" data-f="${f}" aria-pressed="${c.format===f}">${f}</button>`).join('')}</div>
@@ -1429,7 +1433,7 @@ function renderSetup(){
       <label class="fld">Address or park name (for the map link)<input data-cfg="gm" data-f="place" data-gid="${gc.id}" value="${esc(gc.place||'')}"></label>
       <div class="grid2"><label class="fld">Half length (min)<input type="number" inputmode="numeric" min="5" max="60" data-cfg="gm" data-f="half" data-gid="${gc.id}" value="${gc.half||30}"></label><label class="fld">Sub every (min)<input type="number" inputmode="numeric" min="2" max="30" data-cfg="gm" data-f="sub" data-gid="${gc.id}" value="${gc.sub||10}"></label></div>
       <div class="gacts"><button class="btn small" data-act="gmplan" data-gid="${gc.id}">${armed('gmplan'+gc.id)?'Tap again to rebuild':'Rebuild rotation'}</button><button class="btn small ${armed('gmdel'+gc.id)?'danger-s armed':''}" data-act="gmdel" data-gid="${gc.id}">${armed('gmdel'+gc.id)?'Tap again to remove':'Remove game'}</button>${st&&st.started?'<span class="fine">'+(gc.imported?'Final '+scoreOf(st).us+'–'+scoreOf(st).them:'Started')+'</span>':''}</div>
-      <div class="fld">Opponent logo<div class="logorow">${ol?`<img src="${ol}" alt="">`:'<span class="muted">None</span>'}<label class="btn small filebtn">Upload<input type="file" accept="image/*" data-cfg="opplogo" data-gid="${gc.id}" hidden></label>${gc.oppLogo?`<button class="btn small" data-act="opplogodel" data-gid="${gc.id}">Use default</button>`:''}</div></div></div>`;return h;};
+      <div class="fld">Opponent logo<div class="logorow">${ol?`<img src="${esc(ol)}" alt="">`:'<span class="muted">None</span>'}<label class="btn small filebtn">Upload<input type="file" accept="image/*" data-cfg="opplogo" data-gid="${gc.id}" hidden></label>${gc.oppLogo?`<button class="btn small" data-act="opplogodel" data-gid="${gc.id}">Use default</button>`:''}</div></div></div>`;return h;};
   const cur=c.games.filter(gc=>!gc.imported),past=c.games.filter(gc=>gc.imported).sort((a,b)=>String(b.dt).localeCompare(String(a.dt)));
   cur.forEach(gc=>{h+=gcard(gc);});
   h+=`<button class="btn small" data-act="gmadd">+ Add game</button>`;
@@ -1556,7 +1560,9 @@ let lastSec=-1;
 function tick(){
   if(!CFG())return;
   const g=G();let changed=false;
-  if(g.running){
+  // A stats helper's device follows the clock but doesn't change it (the server only lets them add goals and stats).
+  const statsOnly=myRole()==='stats'&&!myCode()&&!S.master;
+  if(g.running&&!statsOnly){
     const E=ends(g);let c=clock(g);
     for(const e of E){if(c>=e&&!g.stops.includes(e)){g.acc=e;g.running=false;g.stops.push(e);if(e===E[0])g.halfDone=true;if(e===E[E.length-1]){g.fullDone=true;g.pending=null;}changed=true;alarm();break;}}
     c=clock(g);const H=HMS(g),SUB=SMS(g);const r=regOf(g,c),e0=ends(g)[0];
@@ -1608,7 +1614,7 @@ function sPeriod(s){
 function sResult(s){if(!s||!s.fullDone)return null;if(s.us>s.them)return 'W';if(s.us<s.them)return 'L';
   if(s.pk){if(s.pk.us>s.pk.them)return 'W';if(s.pk.us<s.pk.them)return 'L';}return 'D';}
 const scoreStr=s=>s.us+'–'+s.them+(s.pk?` (PKs ${s.pk.us}–${s.pk.them})`:'');
-function teamBadge(t,cls){const ini=(t.name||'?').split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase();return t.logo?`<img class="${cls}" src="${t.logo}" alt="">`:`<span class="${cls} badge">${esc(ini)}</span>`;}
+function teamBadge(t,cls){const ini=(t.name||'?').split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase();return t.logo?`<img class="${cls}" src="${esc(t.logo)}" alt="">`:`<span class="${cls} badge">${esc(ini)}</span>`;}
 function renderClub(){
   const el=$('club');const d=CLUB.data;if(!d){el.innerHTML='<div class="empty">Loading the club…</div>';return;}
   const all=[];d.teams.forEach(t=>t.games.forEach(g=>{if(g.s&&g.s.scorers)g.s.scorers=g.s.scorers.filter(x=>x.by||x.t>0);all.push({t,g});}));
@@ -1619,7 +1625,7 @@ function renderClub(){
   const inSeason=x=>tsOf(x)!==Infinity&&tsOf(x)>=season;
   const results=all.filter(x=>x.g.s&&x.g.s.fullDone&&inSeason(x)).sort((a,b)=>tsOf(b)-tsOf(a)).slice(0,15);
   const canClubEdit=!CLUB.on||!!S.master;
-  let h=`<header class="clubtop"><img src="${clubLogo()}" alt=""><div><h1>${esc(clubName())}</h1><p>Club scoreboard${CLUB.on?(CLUB.ok?' <span class="sync run">Live</span>':' <span class="sync lost">Reconnecting</span>'):''}</p></div></header><main class="clubmain">`;
+  let h=`<header class="clubtop"><img src="${esc(clubLogo())}" alt=""><div><h1>${esc(clubName())}</h1><p>Club scoreboard${CLUB.on?(CLUB.ok?' <span class="sync run">Live</span>':' <span class="sync lost">Reconnecting</span>'):''}</p></div></header><main class="clubmain">`;
   // weekend window: Friday 00:00 through Sunday 23:59 of this week (or the coming one, Mon-Thu)
   const wd=now.getDay();const sun=new Date(now.getFullYear(),now.getMonth(),now.getDate()+((7-wd)%7));
   const wkStart=new Date(sun.getFullYear(),sun.getMonth(),sun.getDate()-2).getTime(),wkEnd=new Date(sun.getFullYear(),sun.getMonth(),sun.getDate(),23,59,59).getTime();
@@ -1647,7 +1653,7 @@ function renderClub(){
   if(CLUB.on&&S.master){h+=`<section class="cs"><h2>Coach tools</h2><button class="btn small primary-s" data-cact="puball" ${UI.pubBusy?'disabled':''}>${UI.pubBusy?'Loading teams…':'Load all teams'}</button>${CLUB.msg?`<p class="fine">${esc(CLUB.msg)}</p>`:'<p class="fine">Adds every team saved on this iPad to the club page. Teams already here aren’t changed.</p>'}</section>`;}
   if(canClubEdit){
     h+=`<section class="cs"><h2>Club settings</h2>${CLUB.edit?`<div class="card"><label class="fld">Club name<input id="club-name" value="${esc(clubName())}"></label>
-      <div class="fld">Club logo<div class="logorow"><img src="${clubLogo()}" alt=""><label class="btn small filebtn">Upload<input type="file" accept="image/*" id="club-logo" hidden></label></div></div>
+      <div class="fld">Club logo<div class="logorow"><img src="${esc(clubLogo())}" alt=""><label class="btn small filebtn">Upload<input type="file" accept="image/*" id="club-logo" hidden></label></div></div>
       <div class="gacts"><button class="btn small primary-s" data-cact="save">Save</button><button class="btn small" data-cact="cancel">Cancel</button></div></div>`
       :`<button class="btn small" data-cact="edit">Edit club name and logo</button>`}</section>`;
   }

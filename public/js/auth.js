@@ -219,3 +219,12 @@ EXT.restoregame=()=>{
   (async()=>{const r=await apiPost(Object.assign({kind:'restore-game',team:S.team,gid,date},creds()));
     say(r.ok?'Game restored from '+date:(r.j.error||'Couldn’t restore'));if(r.ok){SY.rev[gid]=0;UI.revert[gid]=true;try{applyServer(await getState(S.team));}catch(e){}}renderAll();})();
 };
+
+/* Switching teams: data loaded for the old team (coach list, history, backups, player card) must not show
+   under the new one, where changing a role would apply it to the wrong team. */
+switchTeam=(base=>async function(id){
+  const v=AUTH.view;AUTH.coaches=null;AUTH.audit=null;AUTH.backups=null;AUTH.tcEdit=null;AUTH.editUser=null;
+  if(typeof SEA!=='undefined')SEA.card=null;
+  await base(id);
+  if(v){AUTH.view=v;loadAuthView();}
+})(switchTeam);

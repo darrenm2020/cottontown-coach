@@ -25,7 +25,7 @@
 export const ROLES = { head: 3, assistant: 2, stats: 1 };
 const POSITIVE = new Set(["sot", "kp", "pass", "tackle", "slide", "int", "clr", "blk", "cross", "drib", "fwon", "save", "catch", "dist"]);
 // Fields that make up a game's result. A finished game can't change these without an explicit unlock.
-const LOCKED = ["goals", "saves", "events", "start", "acc", "started", "fullDone", "halfDone", "pk", "stops", "ot", "xt"];
+const LOCKED = ["goals", "saves", "events", "start", "acc", "started", "fullDone", "halfDone", "pk", "stops", "ot", "xt", "half", "form", "avail"];
 const STATS_ONLY = new Set(["goals", "stats", "saves", "del"]);
 export const LOCK_AFTER = 2 * 3600000;
 // A finished game locks 2 hours after it went final. Games finished before doneAt existed count as locked.
@@ -35,6 +35,11 @@ const DAY = 86400000;
 export const okId = (s) => typeof s === "string" && /^[a-z0-9-]{1,40}$/.test(s);
 export const okGid = (s) => typeof s === "string" && /^[A-Za-z0-9_-]{1,40}$/.test(s);
 const okTok = (s) => typeof s === "string" && /^[A-Za-z0-9_.-]{1,40}$/.test(s);
+// Coach ids: letters, digits, dash or underscore, starting with a letter or digit (never "__proto__" and the like).
+const okUid = (s) => typeof s === "string" && /^[A-Za-z0-9][A-Za-z0-9_-]{0,39}$/.test(s);
+// Coach records keyed by id, with no prototype, so a request can only ever reach a real coach.
+async function loadUsers(store) { return Object.assign(Object.create(null), (await store.get("users", { type: "json" })) || {}); }
+const userAt = (users, id) => (okUid(id) && Object.hasOwn(users, id) ? users[id] : null);
 const okEmail = (s) => typeof s === "string" && s.length <= 120 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
 const clip = (s, n) => String(s ?? "").slice(0, n);
 const same = (a, b) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
@@ -72,9 +77,9 @@ export async function whoIs(store, env, team, creds) {
   if (okTok(s) || /^[a-f0-9]{48}$/.test(s)) {
     const sess = await store.get("sess-" + s, { type: "json" });
     if (sess && sess.exp > Date.now()) {
-      if (sess.uid === "main") return { role: "head", name: "Main code", uid: "main", admin: true };
-      const users = (await store.get("users", { type: "json" })) || {};
-      const u = users[sess.uid];
+      if (sess.uid === "main") return sess.mh && sess.mh === (await sha("main:" + master)) ? { role: "head", name: "Main code", uid: "main", admin: true } : null;
+      const users = await loadUsers(store);
+      const u = userAt(users, sess.uid);
       if (u && !u.disabled) return asRole(u, team);
     }
   }
@@ -87,7 +92,7 @@ function asRole(u, team) {
 }
 async function userByCode(store, code) {
   if (String(code).length < 4) return null;
-  const users = (await store.get("users", { type: "json" })) || {};
+  const users = await loadUsers(store);
   const h = await sha("user:" + code);
   return Object.values(users).find((u) => u.codeHash === h && !u.disabled) || null;
 }
@@ -155,9 +160,11 @@ async function sendLoginEmail(env, to, name, link) {
   });
   return r.ok;
 }
-async function newSession(store, uid) {
+async function newSession(store, uid, env) {
   const t = token();
-  await store.setJSON("sess-" + t, { uid, exp: Date.now() + 60 * DAY, at: Date.now() });
+  // Main-code sessions remember which main code made them, so changing COACH_CODE signs them out.
+  const mh = uid === "main" ? await sha("main:" + String(env.COACH_CODE || "").trim()) : undefined;
+  await store.setJSON("sess-" + t, { uid, exp: Date.now() + 60 * DAY, at: Date.now(), mh });
   return t;
 }
 
@@ -230,15 +237,15 @@ export async function handle(req, { store, env }) {
     if (kind === "login") {
       const code = String(b.code ?? "").trim();
       if (code && code === String(env.COACH_CODE).trim()) {
-        return json({ ok: true, now, session: await newSession(store, "main"), user: { id: "main", name: "Main code", admin: true, roles: {} } });
+        return json({ ok: true, now, session: await newSession(store, "main", env), user: { id: "main", name: "Main code", admin: true, roles: {} } });
       }
       const u = await userByCode(store, code);
       if (!u) return json({ error: "That code didn’t work" }, 401);
-      return json({ ok: true, now, session: await newSession(store, u.id), user: publicUser(u) });
+      return json({ ok: true, now, session: await newSession(store, u.id, env), user: publicUser(u) });
     }
     if (kind === "login-email") {
       const email = String(b.email || "").trim().toLowerCase();
-      const users = (await store.get("users", { type: "json" })) || {};
+      const users = await loadUsers(store);
       const u = Object.values(users).find((x) => x.email === email && !x.disabled);
       if (!String(env.RESEND_API_KEY || "").trim() && !flag(env.DEV_SHOW_LINK)) return json({ error: "Email sign-in isn’t set up yet. Use your coach code.", setup: false }, 501);
       // Same answer whether or not the email is on file, so the form can't be used to find coaches' emails.
@@ -258,10 +265,10 @@ export async function handle(req, { store, env }) {
       const m = await store.get("magic-" + t, { type: "json" });
       await store.delete("magic-" + t);
       if (!m || m.exp < now) return json({ error: "That link has expired. Ask for a new one." }, 401);
-      const users = (await store.get("users", { type: "json" })) || {};
-      const u = users[m.uid];
+      const users = await loadUsers(store);
+      const u = userAt(users, m.uid);
       if (!u || u.disabled) return json({ error: "That account is turned off" }, 401);
-      return json({ ok: true, now, session: await newSession(store, u.id), user: publicUser(u) });
+      return json({ ok: true, now, session: await newSession(store, u.id, env), user: publicUser(u) });
     }
     if (kind === "logout") {
       const s = String(creds.session || "");
@@ -285,8 +292,8 @@ export async function handle(req, { store, env }) {
       const nc = String(b.newCode ?? "").trim();
       if (nc.length < 6) return json({ error: "Use at least 6 characters" }, 400);
       if (await userByCode(store, nc)) return json({ error: "Pick a different code" }, 409);
-      const users = (await store.get("users", { type: "json" })) || {};
-      if (!users[w.uid]) return json({ error: "not found" }, 404);
+      const users = await loadUsers(store);
+      if (!userAt(users, w.uid)) return json({ error: "not found" }, 404);
       users[w.uid].codeHash = await sha("user:" + nc);
       await store.setJSON("users", users);
       return json({ ok: true, now });
@@ -317,14 +324,19 @@ export async function handle(req, { store, env }) {
     if (kind === "game") {
       if (!okGid(b.gid) || !b.game || typeof b.game !== "object") return json({ error: "bad request" }, 400);
       if (JSON.stringify(b.game).length > 400000) return json({ error: "too large" }, 413);
+      const cfg = await store.get("team-" + team, { type: "json" });
+      if (!cfg || !cfg.team || !(cfg.team.games || []).some((g) => g && g.id === b.gid)) return json({ error: "That game isn’t on this team’s schedule" }, 404);
       const key = "game-" + team + "-" + b.gid;
       const cur = await store.get(key, { type: "json" });
       const old = cur && cur.game;
+      if (!old && w.role === "stats" && !w.admin) return json({ error: "A coach needs to open this game first" }, 403);
       if (old && w.role === "stats" && !w.admin) {
         const changed = new Set([...Object.keys(old), ...Object.keys(b.game)].filter((k) => !same(old[k], b.game[k])));
         if ([...changed].some((k) => !STATS_ONLY.has(k))) return json({ error: "Stats helpers can only add goals and stats" }, 403);
       }
-      if (isLocked(cur, now) && LOCKED.some((k) => !same(old[k], b.game[k]))) {
+      const lockedIds = isLocked(cur, now) ? new Set([...(old.goals || []), ...(old.saves || [])].map((x) => x && x.u).filter(Boolean)) : null;
+      const delsLocked = lockedIds && (Array.isArray(b.game.del) ? b.game.del : []).some((u) => lockedIds.has(u));
+      if (isLocked(cur, now) && (delsLocked || LOCKED.some((k) => !same(old[k], b.game[k])))) {
         if (!b.unlock) return json({ error: "locked", message: "This game is final. Unlock it to change the result." }, 409);
         if (!atLeast(w, "head")) return json({ error: "Only a head coach can change a finished game" }, 403);
       }
@@ -404,26 +416,27 @@ export async function handle(req, { store, env }) {
     // are all on teams they head (never an admin), so they can't take over anyone else's account.
     if (kind === "team-coach" || kind === "team-coach-remove" || kind === "team-coach-code") {
       if (!atLeast(w, "head")) return json({ error: "Only a head coach can manage this team’s coaches" }, 403);
-      const users = (await store.get("users", { type: "json" })) || {};
+      const users = await loadUsers(store);
       const headOf = async (t) => w.admin || (await whoIs(store, env, t, creds))?.role === "head";
       if (kind === "team-coach") {
         const email = String(b.email || "").trim().toLowerCase();
         const role = String(b.role || "");
         if (!ROLES[role]) return json({ error: "Pick a role" }, 400);
         if (email && !okEmail(email)) return json({ error: "That email doesn’t look right" }, 400);
-        let u = b.id ? users[b.id] : email ? Object.values(users).find((x) => x.email === email) : null;
+        let u = b.id ? userAt(users, b.id) : email ? Object.values(users).find((x) => x.email === email) : null;
+        if (b.id && !u) return json({ error: "not found" }, 404);
         if (!u) {
           if (!clip(b.name, 60)) return json({ error: "Give the coach a name" }, 400);
           const id = "u" + token().slice(0, 10);
           u = users[id] = { id, name: clip(b.name, 60), email, admin: false, roles: {}, created: now };
         }
+        // An existing coach's email is only changed by a club admin (it's where their sign-in links go).
         u.roles = { ...(u.roles || {}), [team]: role };
-        if (!u.email && email) u.email = email;
         await store.setJSON("users", users);
         await audit(store, team, w, "coach", `${u.name} is now ${role === "head" ? "a head coach" : role === "assistant" ? "an assistant" : "a stats helper"}`);
         return json({ ok: true, now, user: teamUser(u, team) });
       }
-      const u = users[clip(b.id, 40)];
+      const u = userAt(users, b.id);
       if (!u) return json({ error: "not found" }, 404);
       if (kind === "team-coach-remove") {
         if (u.roles) delete u.roles[team];
@@ -448,13 +461,13 @@ export async function handle(req, { store, env }) {
     // --- coach accounts (admins) ---
     if (kind === "user-save" || kind === "user-del" || kind === "user-code") {
       if (!w.admin) return json({ error: "Only an admin can manage coaches" }, 403);
-      const users = (await store.get("users", { type: "json" })) || {};
+      const users = await loadUsers(store);
       const src = b.user || {};
       const id = clip(src.id || b.id || "", 40) || "u" + token().slice(0, 10);
-      if (!okTok(id)) return json({ error: "bad request" }, 400);
+      if (!okUid(id)) return json({ error: "bad request" }, 400);
       if (kind === "user-del") { delete users[id]; await store.setJSON("users", users); return json({ ok: true, now }); }
       if (kind === "user-code") {
-        if (!users[id]) return json({ error: "not found" }, 404);
+        if (!userAt(users, id)) return json({ error: "not found" }, 404);
         const nc = String(b.newCode ?? "").trim();
         if (nc.length < 6) return json({ error: "Use at least 6 characters" }, 400);
         const other = await userByCode(store, nc);
@@ -468,7 +481,7 @@ export async function handle(req, { store, env }) {
       if (email && Object.values(users).some((u) => u.email === email && u.id !== id)) return json({ error: "Another coach already uses that email" }, 409);
       const roles = {};
       Object.entries(src.roles || {}).forEach(([t, r]) => { if (okId(t) && ROLES[r]) roles[t] = r; });
-      const prev = users[id] || { created: now };
+      const prev = userAt(users, id) || { created: now };
       users[id] = { ...prev, id, name: clip(src.name, 60) || "Coach", email, admin: !!src.admin, roles, disabled: !!src.disabled };
       await store.setJSON("users", users);
       return json({ ok: true, now, user: publicUser(users[id]) });
@@ -507,15 +520,15 @@ export async function handle(req, { store, env }) {
     const w = await whoIs(store, env, "", creds);
     if (!w) return json({ now, user: null });
     if (w.uid === "main") return json({ now, user: { id: "main", name: "Main code", admin: true, roles: {} }, favs: [] });
-    const users = (await store.get("users", { type: "json" })) || {};
-    const u = users[w.uid];
+    const users = await loadUsers(store);
+    const u = userAt(users, w.uid);
     const favs = (await store.get("favs-" + w.uid, { type: "json" })) || [];
     return json({ now, user: u ? publicUser(u) : null, favs });
   }
   if (q.get("users")) {
     const w = await whoIs(store, env, "", creds);
     if (!w || !w.admin) return json({ error: "Admins only" }, 403);
-    const users = (await store.get("users", { type: "json" })) || {};
+    const users = await loadUsers(store);
     return json({ now, users: Object.values(users).map(publicUser) });
   }
   if (q.get("coaches")) {
@@ -523,7 +536,7 @@ export async function handle(req, { store, env }) {
     if (!okId(team)) return json({ error: "bad team" }, 400);
     const w = await whoIs(store, env, team, creds);
     if (!atLeast(w, "head")) return json({ error: "Head coaches only" }, 403);
-    const users = (await store.get("users", { type: "json" })) || {};
+    const users = await loadUsers(store);
     return json({ now, coaches: Object.values(users).filter((u) => (u.roles || {})[team]).map((u) => teamUser(u, team)) });
   }
   if (q.get("drills")) {
@@ -601,9 +614,11 @@ export async function handle(req, { store, env }) {
   return json({ now, team, config: config || null, games, pstats, legacy: null });
 }
 
-// An assistant may save team settings only when the roster and schedule are unchanged (e.g. a game's lineup notes).
+// An assistant may save team settings only to change rotation plans or who's out; everything else
+// (roster, schedule, team name and settings) is the head coach's.
 function sameRoster(a, b) {
-  return same(a.players, b.players) && same((a.games || []).map((g) => g.id), (b.games || []).map((g) => g.id));
+  const strip = (c) => ({ ...c, fixes: undefined, games: (c.games || []).map(({ plan, out, ...g }) => g) });
+  return same(strip(a), strip(b));
 }
 
 export function summarize(g, pname) {
@@ -619,13 +634,15 @@ export function summarize(g, pname) {
 
 // ---------- backups ----------
 // Copies every team, game, parent stat, practice, drill and coach account into backup/YYYY-MM-DD. Keeps 30.
-const BACKUP_SKIP = /^(sess-|magic-|backup\/)/;
+const BACKUP_SKIP = /^(sess-|magic-|auth-|backup\/)/;
 export async function takeBackup(store, date = new Date().toISOString().slice(0, 10)) {
   const { blobs } = await store.list();
   const data = {};
   for (const { key } of blobs) {
     if (BACKUP_SKIP.test(key)) continue;
-    data[key] = await store.get(key, { type: "json" });
+    const v = await store.get(key, { type: "json" });
+    // Coach accounts are backed up without their code hashes.
+    data[key] = key === "users" && v ? Object.fromEntries(Object.entries(v).map(([id, u]) => [id, { ...u, codeHash: undefined }])) : v;
   }
   await store.setJSON("backup/" + date, { date, at: Date.now(), count: Object.keys(data).length, data });
   const { blobs: old } = await store.list({ prefix: "backup/" });

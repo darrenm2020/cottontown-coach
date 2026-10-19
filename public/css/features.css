@@ -119,3 +119,8 @@ details.signin summary{cursor:pointer;color:var(--crimson);font-weight:600}
 .adminp .seg{margin:6px 0 10px;flex-wrap:wrap}
 .tcact{display:flex;gap:6px;align-items:center;flex:0 0 auto}
 .tcact select{min-height:36px;border:1.5px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font:inherit}
+
+/* The tracker hid the team name at 900-1440px to fit the old row of game buttons. With the game list it fits,
+   and the name is the team switcher, so show it (shortened if long). */
+@media (min-width:900px){.top .brand>div{display:block;min-width:0}.top .brand{max-width:42vw}}
+.top .brand .t1,.top .brand .t2{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

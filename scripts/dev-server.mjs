@@ -4,7 +4,7 @@
 import http from "node:http";
 import { readFile, writeFile, mkdir, readdir, unlink } from "node:fs/promises";
 import { existsSync, readFileSync } from "node:fs";
-import { join, extname, normalize } from "node:path";
+import { join, extname, normalize, sep } from "node:path";
 import { handle, takeBackup } from "../netlify/lib/core.mjs";
 
 const root = normalize(new URL("..", import.meta.url).pathname.replace(/^\/([A-Z]:)/, "$1"));
@@ -33,9 +33,9 @@ http.createServer(async (req, res) => {
     }
     if (url.pathname === "/dev/backup") { const d = await takeBackup(store); res.end("backup " + d); return; }
     let p = normalize(join(pub, decodeURIComponent(url.pathname)));
-    if (!p.startsWith(pub)) { res.writeHead(403); res.end(); return; }
+    if (p !== pub && !p.startsWith(pub + sep)) { res.writeHead(403); res.end(); return; }
     if (url.pathname.endsWith("/")) p = join(p, "index.html");
     const body = await readFile(p);
     res.writeHead(200, { "Content-Type": TYPES[extname(p)] || "application/octet-stream", "Cache-Control": "no-cache" }); res.end(body);
-  } catch (e) { res.writeHead(e.code === "ENOENT" ? 404 : 500); res.end(e.code === "ENOENT" ? "Not found" : String(e.stack || e)); }
+  } catch (e) { if (e.code !== "ENOENT") console.error(e); res.writeHead(e.code === "ENOENT" ? 404 : 500); res.end(e.code === "ENOENT" ? "Not found" : "Server error"); }
 }).listen(port, () => console.log(`Cottontown Coach on http://localhost:${port}  (data in .devdata/)`));
