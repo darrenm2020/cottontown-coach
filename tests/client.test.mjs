@@ -341,3 +341,18 @@ test("school grades: saved as a graduation year, so the grade moves up each Augu
   assert.equal(run(`gradeTag(2026, ${at(2026, 9)})`), "Class of 2026", "graduated seniors say so");
   assert.equal(run(`gradFor(9, ${at(2026, 9)})`), 2030);
 });
+
+test("tournament sign-ups show before games are posted, and disappear once the event's games exist", () => {
+  const { run } = loadApp();
+  const now = new Date(2026, 9, 19, 12, 0).getTime();
+  run(`S={v:2,team:'red',cur:{},T:{},auth:{},favTeams:['red'],clubFilter:'all',clubQ:''};OFF=${now}-Date.now();
+    TOURS.list=[{id:'showdown',name:'Alabama Soccer Showdown',start:'2026-11-06',end:'2026-11-08',venue:'Birmingham, AL'}];
+    globalThis.D={club:null,teams:[{id:'red',name:'Cottontown United Boys Red',sub:'U18 Boys',entries:[{tid:'showdown',status:'applied'}],games:[]}]};`);
+  const h = run("clubBodyHTML(D)");
+  assert.ok(h.includes("Alabama Soccer Showdown") && h.includes("applied, schedule not posted"), "the card names the event and its status");
+  assert.equal(run("pendingEntries(D.teams[0],T()).length"), 1);
+  run("D.teams[0].games=[{id:'x',opp:'Opp',dt:'2026-11-07T09:00',tid:'showdown',s:null}]");
+  assert.equal(run("pendingEntries(D.teams[0],T()).length"), 0, "once games are posted, the games show instead");
+  run("D.teams[0].games=[];TOURS.list[0].start='2026-10-01';TOURS.list[0].end='2026-10-02'");
+  assert.equal(run("pendingEntries(D.teams[0],T()).length"), 0, "past events aren't shown as coming up");
+});

@@ -125,12 +125,14 @@ function clubBodyHTML(d, isProgram) {
     return `<p class="tgline"><span class="tglabel">${k === "today" ? "Today" : "Next"}</span> vs <b>${opp}</b><span class="tgwhen">${esc(when(g))}</span></p>`;
   };
   const teamCard = (t) => {
-    const f = focusGame(t), g = f && f.g, ev = g ? tourOf(g) : null;
+    const f = focusGame(t), g = f && f.g, pend = pendingEntries(t, now)[0];
+    // The event for the game shown; or, with nothing coming up, an event the team has signed up for.
+    const ev = g && f.kind !== "result" ? tourOf(g) : pend && (!g || f.kind === "result") ? pend.t : g ? tourOf(g) : null;
     const needs = canEditTeam(t) ? t.games.filter((x) => st(x) === "awaiting") : [];
     const badges = cardBadges(t);
     return `<article class="ccard tcard ${f && f.kind === "live" ? "live" : ""}" aria-label="${esc(teamShortTitle(t))}">
       <div class="tchead">${teamBadge(t, "cl")}<div class="tct"><h3><a class="cta" href="${teamLink(t.id)}">${esc(teamShortTitle(t))}</a></h3>${badges.length ? `<div class="tbadges">${badges.map((b) => `<span class="tbadge">${esc(b)}</span>`).join("")}</div>` : ""}</div>${starHTML(t, "cact")}</div>
-      ${ev ? `<p class="tev"><span aria-hidden="true">🏆</span> ${esc(ev.name)}</p>` : ""}
+      ${ev ? `<p class="tev"><span aria-hidden="true">🏆</span> ${esc(ev.name)}${pend && ev === pend.t ? ` <span class="fine">· ${esc(tourDates(ev))} · ${pend.e.status === "applied" ? "applied" : "signed up"}, schedule not posted</span>` : ""}</p>` : ""}
       ${gameBlock(t, f)}
       ${g ? `<div class="tacts"><a class="btn primary-s" href="${gameLink(t.id, g.id)}">View game</a>${g.place && f.kind !== "result" ? `<a class="tlink" href="${mapUrl(g.place)}" target="_blank" rel="noopener">Directions</a>` : ""}</div>` : `<div class="tacts"><a class="tlink" href="${teamLink(t.id)}">Team page</a></div>`}
       ${needs.length ? `<a class="remind" href="${gameLink(t.id, needs[0].id)}">${needs.length} game${needs.length === 1 ? " needs" : "s need"} a final score ›</a>` : ""}
@@ -139,7 +141,8 @@ function clubBodyHTML(d, isProgram) {
   /* A compact directory row for teams with nothing coming up soon. */
   const teamRow = (t) => {
     const f = focusGame(t), g = f && f.g;
-    const line = !f ? "No games scheduled" : f.kind === "result" ? `${sResult(g.s)} ${scoreStr(g.s)} vs ${g.opp || "Opponent"} · ${dayOf(g)}` : f.kind === "live" ? `Live: ${g.s.us}–${g.s.them} vs ${g.opp || "Opponent"}` : `Next: ${g.opp || g.title || "Opponent"} · ${gameWhen(g)}`;
+    const pend = pendingEntries(t, now)[0];
+    const line = (!f || f.kind === "result") && pend ? `${pend.t.name} · ${tourDates(pend.t)} · schedule not posted` : !f ? "No games scheduled" : f.kind === "result" ? `${sResult(g.s)} ${scoreStr(g.s)} vs ${g.opp || "Opponent"} · ${dayOf(g)}` : f.kind === "live" ? `Live: ${g.s.us}–${g.s.them} vs ${g.opp || "Opponent"}` : `Next: ${g.opp || g.title || "Opponent"} · ${gameWhen(g)}`;
     return `<div class="dirrow"><a class="dira" href="${teamLink(t.id)}">${teamBadge(t, "cls")}<span class="dirt"><b>${esc(teamShortTitle(t))}</b><span class="fine">${esc(line)}</span></span></a>${starHTML(t, "cact")}</div>`;
   };
 
@@ -160,8 +163,8 @@ function clubBodyHTML(d, isProgram) {
   const sun = new Date(nowD.getFullYear(), nowD.getMonth(), nowD.getDate() + ((7 - wd) % 7), 23, 59, 59).getTime();
   const until = weekendish ? sun : now + 7 * 864e5;
   const soon = shown.filter((t) => !used.has(t.id)).map((t) => ({ t, f: focusGame(t) }))
-    .filter(({ f }) => f && (f.kind === "live" || (f.kind === "next" && kickoffMs(f.g) <= until)))
-    .sort((a, b) => (b.f.kind === "live") - (a.f.kind === "live") || byKick(a.f.g, b.f.g));
+    .filter(({ t, f }) => (f && (f.kind === "live" || (f.kind === "next" && kickoffMs(f.g) <= until))) || (!(f && f.kind === "next") && pendingEntries(t, now).some((p) => new Date(p.t.start + "T00:00").getTime() <= until)))
+    .sort((a, b) => ((b.f && b.f.kind === "live") - (a.f && a.f.kind === "live")) || ((a.f && a.f.kind === "next" ? kickoffMs(a.f.g) : Infinity) - (b.f && b.f.kind === "next" ? kickoffMs(b.f.g) : Infinity)));
   soon.forEach(({ t }) => used.add(t.id));
   if (soon.length) h += `<section class="cs"><h2>${weekendish ? "This weekend" : "Coming up"}</h2><div class="cgrid">${soon.map(({ t }) => teamCard(t)).join("")}</div></section>`;
   // 4. Recent results: five, then View all

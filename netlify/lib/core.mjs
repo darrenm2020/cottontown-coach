@@ -615,7 +615,7 @@ export async function handle(req, { store, env }) {
               at: v && v.at ? v.at : 0, s: v && v.game ? summarize(v.game, pname) : null };
           })
         );
-        return { id: t.id, name: c.name || t.name, short: c.short || "", sub: c.sub || "", logo: c.logo || null, format: c.format || "", placing: c.placing || null, ...teamInfoOf(c), coaches: coachNames[t.id] || [], games };
+        return { id: t.id, name: c.name || t.name, short: c.short || "", sub: c.sub || "", logo: c.logo || null, format: c.format || "", placing: c.placing || null, ...teamInfoOf(c), coaches: coachNames[t.id] || [], entries: entriesOf(c), games };
       })
     );
     return json({ now, club: club ? { name: club.name, logo: club.logo } : null, teams, tournaments: await loadTournaments(store) });
@@ -671,6 +671,8 @@ export function teamInfoOf(c) {
 }
 
 // ---------- tournaments ----------
+// Tournaments a team has signed up for, before any games are posted: [{ tid, status: "entered" | "applied" }].
+export const entriesOf = (c) => (Array.isArray(c.entries) ? c.entries : []).filter((e) => e && typeof e.tid === "string" && /^[a-z0-9-]{1,48}$/.test(e.tid)).slice(0, 20).map((e) => ({ tid: e.tid, status: e.status === "applied" ? "applied" : "entered" }));
 // Name key for spotting the same event typed differently: "KICKS  Invitational!" = "kicks invitational".
 export const tourKey = (n) => String(n || "").toLowerCase().replace(/&/g, " and ").replace(/[^a-z0-9]+/g, " ").replace(/\b(the|annual)\b/g, " ").replace(/\s+/g, " ").trim();
 async function loadTournaments(store) { const v = await store.get("tournaments", { type: "json" }); return Array.isArray(v) ? v : []; }

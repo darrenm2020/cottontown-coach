@@ -318,6 +318,9 @@ test("tournaments: head coaches add shared events, spelling variants reuse one i
   assert.equal(club.tournaments[0].name, "KICKS Invitational");
   assert.equal(club.teams.find((t) => t.id === "t1").games[0].tid, id);
   assert.equal((await a.get("?team=t1")).body.tournaments.length, 1);
+  // A sign-up before games are posted travels with the team (cleaned: id and status only).
+  await a.post({ kind: "config", team: "t1", config: { ...team, entries: [{ tid: id, status: "applied", junk: "x" }, { tid: "BAD ID" }] }, code: "main-1234" });
+  assert.deepEqual((await a.get("?club=1")).body.teams.find((t) => t.id === "t1").entries, [{ tid: id, status: "applied" }]);
   // Only an admin removes one.
   assert.equal((await a.post({ kind: "tournament-del", team: "t1", id, session: asst })).status, 403);
   assert.equal((await a.post({ kind: "tournament-del", team: "t1", id, code: "main-1234" })).status, 200);

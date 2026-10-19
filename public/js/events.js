@@ -17,6 +17,14 @@ function tourHeadHTML(t){
   const bits=[tourDates(t),t.venue].filter(Boolean).map(esc).join(' · ');
   return `<div class="evhead"><span class="evname"><span aria-hidden="true">🏆</span> ${esc(t.name)}</span>${bits||t.link?`<span class="fine">${bits}${t.link?`${bits?' · ':''}<a href="${esc(t.link)}" target="_blank" rel="noopener">Official schedule</a>`:''}</span>`:''}</div>`;
 }
+/* Tournaments a team has signed up for whose games aren't posted yet (still upcoming). */
+function pendingEntries(team,now){
+  const today=new Date(now);const ymd=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+  return (team&&team.entries||[]).map(e=>({e,t:tourList().find(x=>x.id===e.tid)})).filter(({e,t})=>t&&(t.end||t.start||'9999')>=ymd&&!(team.games||[]).some(g=>g.tid===e.tid))
+    .sort((a,b)=>String(a.t.start).localeCompare(String(b.t.start)));
+}
+const entryStatus=e=>e.status==='applied'?'Applied, waiting for acceptance':'Signed up';
+function entryHTML({e,t}){return tourHeadHTML(t)+`<p class="fine evnote">${esc(entryStatus(e))} · schedule not posted yet</p>`;}
 /* A game falls within a tournament's dates (used for suggestions only). */
 function inTourDates(gc,t){if(!t||!t.start)return false;const k=kickoffMs(gc);if(!Number.isFinite(k))return false;
   const from=new Date(t.start+'T00:00').getTime(),to=new Date((t.end||t.start)+'T23:59').getTime();return k>=from&&k<=to;}
@@ -52,6 +60,8 @@ function tournamentsCardHTML(){
     const games2=games;
     const sugg=all.filter(g=>!g.tid&&inTourDates(g,t)&&!TOURS.checked.has(g.id));
     h+=tourHeadHTML(t);
+    const en=(c.entries||[]).find(x=>x.tid===t.id);
+    h+=`<div class="set"><span>Signed up for this tournament<small class="fine" style="display:block">Shows on the team card and schedule before games are posted.</small></span><select data-entry="${esc(t.id)}" aria-label="Signed up for ${esc(t.name)}"><option value="" ${en?'':'selected'}>No</option><option value="applied" ${en&&en.status==='applied'?'selected':''}>Applied</option><option value="entered" ${en&&en.status!=='applied'?'selected':''}>Accepted / entered</option></select></div>`;
     h+=`<p class="fine">Tick the games played at this tournament.${sugg.length?` ${sugg.length} game${sugg.length===1?' falls':'s fall'} within its dates.`:''}</p>`;
     if(sugg.length)h+=`<button class="btn small" data-act="tourmatch">Select the ${sugg.length} game${sugg.length===1?'':'s'} in these dates</button>`;
     h+='<div class="tourgames">'+games.map(g=>{const other=g.tid&&g.tid!==t.id?tourList().find(x=>x.id===g.tid):null;
@@ -64,6 +74,9 @@ function tournamentsCardHTML(){
 document.addEventListener('change',e=>{const el=e.target;if(!el)return;
   if(el.id==='tour-sel'){TOURS.sel=el.value;TOURS.checked=null;TOURS.all=false;if(el.value!=='+new')TOURS.form=null;renderAll();}
   else if(el.dataset&&el.dataset.tchk){if(!TOURS.checked)TOURS.checked=new Set();if(el.checked)TOURS.checked.add(el.dataset.tchk);else TOURS.checked.delete(el.dataset.tchk);}});
+document.addEventListener('change',e=>{const id=e.target&&e.target.dataset&&e.target.dataset.entry;if(!id||!CFG()||!canEdit())return;
+  const c=CFG();c.entries=(c.entries||[]).filter(x=>x.tid!==id);if(e.target.value)c.entries.push({tid:id,status:e.target.value});
+  say(e.target.value?'Saved: signed up':'Removed from this tournament');save();renderAll();});
 document.addEventListener('input',e=>{const k=e.target&&e.target.dataset&&e.target.dataset.tf;if(!k)return;TOURS.form=TOURS.form||{};TOURS.form[k]=e.target.value;});
 EXT.tourcancel=()=>{TOURS.sel='';TOURS.form=null;};
 EXT.tourall=()=>{TOURS.all=true;};

@@ -666,7 +666,7 @@ function slug(s){return (s||'team').toLowerCase().replace(/[^a-z0-9]+/g,'-').rep
 const PUB_VER='2026-10-18e';
 /* APP_VER changes with every deploy that coach devices should pick up. When the published page's APP_VER
    differs from the running one, a coach device reloads itself if no clock is running, or shows a Refresh button. */
-const APP_VER='2026-10-19e';
+const APP_VER='2026-10-19f';
 const VER={tag:null,ready:false};
 async function checkVersion(){
   if(!SY.on||!canEdit()||document.visibilityState!=='visible')return;
@@ -1624,7 +1624,8 @@ function renderParentSchedule(){
   const up=gs.filter(x=>['live','today','upcoming'].includes(bk(x))).sort((a,b)=>tsd(a)-tsd(b));
   const undated=gs.filter(x=>bk(x)==='undated'),waiting=gs.filter(x=>bk(x)==='needs-result').sort((a,b)=>tsd(b)-tsd(a)),post=gs.filter(x=>bk(x)==='postponed');
   const done=gs.filter(x=>bk(x)==='final').sort((a,b)=>tsd(b)-tsd(a));
-  let h=`<h3>Coming up</h3>`+(up.length?schedListHTML(up):'<p class="muted">No upcoming games scheduled.</p>');
+  const waitingEvents=pendingEntries(CFG(),T());
+  let h=`<h3>Coming up</h3>`+(up.length?schedListHTML(up):waitingEvents.length?'':'<p class="muted">No upcoming games scheduled.</p>')+waitingEvents.map(entryHTML).join('');
   if(undated.length)h+='<h3>Date to be set</h3>'+schedListHTML(undated);
   if(post.length)h+='<h3>Postponed</h3>'+schedListHTML(post);
   if(waiting.length)h+='<h3>Awaiting result</h3>'+schedListHTML(waiting);
@@ -1764,7 +1765,7 @@ function summarizeGame(g,pname){
 }
 function localClub(){
   const teams=Object.keys(S.T).filter(id=>S.T[id].cfg).map(id=>{const c=S.T[id].cfg;const pname={};c.players.forEach(p=>pname[p.id]=p.name);
-    return {id,name:c.name,short:c.short||'',sub:c.sub||'',logo:c.logo||null,format:c.format,
+    return {id,name:c.name,short:c.short||'',sub:c.sub||'',logo:c.logo||null,format:c.format,entries:c.entries||[],
       games:c.games.map(gc=>{const st=S.T[id].games[gc.id];return {id:gc.id,title:gc.title,oppLogo:gc.oppLogo||'',opp:gc.opp||'',dt:gc.dt||'',when:gc.when||'',field:gc.field||'',place:gc.place||'',half:gc.half||30,tid:gc.tid||'',status:gc.status||'',s:st?summarizeGame(st,pname):null};})};});
   return {club:S.club||null,teams};
 }
