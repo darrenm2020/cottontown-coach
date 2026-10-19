@@ -100,8 +100,14 @@ npm run check
    - `SITE_URL`: the site's address, used in emailed sign-in links.
    - `RESEND_API_KEY` and `MAIL_FROM` (optional): turn on emailed sign-in links through [Resend](https://resend.com).
    - `AUTH_REQUIRED=true` (later): team codes stop working; coaches must sign in.
-3. The new site has its own data. To copy everything from the current tracker, put the new site's
-   `COACH_CODE` in `.env` and run `node scripts/seed-dev.mjs https://YOUR-NEW-SITE`.
+3. The new site has its own data. To copy every team from the current tracker into it, run this and
+   enter the new site's coach code when asked:
+
+   ```bash
+   npm run seed -- https://YOUR-NEW-SITE.netlify.app
+   ```
+
+   The test site is https://cottontown-coach.netlify.app.
 
 The current tracker (cottontown-club) is untouched and keeps working until you switch.
 
