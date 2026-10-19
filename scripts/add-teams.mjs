@@ -13,8 +13,10 @@ const local = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(target);
 const api = target + "/api/state";
 
 let code = process.env.COACH_CODE || "";
-if (!code && local && existsSync(new URL("../.env", import.meta.url))) {
-  code = (readFileSync(new URL("../.env", import.meta.url), "utf8").match(/^COACH_CODE=(.*)$/m) || [])[1] || "";
+// .env (never committed): COACH_CODE for the local preview, SITE_COACH_CODE for the test site.
+if (!code && existsSync(new URL("../.env", import.meta.url))) {
+  const env = readFileSync(new URL("../.env", import.meta.url), "utf8");
+  code = ((env.match(local ? /^COACH_CODE=(.*)$/m : /^SITE_COACH_CODE=(.*)$/m) || [])[1] || "").trim();
 }
 if (!code) {
   const rl = createInterface({ input: process.stdin, output: process.stdout });

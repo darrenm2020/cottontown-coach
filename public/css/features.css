@@ -177,3 +177,15 @@ details.signin summary{cursor:pointer;color:var(--crimson);font-weight:600}
 .cprog{flex:0 0 auto;padding:9px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);text-decoration:none;font-weight:600;font-size:14px;min-height:40px;display:inline-flex;align-items:center}
 .cprog.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
 .cprog:focus-visible{outline:3px solid var(--crimson);outline-offset:2px}
+
+/* Game and Practice modes. Practice hides the clock, score and field so only planning tools remain. */
+.modesw{display:flex;gap:8px;margin:10px 16px 0;padding:4px;background:var(--surface-2);border:1px solid var(--line);border-radius:14px}
+.modesw button{flex:1;min-height:48px;border:0;border-radius:10px;background:transparent;color:var(--muted);font:700 20px/1 "Barlow Condensed","Arial Narrow",sans-serif;cursor:pointer}
+.modesw button[aria-pressed="true"]{background:var(--crimson);color:var(--on-crimson)}
+.modesw button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+@media (min-width:900px){.modesw{max-width:420px}}
+.app.practice #games,.app.practice .clockbox,.app.practice #ctrl,.app.practice #adjrow,.app.practice #score,.app.practice #score2,.app.practice #banner,.app.practice .fieldcol{display:none!important}
+.app.practice .main{grid-template-columns:minmax(0,1fr)!important;max-width:980px;width:100%;margin:0 auto}
+.app.practice .top{grid-template-columns:1fr!important}
+.app.practice .top .brand>div{display:block!important}
+@media (min-width:900px){.app.practice #modesw{max-width:980px;width:100%;margin:0 auto;padding:0 16px;box-sizing:border-box}.app.practice .modesw{margin:10px 0 0}}

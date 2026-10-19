@@ -650,7 +650,7 @@ function slug(s){return (s||'team').toLowerCase().replace(/[^a-z0-9]+/g,'-').rep
 const PUB_VER='2026-10-18e';
 /* APP_VER changes with every deploy that coach devices should pick up. When the published page's APP_VER
    differs from the running one, a coach device reloads itself if no clock is running, or shows a Refresh button. */
-const APP_VER='2026-10-19b';
+const APP_VER='2026-10-19c';
 const VER={tag:null,ready:false};
 async function checkVersion(){
   if(!SY.on||!canEdit()||document.visibilityState!=='visible')return;
@@ -1239,13 +1239,37 @@ function renderHint(){
   else if(UI.fieldMode==='stat'&&canEdit()){el.className='hint';el.textContent='Tracking stats: tap a player to log a pass, shot, won ball and more.';}
   else{el.className='hint';el.textContent=isParent()?(g.started?'Following live. The score, clock and lineup update on their own.':'The lineup shows here when the game kicks off.'):g.started?'Tap a player, then a bench player to sub, or another player to swap spots.':'Before kickoff, changes set the starting lineup. Nothing is logged until the clock starts.';}
 }
+/* Coaches switch between Game mode (the field, clock and only what a game needs) and Practice mode
+   (practice plans, the season and team setup). Parents always follow the game. */
+const MODE_TABS={game:['players','plan','bench','log','stats','minutes'],practice:['practice','season','setup']};
+function gameDayNow(){const now=T();return CFG().games.some(gc=>['live','today'].includes(gameBucket(gc,TS().games[gc.id],now)));}
+function coachMode(){
+  if(isParent())return 'game';
+  // On opening a team, a game today (or one under way) opens Game mode.
+  if(UI.modeTeam!==S.team){UI.modeTeam=S.team;if(gameDayNow()){S.mode='game';if(!MODE_TABS.game.includes(S.tab))S.tab='bench';}}
+  if(S.mode!=='practice'&&S.mode!=='game')S.mode='game';
+  // Something that opens a tab from the other mode (e.g. "+ Add a game" opens Setup) switches modes with it.
+  if(!MODE_TABS[S.mode].includes(S.tab)&&MODE_TABS[S.mode==='game'?'practice':'game'].includes(S.tab))S.mode=S.mode==='game'?'practice':'game';
+  return S.mode;
+}
+function renderMode(){
+  const el=$('modesw');const app=document.querySelector('.app');if(!el||!app)return;
+  const m=coachMode();app.classList.toggle('practice',m==='practice');
+  const h=isParent()?'':`<div class="modesw" role="group" aria-label="Mode"><button data-act="mode" data-m="game" aria-pressed="${m==='game'}"><span aria-hidden="true">⚽</span> Game</button><button data-act="mode" data-m="practice" aria-pressed="${m==='practice'}"><span aria-hidden="true">📋</span> Practice</button></div>`;
+  if(el.innerHTML!==h)el.innerHTML=h;
+}
+EXT.mode=ds=>{if(!MODE_TABS[ds.m])return false;S.mode=ds.m;S.tab=ds.m==='game'?'bench':'practice';UI.sel=null;UI.pick=null;saveLocal();try{window.scrollTo(0,0);}catch(e){}};
+VIEW_OK.add('mode');
 function renderTabs(){
+  renderMode();
   if(CFG()&&!isParent()&&S.tab==='plan'&&!usePlan())S.tab='bench';
   const g=G();const d=replay(g);const benchN=PLAYERS.filter(p=>av(g,p.id)&&!d.on.has(p.id)).length;
   if(isParent()&&!['bench','stats','players','log','setup'].includes(S.tab))S.tab='bench';
   // Game-day order: who's here, the plan, the game itself, what happened, then season and team tools.
   const tabs=isParent()?[['bench','Bench',g.started?benchN:''],['log','Goals',g.goals.length||''],['stats','Stats',''],['players','Team',''],['setup','Setup','']]
-    :[['players','Players',''],...(usePlan()?[['plan','Plan','']]:[]),['bench','Bench',benchN],['log','Log',d.batches.length||''],['stats','Stats',''],['minutes','Minutes',''],['season','Season',''],['practice','Practice',''],['setup','Setup','']];
+    :coachMode()==='practice'?[['practice','Practice',''],['season','Season',''],['setup','Setup','']]
+    :[['players','Players',''],...(usePlan()?[['plan','Plan','']]:[]),['bench','Bench',benchN],['log','Log',d.batches.length||''],['stats','Stats',''],['minutes','Minutes','']];
+  if(!isParent()&&!tabs.some(t=>t[0]===S.tab))S.tab=tabs.find(t=>t[0]==='bench')?'bench':tabs[0][0];
   $('tabs').innerHTML=tabs.map(([t,l,c])=>`<button class="tab" role="tab" data-act="tab" data-t="${t}" aria-selected="${S.tab===t}">${l}${c!==''?`<span class="ct">${c}</span>`:''}</button>`).join('');
 }
 function upNext(g,d,id){
