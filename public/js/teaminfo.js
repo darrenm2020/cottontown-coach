@@ -69,23 +69,65 @@ function programsOf(teams) {
   return [...m.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
 
+/* ---------- school grades ---------- */
+/* A player's graduation year is saved, so the grade moves up on its own each August. */
+const schoolYearEnd = (now) => { const d = new Date(now); return d.getMonth() >= 7 ? d.getFullYear() + 1 : d.getFullYear(); };
+const gradeOf = (grad, now) => (grad ? 12 - (+grad - schoolYearEnd(now)) : null);
+const gradFor = (grade, now) => schoolYearEnd(now) + (12 - grade);
+function gradeTag(grad, now) {
+  const g = gradeOf(grad, now); if (g == null || g < 1) return "";
+  return g > 12 ? "Class of " + grad : "Gr " + g;
+}
+
 /* ---------- games ---------- */
 const kickoffMs = (g) => { if (!g || !g.dt) return NaN; const v = new Date(g.dt).getTime(); return v; };
-/* Where a game belongs: live, final, today (not started yet), upcoming, needs-result (date passed, no result), undated. */
-function gameBucket(g, s, now) {
-  if (s && s.started && !s.fullDone) return "live";
+/* ---------- game status ----------
+   One answer for "what's happening with this game", used everywhere a game is shown.
+   A game is only Live with evidence of play (the clock has run) inside a believable time window. A game
+   that started but has gone quiet well past its expected end is "awaiting" a final score: nothing is ever
+   finalized or scored automatically; a coach confirms the result. `lastAt` is the last time the game was
+   saved (when known). */
+const STALE_GRACE = 60 * 60000, QUIET = 45 * 60000;
+function expectedLengthMs(g, s) {
+  const half = +((s && s.half) || (g && g.half)) || 30;
+  const ot = s && s.ot ? (+(s.ot.n || s.otN) || 2) * (+(s.ot.len || s.otLen) || 5) : 0;
+  return (2 * half + 15 + ot) * 60000; // both halves, a halftime break and any overtime
+}
+function gameStatus(g, s, now, lastAt) {
   if (s && s.fullDone) return "final";
-  const t = kickoffMs(g);
-  if (!Number.isFinite(t)) return "undated";
-  const lengthMs = (2 * (+(g.half || (s && s.half)) || 30) + 30) * 60000; // two halves plus a break and a little delay
-  if (t + lengthMs < now) return "needs-result";
-  const a = new Date(t), b = new Date(now);
+  const played = !!(s && s.started && (s.running || s.acc > 0 || (s.stops && s.stops.length)));
+  if (g && g.status === "postponed" && !played) return "postponed";
+  const k = kickoffMs(g), len = expectedLengthMs(g, s);
+  if (played) {
+    const clockMs = s.running ? (s.acc || 0) + Math.max(0, now - (s.runStart || now)) : (s.acc || 0);
+    const last = Math.max(+lastAt || 0, s.running ? +s.runStart || 0 : 0);
+    const quiet = !last || now - last > QUIET;
+    const pastWindow = Number.isFinite(k) ? now > k + len + STALE_GRACE : !!last && now - last > 4 * 3600000;
+    if ((pastWindow && quiet) || clockMs > len + STALE_GRACE) return "awaiting";
+    const halfMs = (+((s && s.half) || (g && g.half)) || 30) * 60000;
+    if (!s.running && (s.acc || 0) === halfMs) return "halftime";
+    return "live";
+  }
+  if (!Number.isFinite(k)) return "undated";
+  if (k + len < now) return "awaiting";
+  const a = new Date(k), b = new Date(now);
   if (a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()) return "today";
-  return t > now ? "upcoming" : "today";
+  return k > now ? "upcoming" : "today";
+}
+const STATUS_LABEL = { live: "Live", halftime: "Halftime", final: "Final", postponed: "Postponed", awaiting: "Awaiting result", today: "Today", upcoming: "Scheduled", undated: "Date to be set" };
+/* "Awaiting final score" when play was recorded (a score so far), "Awaiting result" when nothing was. */
+function statusLabel(st, s) {
+  const goals = s ? (s.us != null ? (s.us || 0) + (s.them || 0) : (s.goals || []).length) : 0;
+  return st === "awaiting" && s && s.started && (goals > 0 || s.acc > 0) ? "Awaiting final score" : STATUS_LABEL[st] || "";
+}
+/* Where a game is listed: live (incl. halftime), final, postponed, today, upcoming, needs-result (awaiting), undated. */
+function gameBucket(g, s, now, lastAt) {
+  const st = gameStatus(g, s, now, lastAt);
+  return st === "halftime" ? "live" : st === "awaiting" ? "needs-result" : st;
 }
 /* The next game to show for a team: today's or a future unstarted game. Never a past or undated one. */
-function nextGameOf(games, stateOf, now) {
-  return games.filter((g) => ["today", "upcoming"].includes(gameBucket(g, stateOf(g), now))).sort((a, b) => kickoffMs(a) - kickoffMs(b))[0] || null;
+function nextGameOf(games, stateOf, now, atOf) {
+  return games.filter((g) => ["today", "upcoming"].includes(gameBucket(g, stateOf(g), now, atOf ? atOf(g) : 0))).sort((a, b) => kickoffMs(a) - kickoffMs(b))[0] || null;
 }
 
 /* ---------- filtering ---------- */

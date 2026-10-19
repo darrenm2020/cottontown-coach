@@ -7,6 +7,8 @@
     "dev": "npx netlify-cli dev --offline --port 8888",
     "seed": "node scripts/seed-dev.mjs",
     "add-teams": "node scripts/add-teams.mjs",
+    "fill-rosters": "node scripts/fill-rosters.mjs",
+    "update-tournaments": "node scripts/update-tournaments-oct-2026.mjs",
     "test": "node --test tests/*.test.mjs",
     "check": "node scripts/check.mjs"
   },

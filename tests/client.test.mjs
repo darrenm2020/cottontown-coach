@@ -6,7 +6,7 @@ import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
 const JS = new URL("../public/js/", import.meta.url);
-const FILES = ["teaminfo.js", "app.js", "auth.js", "drills.js", "practice.js", "season.js", "nav.js", "admin.js", "home.js"];
+const FILES = ["teaminfo.js", "app.js", "auth.js", "drills.js", "practice.js", "season.js", "nav.js", "events.js", "admin.js", "home.js"];
 
 // A stand-in for anything on the page: every property and call returns another stand-in.
 function anything() {
@@ -104,7 +104,7 @@ test("upcoming lists only future unstarted games; past ones need a result; undat
   assert.equal(b("2026-10-18T09:45"), "needs-result");
   assert.equal(b(""), "undated");
   assert.equal(b("not a date"), "undated");
-  assert.equal(b("2026-10-18T09:45", { started: true, fullDone: false }), "live");
+  assert.equal(b("2026-10-18T09:45", { started: true, fullDone: false }), "needs-result", "started days ago and never finished: not live");
   assert.equal(b("2026-10-18T09:45", { started: true, fullDone: true }), "final");
   const games = [{ id: "old", dt: "2026-10-18T09:45" }, { id: "nodate", dt: "" }, { id: "sat", dt: "2026-10-24T09:00" }, { id: "fri", dt: "2026-10-23T18:00" }];
   assert.equal(run(`nextGameOf(${JSON.stringify(games)},()=>null,NOW).id`), "fri");
@@ -112,6 +112,37 @@ test("upcoming lists only future unstarted games; past ones need a result; undat
 });
 
 // ---------- 4/5/6. team info, titles, filters ----------
+test("game status: Live needs evidence of play; stale games await a result; nothing is finalized automatically", () => {
+  const { run } = loadApp();
+  const now = new Date(2026, 9, 19, 12, 0).getTime(); // Mon Oct 19, noon
+  run(`globalThis.NOW=${now}`);
+  const st = (g, s, at) => run(`gameStatus(${JSON.stringify(g)},${JSON.stringify(s || null)},NOW,${at || 0})`);
+  const min = 60000;
+  // The reported case: an Oct 17 game started (a goal tapped) but the clock never ran, still "live" two days later.
+  const oct17 = { dt: "2026-10-17T18:00", half: 30 };
+  const quiet = { started: true, running: false, acc: 0, stops: [], us: 1, them: 0, fullDone: false };
+  assert.equal(st(oct17, quiet), "awaiting");
+  assert.equal(run(`statusLabel('awaiting',${JSON.stringify(quiet)})`), "Awaiting final score");
+  assert.equal(run(`statusLabel('awaiting',null)`), "Awaiting result");
+  // A game started early with no clock is still just scheduled.
+  assert.equal(st({ dt: "2027-03-04T19:00", half: 40 }, quiet), "upcoming");
+  // Clock running now, kicked off 20 minutes ago: live.
+  const kick = new Date(now - 20 * min); const p2 = (n) => String(n).padStart(2, "0");
+  const dtNow = `${kick.getFullYear()}-${p2(kick.getMonth() + 1)}-${p2(kick.getDate())}T${p2(kick.getHours())}:${p2(kick.getMinutes())}`;
+  assert.equal(st({ dt: dtNow, half: 30 }, { started: true, running: true, acc: 0, runStart: now - 20 * min, stops: [] }), "live");
+  // Paused exactly at the end of the first half: halftime.
+  assert.equal(st({ dt: dtNow, half: 30 }, { started: true, running: false, acc: 30 * min, stops: [30 * min] }, now - 2 * min), "halftime");
+  // A clock left running for hours past full time is not live.
+  assert.equal(st({ dt: "2026-10-19T08:00", half: 30 }, { started: true, running: true, acc: 0, runStart: now - 4 * 60 * min, stops: [] }), "awaiting");
+  // Past the window but a coach saved 10 minutes ago (e.g. a long overtime): still live.
+  assert.equal(st({ dt: "2026-10-19T09:30", half: 30 }, { started: true, running: false, acc: 50 * min, stops: [30 * min] }, now - 10 * min), "live");
+  assert.equal(st({ dt: "2026-10-17T18:00", status: "postponed" }, null), "postponed");
+  assert.equal(st(oct17, { started: true, fullDone: true, us: 2, them: 1 }), "final");
+  // Status never changes the game record.
+  run(`globalThis.REC=${JSON.stringify(quiet)};gameStatus(${JSON.stringify(oct17)},REC,NOW,0)`);
+  assert.equal(run("REC.fullDone"), false);
+});
+
 test("team info: clear suggestions from names, ambiguity left blank, coach values win", () => {
   const { run } = loadApp();
   const info = (t) => JSON.parse(run(`JSON.stringify([teamShortTitle(${JSON.stringify(t)}),teamInfo(${JSON.stringify(t)})])`));
@@ -162,31 +193,63 @@ function clubData(now) {
     ],
   };
 }
-test("home page: order, one card per team, next game details, filters across sections, empty state", () => {
+test("home page: Live now, My teams, Coming up, results, directory; one card per team; reminders only for coaches", () => {
   const { run } = loadApp();
-  const now = new Date(2026, 9, 21, 12, 0).getTime();
+  const now = new Date(2026, 9, 21, 12, 0).getTime(); // a Wednesday
   run(`S={v:2,team:'cottontown',cur:{},T:{},auth:{},favTeams:['white','gone'],clubFilter:'all',clubQ:''};OFF=${now}-Date.now();globalThis.D=${JSON.stringify(clubData(now))};`);
   let h = run("clubBodyHTML(D)");
   const at = (s) => h.indexOf(s);
   assert.ok(at(">Live now<") >= 0 && at(">Live now<") < at(">My teams<"), "Live now comes first");
-  assert.ok(at(">My teams<") < at(">Playing this weekend") && at(">Playing this weekend") < at("Recent results"), "then My teams, weekend, remaining, results");
+  assert.ok(at(">My teams<") < at(">Coming up<") && at(">Coming up<") < at(">Recent results<") && at(">Recent results<") < at(">All teams<"), "then My teams, Coming up, results, the directory");
+  assert.ok(!h.includes("This weekend"), "on a weekday there's no weekend section");
+  assert.equal((h.match(/<article/g) || []).length, 2, "full cards only for My teams and Coming up; the rest are directory rows");
   assert.equal((h.match(/aria-label="U16 Boys · White"/g) || []).length, 1, "a starred team's card appears once");
   assert.ok(h.includes("no longer listed"), "a starred team that's gone is handled");
-  assert.ok(h.includes("vs Future Opp") && h.includes("Field 2") && h.includes("View game") && h.includes("Directions"), "next game: opponent, field, View game, Directions");
-  assert.ok(!/Next<\/span><div><b>vs Past No Result/.test(h), "a past game without a result is never Next");
-  assert.ok(h.includes("1 past game needs a result"));
-  assert.ok(h.includes("No upcoming games scheduled."), "undated game isn't treated as upcoming");
-  assert.ok(h.includes(">13/14 Girls<") && !/<h3>Cottontown United/.test(h), "short titles, not the club name, are the card headings");
+  const girls = h.slice(h.indexOf('aria-label="13/14 Girls"'), h.indexOf("</article>", h.indexOf('aria-label="13/14 Girls"')));
+  assert.ok(girls.includes("vs <b>Future Opp</b>") && girls.includes("Field 2") && girls.includes("Directions"), "next game: opponent, day, time, field, Directions");
+  assert.equal((girls.match(/View game/g) || []).length, 1, "one primary action");
+  assert.ok(girls.includes('class="tbadge">U14<') && !girls.includes('class="tbadge">Girls<'), "badges don't repeat the title");
+  assert.ok(!h.includes("need a final score"), "parents don't get missing-result reminders");
+  run("S.master='x'");
+  assert.ok(run("clubBodyHTML(D)").includes("1 game needs a final score"), "coaches do");
+  run("delete S.master");
   // Girls filter applies to live games and results too
   run("S.clubFilter='girls'");
   h = run("clubBodyHTML(D)");
-  assert.ok(!h.includes("Live Opp"), "the Boys team's live game is filtered out");
-  assert.ok(h.includes("Vero FC"), "the Girls team's result stays");
-  assert.ok(h.includes("Clear filters"));
-  // No matches
+  assert.ok(!h.includes("Live Opp") && h.includes("Vero FC") && h.includes("Clear filters"));
   run("S.clubQ='zzz'");
   h = run("clubBodyHTML(D)");
   assert.ok(h.includes("No teams match") && h.includes('data-cact="clearfilters"'));
+  run("S.clubFilter='all';S.clubQ=''");
+  // Five results, then View all
+  run("D.teams[2].games=[1,2,3,4,5,6,7].map(i=>({id:'r'+i,opp:'Opp'+i,dt:'2026-10-1'+i+'T09:00',s:{started:true,fullDone:true,us:i,them:0,scorers:[],half:30,stops:[],acc:0}}))");
+  h = run("clubBodyHTML(D)");
+  assert.ok(h.includes("View all results (8)"));
+  run("HOME.allRes=true");
+  assert.ok(run("clubBodyHTML(D)").includes("Show fewer"));
+});
+
+test("tournaments: shown on cards and schedules; filter appears with two or more events; suggestions are never assigned", () => {
+  const { run } = loadApp();
+  const now = new Date(2026, 9, 21, 12, 0).getTime();
+  const d = clubData(now);
+  d.teams[0].games[2].tid = "kicks"; d.teams[1].games[0].tid = "fall";
+  run(`S={v:2,team:'cottontown',cur:{},T:{},auth:{},favTeams:[],clubFilter:'all',clubQ:''};OFF=${now}-Date.now();globalThis.D=${JSON.stringify(d)};
+    TOURS.list=[{id:'kicks',name:'KICKS Invitational',start:'2026-10-24',end:'2026-10-25'},{id:'fall',name:'Fall Classic',start:'2026-10-21',end:'2026-10-21'}];`);
+  assert.equal(run("relevantTours(D.teams,T()).length"), 2, "two events nearby: the filter is offered");
+  assert.ok(run("clubBodyHTML(D)").includes("🏆</span> KICKS Invitational"), "the card names the event");
+  run("S.clubTour='kicks'");
+  const h = run("clubBodyHTML(D)");
+  assert.ok(h.includes("Future Opp") && !h.includes("Live Opp"), "the event filter narrows teams and games");
+  assert.equal(run("tourDates(TOURS.list[0])"), "Oct 24–25");
+  // Team schedule: a game inside the dates is suggested, not assigned, until the coach confirms.
+  run(`S.team='t1';S.T.t1={cfg:{id:'t1',name:'T',players:[],games:[{id:'a',title:'A',opp:'A',dt:'2026-10-24T09:00'},{id:'b',title:'B',opp:'B',dt:'2026-11-07T09:00'}]},games:{}};TOURS.sel='kicks';TOURS.checked=null;`);
+  const card = run("tournamentsCardHTML()");
+  assert.ok(card.includes("1 game falls within its dates") && card.includes("in these dates"));
+  assert.equal(run("CFG().games[0].tid"), undefined, "nothing assigned by suggesting");
+  run("EXT.tourmatch();save=()=>{};EXT.tourassign()");
+  assert.equal(run("CFG().games[0].tid"), "kicks");
+  assert.equal(run("CFG().games[1].tid"), undefined);
 });
 
 test("school programs get their own page; the club page keeps its own teams", () => {
@@ -214,20 +277,22 @@ test("school programs get their own page; the club page keeps its own teams", ()
   assert.equal(run("clubLink()"), "/?club=1&program=athens-city-schools");
 });
 
-test("game and practice modes: game day opens Game mode, each mode shows only its own tabs", () => {
+test("coach modes (Game, Practice, Team): game day opens Game mode, each mode shows only its own tabs", () => {
   const { run } = loadApp();
   const now = new Date(2026, 9, 21, 12, 0).getTime();
   const p2 = (n) => String(n).padStart(2, "0");
   const dt = (d) => { const x = new Date(now + d * 864e5); return `${x.getFullYear()}-${p2(x.getMonth() + 1)}-${p2(x.getDate())}T15:00`; };
-  run(`OFF=${now}-Date.now();S={v:2,team:'t1',cur:{},T:{t1:{cfg:{id:'t1',name:'T',players:[],games:[{id:'g1',title:'A',dt:'${dt(3)}',half:30}]},games:{}}},auth:{},mode:'practice',tab:'season'};`);
+  run(`OFF=${now}-Date.now();S={v:2,team:'t1',cur:{},T:{t1:{cfg:{id:'t1',name:'T',players:[],games:[{id:'g1',title:'A',dt:'${dt(3)}',half:30}]},games:{}}},auth:{},mode:'practice',tab:'practice'};`);
   assert.equal(run("coachMode()"), "practice", "no game today: the chosen mode stays");
   run("UI.modeTeam=null;S.T.t1.cfg.games[0].dt='" + dt(0) + "'");
   assert.equal(run("coachMode()+'/'+S.tab"), "game/bench", "a game today opens Game mode on the field");
-  run("S.mode='game';S.tab='setup'");
-  assert.equal(run("coachMode()"), "practice", "opening Setup (e.g. + Add a game) switches to Practice");
+  run("S.mode='game';S.tab='schedule'");
+  assert.equal(run("coachMode()"), "team", "opening the schedule (e.g. + Add a game) switches to Team");
+  run("S.mode='game';S.tab='practice'");
+  assert.equal(run("coachMode()"), "practice");
   run("EXT.mode({m:'game'})");
   assert.equal(run("S.mode+'/'+S.tab"), "game/bench");
-  assert.deepEqual(JSON.parse(run("JSON.stringify(MODE_TABS)")), { game: ["players", "plan", "bench", "log", "stats", "minutes"], practice: ["practice", "season", "setup"] });
+  assert.deepEqual(JSON.parse(run("JSON.stringify(MODE_TABS)")), { game: ["players", "plan", "bench", "log", "stats", "minutes"], practice: ["practice"], team: ["roster", "schedule", "season", "setup"] });
 });
 
 test("favorites are per device and never grant editing", () => {
@@ -266,4 +331,28 @@ test("fair play: zero-minute available games count, unavailable and results-only
   const sd = JSON.parse(run("JSON.stringify({unknown:seasonData().unknown.map(r=>r.p.id),goalsB:seasonData().list.find(r=>r.p.id==='b').g})"));
   assert.deepEqual(sd.unknown, ["d"]);
   assert.equal(sd.goalsB, 2, "results-only goals still count");
+});
+
+test("school grades: saved as a graduation year, so the grade moves up each August", () => {
+  const { run } = loadApp();
+  const at = (y, m) => new Date(y, m, 15).getTime();
+  assert.equal(run(`gradeTag(2028, ${at(2026, 3)})`), "Gr 10", "spring 2026: class of 2028 is in 10th grade");
+  assert.equal(run(`gradeTag(2028, ${at(2026, 9)})`), "Gr 11", "fall 2026: moved up to 11th");
+  assert.equal(run(`gradeTag(2026, ${at(2026, 9)})`), "Class of 2026", "graduated seniors say so");
+  assert.equal(run(`gradFor(9, ${at(2026, 9)})`), 2030);
+});
+
+test("tournament sign-ups show before games are posted, and disappear once the event's games exist", () => {
+  const { run } = loadApp();
+  const now = new Date(2026, 9, 19, 12, 0).getTime();
+  run(`S={v:2,team:'red',cur:{},T:{},auth:{},favTeams:['red'],clubFilter:'all',clubQ:''};OFF=${now}-Date.now();
+    TOURS.list=[{id:'showdown',name:'Alabama Soccer Showdown',start:'2026-11-06',end:'2026-11-08',venue:'Birmingham, AL'}];
+    globalThis.D={club:null,teams:[{id:'red',name:'Cottontown United Boys Red',sub:'U18 Boys',entries:[{tid:'showdown',status:'applied'}],games:[]}]};`);
+  const h = run("clubBodyHTML(D)");
+  assert.ok(h.includes("Alabama Soccer Showdown") && h.includes("applied, schedule not posted"), "the card names the event and its status");
+  assert.equal(run("pendingEntries(D.teams[0],T()).length"), 1);
+  run("D.teams[0].games=[{id:'x',opp:'Opp',dt:'2026-11-07T09:00',tid:'showdown',s:null}]");
+  assert.equal(run("pendingEntries(D.teams[0],T()).length"), 0, "once games are posted, the games show instead");
+  run("D.teams[0].games=[];TOURS.list[0].start='2026-10-01';TOURS.list[0].end='2026-10-02'");
+  assert.equal(run("pendingEntries(D.teams[0],T()).length"), 0, "past events aren't shown as coming up");
 });

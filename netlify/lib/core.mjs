@@ -348,6 +348,35 @@ export async function handle(req, { store, env }) {
       return json({ ok: true, now, rev });
     }
 
+    // --- tournaments: shared records (one id per event) that games point to with `tid` ---
+    if (kind === "tournament") {
+      if (!atLeast(w, "head")) return json({ error: "Only a head coach can add or change tournaments" }, 403);
+      const t = cleanTournament(b.tournament);
+      if (!t) return json({ error: "A tournament needs a name; dates must be YYYY-MM-DD, end on or after start" }, 400);
+      const list = await loadTournaments(store);
+      const cur = t.id ? list.find((x) => x.id === t.id) : null;
+      if (cur) {
+        if (!w.admin && cur.team !== team) return json({ error: "Only the coach who added this tournament or an admin can change it" }, 403);
+        Object.assign(cur, { name: t.name, start: t.start, end: t.end, venue: t.venue, link: t.link, at: now });
+        await store.setJSON("tournaments", list);
+        return json({ ok: true, now, id: cur.id, tournaments: list });
+      }
+      // The same event typed a little differently (case, spacing, punctuation) reuses the existing record.
+      const same = list.find((x) => tourKey(x.name) === tourKey(t.name) && (!t.start || !x.start || x.start.slice(0, 4) === t.start.slice(0, 4)));
+      if (same) return json({ ok: true, now, id: same.id, existing: true, tournaments: list });
+      let id = (tourKey(t.name).replace(/ /g, "-").slice(0, 30) || "event") + (t.start ? "-" + t.start.slice(0, 7) : "");
+      for (let i = 2; list.some((x) => x.id === id); i++) id = id.replace(/-\d+$/, "") + "-" + i;
+      list.push({ ...t, id, team, by: clip(w.name, 60), at: now });
+      await store.setJSON("tournaments", list);
+      return json({ ok: true, now, id, tournaments: list });
+    }
+    if (kind === "tournament-del") {
+      if (!w.admin) return json({ error: "Only an admin can remove a tournament" }, 403);
+      const list = (await loadTournaments(store)).filter((x) => x.id !== b.id);
+      await store.setJSON("tournaments", list);
+      return json({ ok: true, now, tournaments: list });
+    }
+
     if (kind === "club") {
       if (!w.admin) return json({ error: "only the main code can edit the club" }, 403);
       const cur = (await store.get("club", { type: "json" })) || {};
@@ -582,13 +611,14 @@ export async function handle(req, { store, env }) {
           (c.games || []).slice(0, 80).map(async (g) => {
             const v = g && okGid(g.id) ? await store.get("game-" + t.id + "-" + g.id, { type: "json" }) : null;
             return { id: g.id, title: g.title || "", oppLogo: typeof g.oppLogo === "string" ? g.oppLogo : "", opp: g.opp || "", dt: g.dt || "", when: g.when || "", field: g.field || "", place: g.place || "",
-              half: g.half || 30, s: v && v.game ? summarize(v.game, pname) : null };
+              half: g.half || 30, status: g.status === "postponed" ? "postponed" : "", tid: typeof g.tid === "string" ? clip(g.tid, 40) : "",
+              at: v && v.at ? v.at : 0, s: v && v.game ? summarize(v.game, pname) : null };
           })
         );
-        return { id: t.id, name: c.name || t.name, short: c.short || "", sub: c.sub || "", logo: c.logo || null, format: c.format || "", placing: c.placing || null, ...teamInfoOf(c), coaches: coachNames[t.id] || [], games };
+        return { id: t.id, name: c.name || t.name, short: c.short || "", sub: c.sub || "", logo: c.logo || null, format: c.format || "", placing: c.placing || null, ...teamInfoOf(c), coaches: coachNames[t.id] || [], entries: entriesOf(c), games };
       })
     );
-    return json({ now, club: club ? { name: club.name, logo: club.logo } : null, teams });
+    return json({ now, club: club ? { name: club.name, logo: club.logo } : null, teams, tournaments: await loadTournaments(store) });
   }
   if (q.get("list")) {
     const idx = (await store.get("teams", { type: "json" })) || [];
@@ -620,7 +650,7 @@ export async function handle(req, { store, env }) {
       })
     );
   }
-  return json({ now, team, config: config || null, games, pstats, legacy: null });
+  return json({ now, team, config: config || null, games, pstats, tournaments: await loadTournaments(store), legacy: null });
 }
 
 // An assistant may save team settings only to change rotation plans or who's out; everything else
@@ -638,6 +668,22 @@ export function teamInfoOf(c) {
   if (out.division !== undefined && !["girls", "boys", "coed", ""].includes(out.division)) out.division = "";
   if (typeof c.program === "string" && c.program.trim()) out.program = clip(c.program.trim(), 60);
   return out;
+}
+
+// ---------- tournaments ----------
+// Tournaments a team has signed up for, before any games are posted: [{ tid, status: "entered" | "applied" }].
+export const entriesOf = (c) => (Array.isArray(c.entries) ? c.entries : []).filter((e) => e && typeof e.tid === "string" && /^[a-z0-9-]{1,48}$/.test(e.tid)).slice(0, 20).map((e) => ({ tid: e.tid, status: e.status === "applied" ? "applied" : "entered" }));
+// Name key for spotting the same event typed differently: "KICKS  Invitational!" = "kicks invitational".
+export const tourKey = (n) => String(n || "").toLowerCase().replace(/&/g, " and ").replace(/[^a-z0-9]+/g, " ").replace(/\b(the|annual)\b/g, " ").replace(/\s+/g, " ").trim();
+async function loadTournaments(store) { const v = await store.get("tournaments", { type: "json" }); return Array.isArray(v) ? v : []; }
+function cleanTournament(t) {
+  if (!t || typeof t !== "object") return null;
+  const name = clip(String(t.name || "").replace(/\s+/g, " ").trim(), 80);
+  const day = (v) => (/^\d{4}-\d{2}-\d{2}$/.test(String(v || "")) ? String(v) : "");
+  const start = day(t.start), end = day(t.end) || start;
+  if (name.length < 2 || (t.start && !start) || (t.end && !day(t.end)) || (start && end < start)) return null;
+  const link = /^https?:\/\/\S+$/.test(String(t.link || "")) ? clip(t.link, 300) : "";
+  return { id: typeof t.id === "string" && /^[a-z0-9-]{1,48}$/.test(t.id) ? t.id : "", name, start, end, venue: clip(String(t.venue || "").trim(), 120), link };
 }
 
 export function summarize(g, pname) {

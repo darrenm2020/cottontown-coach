@@ -189,3 +189,8 @@ details.signin summary{cursor:pointer;color:var(--crimson);font-weight:600}
 .app.practice .top{grid-template-columns:1fr!important}
 .app.practice .top .brand>div{display:block!important}
 @media (min-width:900px){.app.practice #modesw{max-width:980px;width:100%;margin:0 auto;padding:0 16px;box-sizing:border-box}.app.practice .modesw{margin:10px 0 0}}
+
+/* Player grades (school teams) */
+.gradetag{background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
+.gradesel{display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-size:14px;color:var(--muted)}
+.gradesel select{min-height:36px;border-radius:8px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:600 15px "Barlow",sans-serif;padding:0 8px}

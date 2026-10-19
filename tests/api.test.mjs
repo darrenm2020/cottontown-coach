@@ -290,3 +290,47 @@ test("backups: snapshot everything except sign-ins; restore one game", async () 
   for (let i = 1; i <= 32; i++) await takeBackup(store, "2026-09-" + String(i).padStart(2, "0"));
   assert.equal((await store.list({ prefix: "backup/" })).blobs.length, 30, "keeps 30");
 });
+
+test("tournaments: head coaches add shared events, spelling variants reuse one id, others can't change them", async () => {
+  const { a } = await setup();
+  const k = { name: "KICKS Invitational", start: "2026-10-17", end: "2026-10-18", venue: "John Hunt Park", link: "https://example.com/kicks" };
+  // Parents (no code) and assistants can't add tournaments.
+  assert.equal((await a.post({ kind: "tournament", team: "t1", tournament: k })).status, 401);
+  let r = await a.post({ kind: "user-save", user: { name: "Randy", roles: { t1: "assistant" } }, code: "main-1234" });
+  await a.post({ kind: "user-code", id: r.body.user.id, newCode: "randy-777", code: "main-1234" });
+  const asst = (await a.post({ kind: "login", code: "randy-777" })).body.session;
+  assert.equal((await a.post({ kind: "tournament", team: "t1", tournament: k, session: asst })).status, 403);
+  // A head coach (the main code here) adds it.
+  r = await a.post({ kind: "tournament", team: "t1", tournament: k, code: "main-1234" });
+  assert.equal(r.status, 200);
+  const id = r.body.id;
+  assert.equal(id, "kicks-invitational-2026-10");
+  // The same event typed differently is the same record, not a duplicate.
+  r = await a.post({ kind: "tournament", team: "t1", tournament: { name: "  kicks   INVITATIONAL! ", start: "2026-10-17" }, code: "main-1234" });
+  assert.equal(r.body.id, id);
+  assert.equal(r.body.existing, true);
+  assert.equal(r.body.tournaments.length, 1);
+  // Bad input is refused.
+  assert.equal((await a.post({ kind: "tournament", team: "t1", tournament: { name: "X", start: "2026-10-18", end: "2026-10-17" }, code: "main-1234" })).status, 400);
+  // Games point to it; the club page and team page list it.
+  await a.post({ kind: "config", team: "t1", config: { ...team, games: [{ id: "g1", title: "Game 1", tid: id }] }, code: "main-1234" });
+  const club = (await a.get("?club=1")).body;
+  assert.equal(club.tournaments[0].name, "KICKS Invitational");
+  assert.equal(club.teams.find((t) => t.id === "t1").games[0].tid, id);
+  assert.equal((await a.get("?team=t1")).body.tournaments.length, 1);
+  // A sign-up before games are posted travels with the team (cleaned: id and status only).
+  await a.post({ kind: "config", team: "t1", config: { ...team, entries: [{ tid: id, status: "applied", junk: "x" }, { tid: "BAD ID" }] }, code: "main-1234" });
+  assert.deepEqual((await a.get("?club=1")).body.teams.find((t) => t.id === "t1").entries, [{ tid: id, status: "applied" }]);
+  // Only an admin removes one.
+  assert.equal((await a.post({ kind: "tournament-del", team: "t1", id, session: asst })).status, 403);
+  assert.equal((await a.post({ kind: "tournament-del", team: "t1", id, code: "main-1234" })).status, 200);
+});
+
+test("club summary carries the last save time and postponed status for game status", async () => {
+  const { a } = await setup();
+  await a.post({ kind: "config", team: "t1", config: { ...team, games: [{ id: "g1", title: "Game 1", status: "postponed" }] }, code: "main-1234" });
+  await a.post({ kind: "game", team: "t1", gid: "g1", game: { started: true, fullDone: false, goals: [] }, code: "main-1234" });
+  const g = (await a.get("?club=1")).body.teams.find((t) => t.id === "t1").games[0];
+  assert.equal(g.status, "postponed");
+  assert.ok(g.at > 0, "last saved time is included");
+});
