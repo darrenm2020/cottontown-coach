@@ -1,0 +1,799 @@
+[
+  {
+    "id": "warmup-shadow-01a",
+    "title": "Shadow Dribble",
+    "topic": "warmup",
+    "ages": ["7v7", "9v9"],
+    "players": "8-16",
+    "minutes": 10,
+    "intensity": "low",
+    "space": "25 x 20 yards",
+    "equipment": ["1 ball per pair", "4 cones"],
+    "summary": "One partner dribbles freely while the other copies every move with their own ball.",
+    "setup": "Mark a 25 x 20 yard grid with 4 corner cones. Players in pairs, each with a ball. One is the leader, one is the shadow.",
+    "how": [
+      "The leader dribbles anywhere in the grid, changing speed, direction and the part of the foot they use.",
+      "The shadow follows about 2 yards behind and copies everything the leader does.",
+      "Every 45 seconds the coach shouts 'Switch' and the roles swap.",
+      "Finish with one round where the leader adds a stop and a quick restart."
+    ],
+    "coaching": [
+      "Small touches so the ball stays close",
+      "Eyes up to watch your partner and avoid other pairs",
+      "Leaders: mix slow and fast so the shadow has to react"
+    ],
+    "easier": "Walk-pace leaders only use inside and outside of the foot.",
+    "harder": "Leader can call out a move (pull back, roll, cut) and the shadow must do it within 2 seconds.",
+    "video": "",
+    "diagram": {
+      "w": 25, "h": 20,
+      "items": [
+        {"t": "cone", "x": 0, "y": 0},
+        {"t": "cone", "x": 25, "y": 0},
+        {"t": "cone", "x": 0, "y": 20},
+        {"t": "cone", "x": 25, "y": 20},
+        {"t": "player", "team": "a", "x": 6, "y": 6, "label": "L"},
+        {"t": "player", "team": "b", "x": 4, "y": 4, "label": "S"},
+        {"t": "dribble", "from": [6, 6], "to": [12, 10]},
+        {"t": "dribble", "from": [4, 4], "to": [10, 8]},
+        {"t": "player", "team": "a", "x": 18, "y": 14, "label": "L"},
+        {"t": "player", "team": "b", "x": 20, "y": 16, "label": "S"},
+        {"t": "dribble", "from": [18, 14], "to": [14, 9]},
+        {"t": "dribble", "from": [20, 16], "to": [16, 11]}
+      ]
+    }
+  },
+  {
+    "id": "warmup-square-02a",
+    "title": "Square Pass and Stretch",
+    "topic": "warmup",
+    "ages": ["9v9", "11v11"],
+    "players": "8-20",
+    "minutes": 12,
+    "intensity": "medium",
+    "space": "15 x 15 yards per group",
+    "equipment": ["1 ball per group", "4 cones per group"],
+    "summary": "Groups of four to five pass around a square, follow their pass, and add a movement prep exercise as they jog.",
+    "setup": "Build a 15 x 15 yard square for each group. One player on each cone, with the extra player starting at the cone that has the ball.",
+    "how": [
+      "Pass to the next cone to the right, then jog after your pass to that cone.",
+      "While jogging, do the movement the coach calls: high knees, side shuffle, open the gate, close the gate, backpedal.",
+      "After 2 minutes switch direction so the pass goes left.",
+      "Last round: two-touch only and sprint after your pass."
+    ],
+    "coaching": [
+      "Open your hips to receive so you can play the next pass quickly",
+      "Pass with pace but keep it on the ground",
+      "Talk: call the name of the player you are passing to"
+    ],
+    "easier": "Make the square smaller and allow three touches.",
+    "harder": "Add a second ball to the square starting at the opposite cone.",
+    "video": "",
+    "diagram": {
+      "w": 15, "h": 15,
+      "items": [
+        {"t": "cone", "x": 1, "y": 1},
+        {"t": "cone", "x": 14, "y": 1},
+        {"t": "cone", "x": 14, "y": 14},
+        {"t": "cone", "x": 1, "y": 14},
+        {"t": "player", "team": "a", "x": 1, "y": 2, "label": "1"},
+        {"t": "player", "team": "a", "x": 13, "y": 1, "label": "2"},
+        {"t": "player", "team": "a", "x": 14, "y": 13, "label": "3"},
+        {"t": "player", "team": "a", "x": 2, "y": 14, "label": "4"},
+        {"t": "ball", "x": 2, "y": 2},
+        {"t": "pass", "from": [2, 2], "to": [13, 1]},
+        {"t": "run", "from": [1, 3], "to": [12, 3]},
+        {"t": "pass", "from": [13, 2], "to": [14, 12]}
+      ]
+    }
+  },
+  {
+    "id": "warmup-thieves-03a",
+    "title": "Ball Thieves",
+    "topic": "warmup",
+    "ages": ["7v7", "9v9"],
+    "players": "10-16",
+    "minutes": 10,
+    "intensity": "high",
+    "space": "30 x 25 yards",
+    "equipment": ["1 ball per player minus 2", "4 cones", "2 pinnies"],
+    "summary": "Two thieves without a ball try to win one; anyone who loses a ball becomes the new thief.",
+    "setup": "30 x 25 yard grid. Everyone has a ball except two players in pinnies, who start outside the grid.",
+    "how": [
+      "Players dribble around the grid keeping their ball safe.",
+      "On the whistle the two thieves enter and try to win a ball by stepping in and poking it away.",
+      "If you win a ball, keep it and dribble away. The player who lost it is now a thief.",
+      "Play 60 to 90 second rounds and count who never lost their ball."
+    ],
+    "coaching": [
+      "Keep your body between the thief and the ball",
+      "Change direction away from pressure, not toward it",
+      "Thieves: stay on your feet and be patient before stepping in"
+    ],
+    "easier": "Only one thief, or thieves walk.",
+    "harder": "Shrink the grid or add a third thief.",
+    "video": "",
+    "diagram": {
+      "w": 30, "h": 25,
+      "items": [
+        {"t": "cone", "x": 0, "y": 0},
+        {"t": "cone", "x": 30, "y": 0},
+        {"t": "cone", "x": 0, "y": 25},
+        {"t": "cone", "x": 30, "y": 25},
+        {"t": "player", "team": "a", "x": 8, "y": 6},
+        {"t": "player", "team": "a", "x": 22, "y": 8},
+        {"t": "player", "team": "a", "x": 12, "y": 18},
+        {"t": "player", "team": "a", "x": 24, "y": 19},
+        {"t": "player", "team": "b", "x": 15, "y": 12, "label": "T"},
+        {"t": "player", "team": "b", "x": 4, "y": 14, "label": "T"},
+        {"t": "run", "from": [15, 12], "to": [20, 9]},
+        {"t": "dribble", "from": [22, 8], "to": [27, 4]},
+        {"t": "run", "from": [4, 14], "to": [10, 17]},
+        {"t": "dribble", "from": [12, 18], "to": [16, 23]}
+      ]
+    }
+  },
+  {
+    "id": "passing-triangle-01a",
+    "title": "Triangle Pass and Follow",
+    "topic": "passing",
+    "ages": ["9v9", "11v11"],
+    "players": "9-15",
+    "minutes": 15,
+    "intensity": "medium",
+    "space": "20 x 18 yards",
+    "equipment": ["2 balls per group", "3 cones per group"],
+    "summary": "Three lines on a triangle; pass, follow your pass, and add a wall pass once the rhythm is set.",
+    "setup": "Place 3 cones in a triangle about 15 yards apart. Split 9-15 players into three lines. Two balls start with line A.",
+    "how": [
+      "A passes to B and runs to the back of line B.",
+      "B receives on the back foot, passes on to C, and follows.",
+      "C passes back to A to keep the loop going.",
+      "Progression: A passes to B, B lays it back to A, then A plays a longer ball to C."
+    ],
+    "coaching": [
+      "Receive with the foot farthest from the passer so you face the next target",
+      "Firm passes along the ground; follow through toward your target",
+      "Move off the cone a step before the ball arrives"
+    ],
+    "easier": "Allow three touches and shorten the sides to 10 yards.",
+    "harder": "One-touch only, or reverse direction on the coach's call.",
+    "video": "",
+    "diagram": {
+      "w": 20, "h": 18,
+      "items": [
+        {"t": "cone", "x": 3, "y": 15},
+        {"t": "cone", "x": 17, "y": 15},
+        {"t": "cone", "x": 10, "y": 2},
+        {"t": "player", "team": "a", "x": 3, "y": 16, "label": "A"},
+        {"t": "player", "team": "a", "x": 17, "y": 16, "label": "B"},
+        {"t": "player", "team": "a", "x": 10, "y": 1, "label": "C"},
+        {"t": "ball", "x": 4, "y": 15},
+        {"t": "pass", "from": [4, 15], "to": [16, 15]},
+        {"t": "run", "from": [3, 17], "to": [16, 17]},
+        {"t": "pass", "from": [16, 14], "to": [10, 3]},
+        {"t": "pass", "from": [9, 3], "to": [3, 14]}
+      ]
+    }
+  },
+  {
+    "id": "passing-gates-02a",
+    "title": "Gate Hunters",
+    "topic": "passing",
+    "ages": ["7v7", "9v9"],
+    "players": "8-16",
+    "minutes": 12,
+    "intensity": "medium",
+    "space": "30 x 25 yards",
+    "equipment": ["1 ball per pair", "16 cones"],
+    "summary": "Pairs move around the grid and score a point each time they pass through a gate to each other.",
+    "setup": "Scatter 8 gates (2 cones, 2 yards apart) inside a 30 x 25 grid. Players in pairs with one ball.",
+    "how": [
+      "Pairs dribble and pass around the grid looking for open gates.",
+      "A point counts when the ball goes through a gate and the partner controls it on the other side.",
+      "You cannot use the same gate twice in a row.",
+      "Play 60 second rounds; pairs try to beat their best score."
+    ],
+    "coaching": [
+      "Inside of the foot, ankle locked, toe up",
+      "Look up to find the next free gate before you receive",
+      "Receiver: get in line with the gate and call for it"
+    ],
+    "easier": "Bigger gates (3 yards) and no time limit.",
+    "harder": "Two-touch limit, or one pair becomes 'gate keepers' who stand in gates to block them.",
+    "video": "",
+    "diagram": {
+      "w": 30, "h": 25,
+      "items": [
+        {"t": "cone", "x": 6, "y": 5},
+        {"t": "cone", "x": 8, "y": 5},
+        {"t": "cone", "x": 20, "y": 8},
+        {"t": "cone", "x": 22, "y": 8},
+        {"t": "cone", "x": 12, "y": 17},
+        {"t": "cone", "x": 14, "y": 17},
+        {"t": "cone", "x": 24, "y": 20},
+        {"t": "cone", "x": 26, "y": 20},
+        {"t": "player", "team": "a", "x": 7, "y": 9, "label": "1"},
+        {"t": "player", "team": "a", "x": 7, "y": 2, "label": "2"},
+        {"t": "pass", "from": [7, 9], "to": [7, 2]},
+        {"t": "player", "team": "a", "x": 13, "y": 21, "label": "3"},
+        {"t": "player", "team": "a", "x": 13, "y": 13, "label": "4"},
+        {"t": "pass", "from": [13, 21], "to": [13, 13]},
+        {"t": "run", "from": [7, 2], "to": [17, 6]}
+      ]
+    }
+  },
+  {
+    "id": "passing-switch-03a",
+    "title": "Three-Zone Switch",
+    "topic": "passing",
+    "ages": ["9v9", "11v11"],
+    "players": "12-16",
+    "minutes": 18,
+    "intensity": "high",
+    "space": "40 x 25 yards",
+    "equipment": ["Balls", "8 cones", "Pinnies"],
+    "summary": "Keep the ball 4v2 in one end zone, then switch it over the middle zone to teammates waiting in the other end.",
+    "setup": "Split a 40 x 25 area into three zones: two 15-yard end zones and a 10-yard middle. Four attackers in each end zone, two defenders start in one end zone.",
+    "how": [
+      "Attackers in the zone with the defenders keep the ball and look to switch.",
+      "After at least 4 passes, play a pass along the ground through or across the middle zone to the far group.",
+      "When the ball is switched, the two defenders sprint over to press the new zone.",
+      "Defenders who win the ball swap with the two attackers who lost it."
+    ],
+    "coaching": [
+      "Spread wide and deep to make passing lanes",
+      "Shift the ball to draw defenders, then switch quickly",
+      "Far group: get open early so the switch can be one pass",
+      "Weight the long pass so it arrives without bouncing"
+    ],
+    "easier": "Switch after 3 passes; only one defender presses.",
+    "harder": "Switch must be first-time, or a third defender waits in the middle zone to intercept.",
+    "video": "",
+    "diagram": {
+      "w": 40, "h": 25,
+      "items": [
+        {"t": "zone", "x": 0, "y": 0, "w": 15, "h": 25, "label": "Zone A"},
+        {"t": "zone", "x": 25, "y": 0, "w": 15, "h": 25, "label": "Zone B"},
+        {"t": "player", "team": "a", "x": 3, "y": 4},
+        {"t": "player", "team": "a", "x": 12, "y": 5},
+        {"t": "player", "team": "a", "x": 3, "y": 20},
+        {"t": "player", "team": "a", "x": 12, "y": 19},
+        {"t": "player", "team": "b", "x": 7, "y": 10},
+        {"t": "player", "team": "b", "x": 9, "y": 15},
+        {"t": "player", "team": "a", "x": 28, "y": 5},
+        {"t": "player", "team": "a", "x": 37, "y": 8},
+        {"t": "player", "team": "a", "x": 29, "y": 20},
+        {"t": "player", "team": "a", "x": 37, "y": 18},
+        {"t": "pass", "from": [3, 4], "to": [12, 5]},
+        {"t": "pass", "from": [12, 5], "to": [29, 20]},
+        {"t": "run", "from": [9, 15], "to": [24, 18]}
+      ]
+    }
+  },
+  {
+    "id": "first-touch-box-01a",
+    "title": "Touch Out of the Box",
+    "topic": "first-touch",
+    "ages": ["7v7", "9v9"],
+    "players": "6-12",
+    "minutes": 12,
+    "intensity": "medium",
+    "space": "20 x 10 yards",
+    "equipment": ["2 balls per group", "6 cones"],
+    "summary": "A middle player receives inside a small box and must take the first touch out of a different side before passing on.",
+    "setup": "A 4 x 4 yard box in the middle of a 20-yard channel. One server at each end, one worker in the box. Rotate every 90 seconds.",
+    "how": [
+      "Server 1 passes into the worker in the box.",
+      "The worker's first touch must push the ball out of the box through a side the ball did not enter.",
+      "The worker then passes to Server 2 and steps back into the box.",
+      "Server 2 serves straight back in and the pattern repeats."
+    ],
+    "coaching": [
+      "Check your shoulder before the ball arrives",
+      "Soft ankle, cushion the ball into space, not under your feet",
+      "Use the inside and outside of both feet"
+    ],
+    "easier": "Make the box bigger and let the worker stop the ball first.",
+    "harder": "The coach calls 'left' or 'right' as the ball travels and the worker must touch out that side.",
+    "video": "",
+    "diagram": {
+      "w": 20, "h": 10,
+      "items": [
+        {"t": "cone", "x": 8, "y": 3},
+        {"t": "cone", "x": 12, "y": 3},
+        {"t": "cone", "x": 8, "y": 7},
+        {"t": "cone", "x": 12, "y": 7},
+        {"t": "player", "team": "a", "x": 1, "y": 5, "label": "S1"},
+        {"t": "player", "team": "a", "x": 19, "y": 5, "label": "S2"},
+        {"t": "player", "team": "b", "x": 10, "y": 5, "label": "W"},
+        {"t": "ball", "x": 2, "y": 5},
+        {"t": "pass", "from": [2, 5], "to": [9, 5]},
+        {"t": "dribble", "from": [10, 5], "to": [11, 9]},
+        {"t": "pass", "from": [11, 9], "to": [18, 6]}
+      ]
+    }
+  },
+  {
+    "id": "first-touch-pressure-02a",
+    "title": "Turn Away From Pressure",
+    "topic": "first-touch",
+    "ages": ["9v9", "11v11"],
+    "players": "6-12",
+    "minutes": 15,
+    "intensity": "high",
+    "space": "25 x 20 yards",
+    "equipment": ["Balls", "8 cones", "Pinnies"],
+    "summary": "A receiver with a defender closing in uses the first touch to turn away and dribble through one of two gates.",
+    "setup": "Server at one end. Receiver stands in the middle. A defender starts 5 yards behind the receiver. Two 3-yard gates on the far end line, one on each side.",
+    "how": [
+      "Server passes to the receiver; the defender may move as soon as the pass is made.",
+      "The receiver reads which side the defender is coming from.",
+      "The first touch takes the ball away from that side and toward the open gate.",
+      "Receiver scores by dribbling through a gate. If the defender wins it, they try to pass back to the server.",
+      "Rotate: server to receiver, receiver to defender, defender to server."
+    ],
+    "coaching": [
+      "Look over your shoulder before and while the ball travels",
+      "Open your body side-on so you can see the ball and the defender",
+      "First touch goes across your body and away from the defender, then accelerate"
+    ],
+    "easier": "Defender starts 8 yards away or only jogs.",
+    "harder": "Add a third gate in the middle; defender may tackle from the first touch.",
+    "video": "",
+    "diagram": {
+      "w": 25, "h": 20,
+      "items": [
+        {"t": "player", "team": "a", "x": 12, "y": 19, "label": "S"},
+        {"t": "ball", "x": 12, "y": 18},
+        {"t": "player", "team": "a", "x": 12, "y": 10, "label": "R"},
+        {"t": "player", "team": "b", "x": 14, "y": 5},
+        {"t": "cone", "x": 2, "y": 1},
+        {"t": "cone", "x": 5, "y": 1},
+        {"t": "cone", "x": 20, "y": 1},
+        {"t": "cone", "x": 23, "y": 1},
+        {"t": "pass", "from": [12, 18], "to": [12, 11]},
+        {"t": "run", "from": [14, 5], "to": [13, 9]},
+        {"t": "dribble", "from": [12, 10], "to": [4, 2]}
+      ]
+    }
+  },
+  {
+    "id": "first-touch-cushion-03a",
+    "title": "Pillow Catch",
+    "topic": "first-touch",
+    "ages": ["7v7", "9v9"],
+    "players": "6-16",
+    "minutes": 10,
+    "intensity": "low",
+    "space": "20 x 15 yards",
+    "equipment": ["1 ball per pair", "4 cones"],
+    "summary": "Partners toss the ball by hand and the receiver brings it down softly with the foot or thigh, then passes it back.",
+    "setup": "Pairs face each other 5 yards apart along a line of cones. One partner is the tosser with the ball in their hands.",
+    "how": [
+      "Tosser lobs the ball underarm to the receiver's feet.",
+      "Receiver cushions it with the inside of the foot or the top of the foot so it drops dead, then passes back on the ground.",
+      "After 8 tosses, aim for the thigh: lift the knee, let the ball drop, then control with the foot.",
+      "Swap roles. Finish with a round where the receiver can use either surface."
+    ],
+    "coaching": [
+      "Meet the ball early and pull the foot back as it lands, like catching an egg",
+      "Watch the ball all the way onto your foot",
+      "Relaxed body; stay on the balls of your feet"
+    ],
+    "easier": "Toss lower and allow the ball to bounce once first.",
+    "harder": "Receiver must take the ball down and move it 2 yards to one side in a single touch.",
+    "video": "",
+    "diagram": {
+      "w": 20, "h": 15,
+      "items": [
+        {"t": "cone", "x": 2, "y": 2},
+        {"t": "cone", "x": 2, "y": 13},
+        {"t": "cone", "x": 18, "y": 2},
+        {"t": "cone", "x": 18, "y": 13},
+        {"t": "player", "team": "a", "x": 6, "y": 4, "label": "T"},
+        {"t": "player", "team": "b", "x": 6, "y": 9, "label": "R"},
+        {"t": "pass", "from": [6, 5], "to": [6, 8]},
+        {"t": "player", "team": "a", "x": 14, "y": 4, "label": "T"},
+        {"t": "player", "team": "b", "x": 14, "y": 9, "label": "R"},
+        {"t": "pass", "from": [14, 8], "to": [14, 5]}
+      ]
+    }
+  },
+  {
+    "id": "dribbling-traffic-01a",
+    "title": "Rush Hour",
+    "topic": "dribbling",
+    "ages": ["7v7"],
+    "players": "8-14",
+    "minutes": 10,
+    "intensity": "medium",
+    "space": "25 x 25 yards",
+    "equipment": ["1 ball per player", "4 cones", "Coloured cone gates (optional)"],
+    "summary": "Everyone dribbles in a busy grid and responds to the coach's traffic calls.",
+    "setup": "25 x 25 yard grid. Every player has a ball. The coach stands on the edge and calls out commands.",
+    "how": [
+      "Players dribble around without bumping into anyone.",
+      "'Green light': dribble fast. 'Yellow light': slow, tiny touches. 'Red light': stop the ball with the sole.",
+      "'Roundabout': circle your ball using the sole. 'Reverse': pull the ball back and go the other way.",
+      "Anyone who touches another ball or player does 3 toe taps before carrying on."
+    ],
+    "coaching": [
+      "Head up to find space",
+      "Use both feet and lots of small touches",
+      "Explode away after a change of direction"
+    ],
+    "easier": "Larger grid and fewer commands.",
+    "harder": "Shrink the grid, or add a 'police car' player without a ball who tries to knock balls out.",
+    "video": "",
+    "diagram": {
+      "w": 25, "h": 25,
+      "items": [
+        {"t": "cone", "x": 0, "y": 0},
+        {"t": "cone", "x": 25, "y": 0},
+        {"t": "cone", "x": 0, "y": 25},
+        {"t": "cone", "x": 25, "y": 25},
+        {"t": "player", "team": "a", "x": 5, "y": 6},
+        {"t": "player", "team": "a", "x": 18, "y": 5},
+        {"t": "player", "team": "a", "x": 12, "y": 13},
+        {"t": "player", "team": "a", "x": 6, "y": 19},
+        {"t": "player", "team": "a", "x": 20, "y": 20},
+        {"t": "dribble", "from": [5, 6], "to": [10, 9]},
+        {"t": "dribble", "from": [18, 5], "to": [14, 9]},
+        {"t": "dribble", "from": [12, 13], "to": [17, 16]},
+        {"t": "dribble", "from": [6, 19], "to": [3, 14]},
+        {"t": "dribble", "from": [20, 20], "to": [22, 14]}
+      ]
+    }
+  },
+  {
+    "id": "dribbling-corners-02a",
+    "title": "Four Corner Escape",
+    "topic": "dribbling",
+    "ages": ["7v7", "9v9"],
+    "players": "8-14",
+    "minutes": 15,
+    "intensity": "high",
+    "space": "25 x 25 yards",
+    "equipment": ["1 ball per attacker", "12 cones", "Pinnies"],
+    "summary": "Attackers dribble out of the middle and escape through any of four corner gates while defenders try to stop them.",
+    "setup": "25 x 25 grid with a 2-yard gate at each corner. Attackers with balls start in a centre circle of cones. Two or three defenders roam the grid.",
+    "how": [
+      "On 'Go' attackers dribble out of the centre and try to get through any corner gate.",
+      "After escaping, dribble back around the outside and re-enter for another try.",
+      "Defenders stay on their feet and try to knock the ball out of the grid.",
+      "Count escapes in 90 seconds; rotate defenders each round."
+    ],
+    "coaching": [
+      "Fake toward one gate, then go to another",
+      "Attack space early before defenders close it",
+      "Shield with your body when a defender gets close"
+    ],
+    "easier": "One defender, or make the gates bigger.",
+    "harder": "Attackers must go through each corner once before any repeats.",
+    "video": "",
+    "diagram": {
+      "w": 25, "h": 25,
+      "items": [
+        {"t": "cone", "x": 0, "y": 2},
+        {"t": "cone", "x": 2, "y": 0},
+        {"t": "cone", "x": 23, "y": 0},
+        {"t": "cone", "x": 25, "y": 2},
+        {"t": "cone", "x": 0, "y": 23},
+        {"t": "cone", "x": 2, "y": 25},
+        {"t": "cone", "x": 25, "y": 23},
+        {"t": "cone", "x": 23, "y": 25},
+        {"t": "player", "team": "a", "x": 12, "y": 12},
+        {"t": "player", "team": "a", "x": 14, "y": 14},
+        {"t": "player", "team": "b", "x": 8, "y": 8},
+        {"t": "player", "team": "b", "x": 18, "y": 17},
+        {"t": "dribble", "from": [12, 12], "to": [2, 2]},
+        {"t": "dribble", "from": [14, 14], "to": [23, 23]},
+        {"t": "run", "from": [18, 17], "to": [20, 20]}
+      ]
+    }
+  },
+  {
+    "id": "dribbling-speed-03a",
+    "title": "Run It Into Space",
+    "topic": "dribbling",
+    "ages": ["9v9", "11v11"],
+    "players": "8-14",
+    "minutes": 15,
+    "intensity": "high",
+    "space": "40 x 20 yards",
+    "equipment": ["Balls", "10 cones"],
+    "summary": "Players push the ball out in front with longer touches to dribble at speed into open space, then race a chasing defender to the end line.",
+    "setup": "Two 40-yard channels side by side, each 10 yards wide. Attacker starts at one end with a ball. A defender starts on a cone 4 yards behind and to the side.",
+    "how": [
+      "Attacker takes a big first touch forward and runs with the ball down the channel.",
+      "The defender chases when the attacker touches the ball.",
+      "Attacker scores by stopping the ball on the far end line before the defender catches up.",
+      "Jog back on the outside and swap roles."
+    ],
+    "coaching": [
+      "Longer touches with the laces when there is space in front",
+      "Keep the ball slightly to the side so you can run in a straight line",
+      "Shorten your touches as you approach the line so you can stop it cleanly"
+    ],
+    "easier": "Defender starts farther back.",
+    "harder": "Defender starts level, or attacker must finish with a pass into a minigoal at the end.",
+    "video": "",
+    "diagram": {
+      "w": 40, "h": 20,
+      "items": [
+        {"t": "zone", "x": 0, "y": 0, "w": 40, "h": 10, "label": "Lane 1"},
+        {"t": "zone", "x": 0, "y": 10, "w": 40, "h": 10, "label": "Lane 2"},
+        {"t": "cone", "x": 39, "y": 0},
+        {"t": "cone", "x": 39, "y": 10},
+        {"t": "cone", "x": 39, "y": 20},
+        {"t": "player", "team": "a", "x": 2, "y": 5},
+        {"t": "player", "team": "b", "x": 0, "y": 8},
+        {"t": "dribble", "from": [2, 5], "to": [36, 5]},
+        {"t": "run", "from": [0, 8], "to": [30, 7]},
+        {"t": "player", "team": "a", "x": 2, "y": 15},
+        {"t": "player", "team": "b", "x": 0, "y": 18},
+        {"t": "dribble", "from": [2, 15], "to": [20, 15]}
+      ]
+    }
+  },
+  {
+    "id": "1v1-attack-goal-01a",
+    "title": "1v1 Race to Goal",
+    "topic": "1v1-attack",
+    "ages": ["9v9", "11v11"],
+    "players": "8-14",
+    "minutes": 18,
+    "intensity": "high",
+    "space": "30 x 25 yards",
+    "equipment": ["Balls", "1 full-size or 9v9 goal", "6 cones", "Pinnies"],
+    "summary": "An attacker receives facing a defender and tries to beat them and finish past the keeper.",
+    "setup": "Goal with keeper on the top line. Attackers line up on the bottom line; defenders line up beside the goal post.",
+    "how": [
+      "Defender passes the ball across to the attacker, then steps out to defend.",
+      "Attacker takes a positive first touch toward the defender and tries to beat them.",
+      "Attacker shoots once past the defender; play ends on a goal, save, or if the ball leaves the area.",
+      "If the defender wins it, they try to dribble over the bottom line.",
+      "Join the other line after each turn."
+    ],
+    "coaching": [
+      "Attack the defender's front foot at speed",
+      "Use a fake or change of pace to unbalance them, then go",
+      "Shoot early once you create half a yard"
+    ],
+    "easier": "Defender must start from the goal line, giving the attacker more time.",
+    "harder": "Five-second time limit to get a shot off.",
+    "video": "",
+    "diagram": {
+      "w": 30, "h": 25,
+      "items": [
+        {"t": "goal", "x": 15, "y": 0, "w": 8},
+        {"t": "gk", "x": 15, "y": 1},
+        {"t": "player", "team": "b", "x": 21, "y": 2, "label": "D"},
+        {"t": "player", "team": "a", "x": 15, "y": 24, "label": "A"},
+        {"t": "cone", "x": 0, "y": 25},
+        {"t": "cone", "x": 30, "y": 25},
+        {"t": "pass", "from": [21, 3], "to": [15, 23]},
+        {"t": "run", "from": [21, 2], "to": [16, 12]},
+        {"t": "dribble", "from": [15, 23], "to": [11, 10]},
+        {"t": "shot", "from": [11, 10], "to": [14, 1]}
+      ]
+    }
+  },
+  {
+    "id": "1v1-attack-lines-02a",
+    "title": "End Line Breakout",
+    "topic": "1v1-attack",
+    "ages": ["7v7", "9v9"],
+    "players": "6-12",
+    "minutes": 15,
+    "intensity": "high",
+    "space": "20 x 12 yards",
+    "equipment": ["Balls", "6 cones", "Pinnies"],
+    "summary": "1v1 in a narrow channel; the attacker scores by dribbling over the defender's end line under control.",
+    "setup": "Narrow 20 x 12 channel. Attackers line up at one end with balls, defenders line up at the other end.",
+    "how": [
+      "Defender passes to the attacker, then comes out to defend.",
+      "Attacker tries to stop the ball on the defender's end line for a point.",
+      "If the defender wins the ball, they score by passing it through the attacker's end line.",
+      "Each round lasts up to 20 seconds; then the next pair goes."
+    ],
+    "coaching": [
+      "Run at the defender to make them stop and back up",
+      "Change direction or speed the moment they commit",
+      "Protect the ball with your body after you beat them"
+    ],
+    "easier": "Widen the channel to 15 yards.",
+    "harder": "Attacker must get past within 3 touches of crossing halfway.",
+    "video": "",
+    "diagram": {
+      "w": 20, "h": 12,
+      "items": [
+        {"t": "cone", "x": 0, "y": 0},
+        {"t": "cone", "x": 20, "y": 0},
+        {"t": "cone", "x": 0, "y": 12},
+        {"t": "cone", "x": 20, "y": 12},
+        {"t": "player", "team": "a", "x": 1, "y": 6, "label": "A"},
+        {"t": "player", "team": "b", "x": 19, "y": 6, "label": "D"},
+        {"t": "pass", "from": [19, 6], "to": [2, 6]},
+        {"t": "run", "from": [19, 6], "to": [12, 6]},
+        {"t": "dribble", "from": [2, 6], "to": [10, 3]},
+        {"t": "dribble", "from": [10, 3], "to": [19, 4]}
+      ]
+    }
+  },
+  {
+    "id": "1v1-attack-twogoals-03a",
+    "title": "Pick a Goal 1v1",
+    "topic": "1v1-attack",
+    "ages": ["7v7", "9v9", "11v11"],
+    "players": "6-12",
+    "minutes": 15,
+    "intensity": "high",
+    "space": "20 x 15 yards",
+    "equipment": ["Balls", "2 minigoals", "4 cones", "Pinnies"],
+    "summary": "Attacker faces one defender who guards two minigoals; the attacker chooses which one to attack.",
+    "setup": "Two minigoals on the far line, one in each corner. Attackers start at the opposite end with balls. One defender starts between the goals.",
+    "how": [
+      "Attacker dribbles at the defender.",
+      "Use fakes and body movement to shift the defender toward one goal, then attack the other.",
+      "Score by passing into either minigoal; no shots from more than 8 yards out.",
+      "Defender who wins the ball counterattacks to the attackers' start line. Swap after each go."
+    ],
+    "coaching": [
+      "Show one way with your hips and eyes, go the other",
+      "Change of pace matters more than the trick",
+      "Pass into the goal with the inside of the foot once you are clear"
+    ],
+    "easier": "Defender must start on the goal line between the minigoals.",
+    "harder": "Add a recovering second defender who starts 5 yards behind the attacker.",
+    "video": "",
+    "diagram": {
+      "w": 20, "h": 15,
+      "items": [
+        {"t": "minigoal", "x": 3, "y": 0, "w": 2, "side": "top"},
+        {"t": "minigoal", "x": 17, "y": 0, "w": 2, "side": "top"},
+        {"t": "cone", "x": 0, "y": 15},
+        {"t": "cone", "x": 20, "y": 15},
+        {"t": "player", "team": "b", "x": 10, "y": 4, "label": "D"},
+        {"t": "player", "team": "a", "x": 10, "y": 14, "label": "A"},
+        {"t": "dribble", "from": [10, 14], "to": [8, 8]},
+        {"t": "run", "from": [10, 4], "to": [7, 6]},
+        {"t": "dribble", "from": [8, 8], "to": [14, 4]},
+        {"t": "shot", "from": [14, 4], "to": [17, 1]}
+      ]
+    }
+  },
+  {
+    "id": "fun-games-sharks-01a",
+    "title": "Shark Bay",
+    "topic": "fun-games",
+    "ages": ["7v7"],
+    "players": "10-16",
+    "minutes": 12,
+    "intensity": "high",
+    "space": "30 x 20 yards",
+    "equipment": ["1 ball per fish", "4 cones", "Pinnies"],
+    "summary": "Fish dribble across the bay from one beach to the other while sharks try to kick their balls out; caught fish become seaweed.",
+    "setup": "30 x 20 yard bay with an end line beach on each side. All fish start on one beach with a ball. Two sharks without balls start in the middle.",
+    "how": [
+      "On 'Swim!' all fish dribble across to the far beach.",
+      "Sharks try to knock balls out of the bay. A fish who loses their ball becomes seaweed.",
+      "Seaweed stands still where they were caught and can tag fish with their arms out, but cannot move their feet.",
+      "Keep crossing until only 2 or 3 fish remain; they are the next sharks."
+    ],
+    "coaching": [
+      "Look for gaps between sharks before you go",
+      "Use a fake or a quick turn when a shark comes near",
+      "Sharks: stay on your feet and work together to close space"
+    ],
+    "easier": "One shark only.",
+    "harder": "Fish must use their weaker foot only, or seaweed become extra sharks.",
+    "video": "",
+    "diagram": {
+      "w": 30, "h": 20,
+      "items": [
+        {"t": "zone", "x": 0, "y": 0, "w": 4, "h": 20, "label": "Beach"},
+        {"t": "zone", "x": 26, "y": 0, "w": 4, "h": 20, "label": "Beach"},
+        {"t": "player", "team": "a", "x": 2, "y": 4},
+        {"t": "player", "team": "a", "x": 2, "y": 10},
+        {"t": "player", "team": "a", "x": 2, "y": 16},
+        {"t": "player", "team": "b", "x": 14, "y": 7, "label": "S"},
+        {"t": "player", "team": "b", "x": 16, "y": 14, "label": "S"},
+        {"t": "dribble", "from": [2, 4], "to": [27, 3]},
+        {"t": "dribble", "from": [2, 10], "to": [27, 11]},
+        {"t": "dribble", "from": [2, 16], "to": [12, 18]},
+        {"t": "run", "from": [16, 14], "to": [13, 17]}
+      ]
+    }
+  },
+  {
+    "id": "fun-games-knockdown-02a",
+    "title": "Cone Knockdown",
+    "topic": "fun-games",
+    "ages": ["7v7", "9v9"],
+    "players": "8-16",
+    "minutes": 15,
+    "intensity": "medium",
+    "space": "30 x 25 yards",
+    "equipment": ["4-6 balls", "10 tall cones", "Pinnies"],
+    "summary": "Two teams each guard five tall cones in their half and try to knock down the other team's cones with passes.",
+    "setup": "Split the grid in half. Each team places 5 tall cones in their own half. Several balls start on the halfway line.",
+    "how": [
+      "Players stay in their own half and pass the ball at the other team's cones.",
+      "Defend your cones by blocking with your feet or body (no hands).",
+      "A knocked-down cone stays down. First team to knock down all five wins.",
+      "Reset and play best of three, changing cone positions each round."
+    ],
+    "coaching": [
+      "Use the inside of the foot for accuracy, laces for power",
+      "Move the ball sideways quickly to find a clear lane",
+      "Talk to teammates about which cone needs guarding"
+    ],
+    "easier": "Use more cones and bigger targets.",
+    "harder": "Two-touch limit, or one player per team may cross halfway to retrieve balls.",
+    "video": "",
+    "diagram": {
+      "w": 30, "h": 25,
+      "items": [
+        {"t": "zone", "x": 0, "y": 0, "w": 30, "h": 12, "label": "Team B half"},
+        {"t": "cone", "x": 6, "y": 4},
+        {"t": "cone", "x": 15, "y": 3},
+        {"t": "cone", "x": 24, "y": 5},
+        {"t": "cone", "x": 8, "y": 21},
+        {"t": "cone", "x": 22, "y": 20},
+        {"t": "player", "team": "b", "x": 12, "y": 7},
+        {"t": "player", "team": "b", "x": 20, "y": 8},
+        {"t": "player", "team": "a", "x": 10, "y": 17},
+        {"t": "player", "team": "a", "x": 19, "y": 16},
+        {"t": "ball", "x": 10, "y": 16},
+        {"t": "pass", "from": [10, 16], "to": [6, 5]},
+        {"t": "pass", "from": [20, 9], "to": [22, 19]}
+      ]
+    }
+  },
+  {
+    "id": "fun-games-survival-03a",
+    "title": "Survival Cup",
+    "topic": "fun-games",
+    "ages": ["7v7", "9v9", "11v11"],
+    "players": "12-20",
+    "minutes": 20,
+    "intensity": "high",
+    "space": "35 x 30 yards",
+    "equipment": ["1 ball", "4 minigoals", "Pinnies in 4-6 colours"],
+    "summary": "Teams of two or three play together in one area; every team that scores is safe and steps off until the last team left is out.",
+    "setup": "35 x 30 yard area with a minigoal on each side. Make teams of 2 or 3 in different colours. One ball. Coach serves in from the side.",
+    "how": [
+      "All teams play at the same time with one ball. Any team can score in any minigoal.",
+      "When a team scores, they step off and are safe for that round.",
+      "The last team that has not scored is out and does a fun challenge (juggling or passing target) on the side.",
+      "Keep playing rounds until one team wins the cup. Then everyone back in for a new tournament."
+    ],
+    "coaching": [
+      "Work with your partner: one supports, one attacks",
+      "Shoot quickly; there are goals everywhere",
+      "When you lose the ball, win it back fast"
+    ],
+    "easier": "Use two balls so more players get touches.",
+    "harder": "Goals only count from a one-touch finish or after a pass between teammates.",
+    "video": "",
+    "diagram": {
+      "w": 35, "h": 30,
+      "items": [
+        {"t": "minigoal", "x": 17, "y": 0, "w": 3, "side": "top"},
+        {"t": "minigoal", "x": 17, "y": 30, "w": 3, "side": "bottom"},
+        {"t": "minigoal", "x": 0, "y": 15, "w": 3, "side": "left"},
+        {"t": "minigoal", "x": 35, "y": 15, "w": 3, "side": "right"},
+        {"t": "player", "team": "a", "x": 12, "y": 12},
+        {"t": "player", "team": "a", "x": 18, "y": 9},
+        {"t": "player", "team": "b", "x": 22, "y": 18},
+        {"t": "player", "team": "b", "x": 9, "y": 20},
+        {"t": "ball", "x": 13, "y": 12},
+        {"t": "pass", "from": [13, 12], "to": [18, 10]},
+        {"t": "shot", "from": [18, 9], "to": [17, 1]},
+        {"t": "run", "from": [22, 18], "to": [20, 11]}
+      ]
+    }
+  }
+]

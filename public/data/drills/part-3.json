@@ -1,0 +1,852 @@
+[
+  {
+    "id": "goalkeeping-ready-01c",
+    "title": "Set and Shuffle",
+    "topic": "goalkeeping",
+    "ages": ["7v7", "9v9", "11v11"],
+    "players": "2-6 (keepers plus a server)",
+    "minutes": 12,
+    "intensity": "medium",
+    "space": "18 x 14 yards",
+    "equipment": ["1 goal", "6 balls", "4 cones", "Keeper gloves"],
+    "summary": "Keepers shuffle across the goal and get into a balanced set position just before each shot arrives.",
+    "setup": "Put a cone 1 yard inside each post on the goal line and one cone 4 yards out from the middle of the goal. A server stands 10-11 yards out with a supply of balls. Extra keepers wait beside the goal.",
+    "how": [
+      "The keeper starts at one post cone and shuffles sideways toward the other without crossing their feet.",
+      "When the server touches the ball out of their feet, the keeper stops, steps slightly forward toward the middle cone and gets set.",
+      "The server shoots at a catchable height to either side. The keeper catches or pushes the ball wide, then returns to the post cone.",
+      "Six shots, then rotate the next keeper in. Older keepers take a turn as server."
+    ],
+    "coaching": [
+      "Feet about shoulder-width apart, weight on the front of the feet, knees soft",
+      "Hands relaxed in front of the body at waist height, palms toward the ball",
+      "Be still when the shooter's planting foot lands - not still moving",
+      "Keep the head steady and level so the eyes can track the ball"
+    ],
+    "easier": "Server rolls or throws the ball and the keeper starts already in the middle.",
+    "harder": "Server uses fake shots and changes timing; the keeper must stay set and not guess.",
+    "video": "",
+    "diagram": {
+      "w": 18, "h": 14,
+      "items": [
+        {"t": "goal", "x": 9, "y": 0, "w": 6},
+        {"t": "cone", "x": 7, "y": 1},
+        {"t": "cone", "x": 11, "y": 1},
+        {"t": "cone", "x": 9, "y": 4},
+        {"t": "gk", "x": 9, "y": 2},
+        {"t": "gk", "x": 16, "y": 2},
+        {"t": "run", "from": [7, 2], "to": [11, 2]},
+        {"t": "player", "team": "a", "x": 9, "y": 11, "label": "S"},
+        {"t": "ball", "x": 9, "y": 10},
+        {"t": "shot", "from": [9, 10], "to": [10.5, 1]}
+      ]
+    }
+  },
+  {
+    "id": "goalkeeping-hands-02c",
+    "title": "Two Hands, Two Shapes",
+    "topic": "goalkeeping",
+    "ages": ["7v7", "9v9", "11v11"],
+    "players": "2-8 in pairs (keeper and server)",
+    "minutes": 12,
+    "intensity": "low",
+    "space": "15 x 10 yards",
+    "equipment": ["1 ball per pair", "2 cones per pair", "Keeper gloves"],
+    "summary": "Pairs practice the basket catch for balls at belly and chest height and the W catch for balls at face height and above.",
+    "setup": "Pairs face each other 6-8 yards apart, each standing at a cone. The server holds the ball and the keeper starts in the set position.",
+    "how": [
+      "Round 1: the server tosses underarm at belly height. The keeper scoops it with a basket catch and pulls it into the chest.",
+      "Round 2: the server tosses to face height. The keeper makes a W shape with thumbs and first fingers behind the ball and catches in front of the eyes.",
+      "Round 3: the server mixes high and low tosses without warning.",
+      "Ten serves per round, then swap jobs. Older pairs can serve with a side-foot volley from the hands."
+    ],
+    "coaching": [
+      "Basket: little fingers close together, elbows tucked, trap the ball against the chest",
+      "W: thumbs almost touching, fingers spread and firm, catch out in front of the face",
+      "Take a small step toward the ball to meet it",
+      "Bring every catch back into the chest before letting go"
+    ],
+    "easier": "Stand closer, use a softer ball, and have the server say the catch type before tossing.",
+    "harder": "Keeper starts facing away and turns on the server's shout; server strikes with the foot from 10 yards.",
+    "video": "",
+    "diagram": {
+      "w": 15, "h": 10,
+      "items": [
+        {"t": "cone", "x": 3, "y": 2},
+        {"t": "cone", "x": 12, "y": 2},
+        {"t": "cone", "x": 3, "y": 7},
+        {"t": "cone", "x": 12, "y": 7},
+        {"t": "gk", "x": 3, "y": 3},
+        {"t": "gk", "x": 3, "y": 8},
+        {"t": "player", "team": "a", "x": 12, "y": 3, "label": "S"},
+        {"t": "player", "team": "a", "x": 12, "y": 8, "label": "S"},
+        {"t": "ball", "x": 11, "y": 3},
+        {"t": "pass", "from": [11, 3], "to": [4, 3]},
+        {"t": "pass", "from": [11, 8], "to": [4, 8]}
+      ]
+    }
+  },
+  {
+    "id": "goalkeeping-dive-03c",
+    "title": "Dive Ladder: Sit, Kneel, Crouch, Stand",
+    "topic": "goalkeeping",
+    "ages": ["7v7", "9v9", "11v11"],
+    "players": "2-6 keepers and a server",
+    "minutes": 15,
+    "intensity": "medium",
+    "space": "12 x 10 yards",
+    "equipment": ["1 goal or 2 tall cones", "6 balls", "2 cones", "Soft grass or mats", "Keeper gloves"],
+    "summary": "Keepers learn to go to ground safely by starting low and moving up one level only when their landings are clean.",
+    "setup": "Work in front of a goal on soft grass (use mats if the ground is hard). Put a target cone 3-4 yards to each side of the keeper. The server stands 5-6 yards away with the balls.",
+    "how": [
+      "Sitting: the keeper sits with legs out and the server tosses to one side. The keeper falls sideways and catches with one hand behind the ball and one on top.",
+      "Kneeling: the keeper kneels upright and falls onto their side to make the catch.",
+      "Crouching: from a low squat the keeper takes a small step toward the ball and drops onto hip and shoulder.",
+      "Standing (older keepers): from the set position, step with the near foot and dive across toward the target cone.",
+      "Five serves to each side per level. Move up only when the keeper lands on their side, not on the belly or elbow."
+    ],
+    "coaching": [
+      "Land on the side of the body: calf, thigh, hip, then shoulder",
+      "Hands lead the dive and the eyes stay on the ball",
+      "Pin the ball to the ground or pull it into the chest after landing",
+      "Step first with the foot nearest the ball - never fall backward"
+    ],
+    "easier": "Younger 7v7 keepers stay on the sitting and kneeling levels with rolled balls.",
+    "harder": "Older keepers get a hip-height volley, then recover to the set position for a second save to the other side.",
+    "video": "",
+    "diagram": {
+      "w": 12, "h": 10,
+      "items": [
+        {"t": "goal", "x": 6, "y": 0, "w": 6},
+        {"t": "zone", "x": 1, "y": 1, "w": 10, "h": 3, "label": "Soft landing"},
+        {"t": "cone", "x": 2, "y": 3},
+        {"t": "cone", "x": 10, "y": 3},
+        {"t": "gk", "x": 6, "y": 2},
+        {"t": "run", "from": [6, 2], "to": [3, 2]},
+        {"t": "player", "team": "a", "x": 6, "y": 8, "label": "S"},
+        {"t": "ball", "x": 6, "y": 7},
+        {"t": "shot", "from": [6, 7], "to": [2.5, 2]}
+      ]
+    }
+  },
+  {
+    "id": "goalkeeping-distribution-04c",
+    "title": "Keeper Distribution Targets",
+    "topic": "goalkeeping",
+    "ages": ["7v7", "9v9", "11v11"],
+    "players": "1-2 keepers plus 6-10 field players",
+    "minutes": 18,
+    "intensity": "medium",
+    "space": "50 x 40 yards",
+    "equipment": ["1 goal", "10 balls", "12 cones", "Pinnies"],
+    "summary": "The keeper picks the right delivery - roll, throw, punt or goal kick - to reach field players in near, middle and far zones.",
+    "setup": "Keeper in goal at one end. Mark three zones going away from the goal: near (10-20 yards out), middle (20-30 yards) and far (30-40 yards). Put 2 field players in each zone and one field player beside the goal to serve balls in.",
+    "how": [
+      "The server plays a ball into the keeper, who collects it.",
+      "The coach calls a zone. Near = roll along the ground, middle = overarm throw, far = punt or drop kick (or a goal kick from a placed ball).",
+      "The target player takes a first touch away from the nearest cone, then dribbles back to swap with the server.",
+      "After a few rounds add one defender in the near zone. The keeper must pick the open player and the right type of delivery."
+    ],
+    "coaching": [
+      "Roll: step forward and stay low like bowling so the ball arrives flat to the receiver's front foot",
+      "Throw: turn side-on, bring the arm over the top and release toward where the receiver is running",
+      "Punt: drop the ball, don't toss it up; lock the ankle and strike through the middle of the ball",
+      "Look up before you collect so you already know where the ball is going"
+    ],
+    "easier": "Shorten the zones. Keep 7v7 keepers to rolls, throws and goal kicks, and only punt where your league allows it.",
+    "harder": "Two defenders hunt the field players and the keeper has 6 seconds to release the ball.",
+    "video": "",
+    "diagram": {
+      "w": 50, "h": 40,
+      "items": [
+        {"t": "goal", "x": 25, "y": 40, "w": 8},
+        {"t": "gk", "x": 25, "y": 38},
+        {"t": "zone", "x": 0, "y": 20, "w": 50, "h": 10, "label": "Near - roll"},
+        {"t": "zone", "x": 0, "y": 10, "w": 50, "h": 10, "label": "Middle - throw"},
+        {"t": "zone", "x": 0, "y": 0, "w": 50, "h": 10, "label": "Far - punt / goal kick"},
+        {"t": "player", "team": "a", "x": 10, "y": 26},
+        {"t": "player", "team": "a", "x": 40, "y": 26},
+        {"t": "player", "team": "a", "x": 12, "y": 15},
+        {"t": "player", "team": "a", "x": 38, "y": 15},
+        {"t": "player", "team": "a", "x": 25, "y": 5},
+        {"t": "player", "team": "b", "x": 25, "y": 25},
+        {"t": "pass", "from": [25, 38], "to": [10, 26]},
+        {"t": "pass", "from": [25, 38], "to": [38, 15]},
+        {"t": "pass", "from": [25, 38], "to": [25, 5]},
+        {"t": "run", "from": [40, 26], "to": [44, 22]}
+      ]
+    }
+  },
+  {
+    "id": "goalkeeping-1v1-05c",
+    "title": "Breakaway Battles",
+    "topic": "goalkeeping",
+    "ages": ["7v7", "9v9", "11v11"],
+    "players": "1-2 keepers plus 6-12 field players",
+    "minutes": 18,
+    "intensity": "high",
+    "space": "30 x 25 yards",
+    "equipment": ["1 goal", "10 balls", "6 cones", "Pinnies"],
+    "summary": "An attacker breaks in on goal with a defender chasing, and the keeper times the approach to make a 1v1 save.",
+    "setup": "Goal at one end. Attackers line up with balls at a cone 22 yards out; defenders line up 2 yards behind and to the side. Two cones about 10 yards out mark the keeper's working area, and a target cone sits out wide.",
+    "how": [
+      "On the coach's call the attacker dribbles at goal and the defender chases to recover.",
+      "The keeper moves forward while the ball is away from the attacker's foot and gets set each time the attacker is about to touch it.",
+      "The keeper stays big and on their feet as long as possible, then goes low to block on the ball side. No head-first dives at feet.",
+      "If the keeper wins the ball, they roll or throw it to the wide target cone. If the defender wins it, they dribble out the side. Rotate lines after each go."
+    ],
+    "coaching": [
+      "Close the gap on a heavy touch, stop and set on a light touch",
+      "Stay on the line between the ball and the middle of the goal",
+      "Make a wall: hands low and wide, body behind the hands",
+      "Lead with hands, arms and legs - never with the head"
+    ],
+    "easier": "Remove the chasing defender and start the attacker farther out so the keeper has time to set.",
+    "harder": "Two attackers against one recovering defender; the keeper decides whether to come out or hold.",
+    "video": "",
+    "diagram": {
+      "w": 30, "h": 25,
+      "items": [
+        {"t": "goal", "x": 15, "y": 0, "w": 6},
+        {"t": "gk", "x": 15, "y": 3},
+        {"t": "cone", "x": 11, "y": 10},
+        {"t": "cone", "x": 19, "y": 10},
+        {"t": "cone", "x": 15, "y": 22},
+        {"t": "cone", "x": 17, "y": 24},
+        {"t": "cone", "x": 3, "y": 5},
+        {"t": "player", "team": "a", "x": 15, "y": 21},
+        {"t": "ball", "x": 15, "y": 20},
+        {"t": "player", "team": "b", "x": 17, "y": 23},
+        {"t": "dribble", "from": [15, 20], "to": [15, 12]},
+        {"t": "run", "from": [17, 23], "to": [16, 14]},
+        {"t": "run", "from": [15, 3], "to": [15, 7]},
+        {"t": "shot", "from": [15, 12], "to": [13, 1]},
+        {"t": "pass", "from": [15, 7], "to": [3, 5]}
+      ]
+    }
+  },
+  {
+    "id": "defending-team-press-01c",
+    "title": "Press on the Trigger",
+    "topic": "defending-team",
+    "ages": ["7v7", "9v9", "11v11"],
+    "players": "10-14 including a keeper",
+    "minutes": 20,
+    "intensity": "high",
+    "space": "40 x 30 yards",
+    "equipment": ["1 goal", "2 minigoals", "Balls", "Pinnies", "8 cones"],
+    "summary": "Defenders hold their shape and only jump to press together when a clear trigger happens.",
+    "setup": "Big goal with a keeper at one end, two minigoals at the other. Team a (5 players plus the keeper) builds out from the big goal and attacks the minigoals. Team b (4 players) is the pressing team.",
+    "how": [
+      "The keeper starts each rep by passing to a team a player.",
+      "Team b stays compact until it sees a trigger: a bad touch, a backward or square pass, the ball going to the sideline, or a receiver facing their own goal.",
+      "On a trigger the nearest player presses hard and the next players cut off the closest passes.",
+      "Team a scores by passing into either minigoal. Team b scores by winning the ball and finishing in the big goal within 8 seconds.",
+      "Play 2-minute rounds and swap roles every two rounds."
+    ],
+    "coaching": [
+      "Shout the trigger ('Now!') so everyone goes together",
+      "Curve your run to shut one side and push play toward the sideline",
+      "Second and third defenders mark the nearest passes, not the ball",
+      "No trigger? Stay patient and compact - stay on your feet, no slide tackles"
+    ],
+    "easier": "Team a is limited to 3 touches and the coach calls the triggers out loud.",
+    "harder": "Add a sixth player to team a; pressers have only 6 seconds to score after winning it.",
+    "video": "",
+    "diagram": {
+      "w": 40, "h": 30,
+      "items": [
+        {"t": "goal", "x": 20, "y": 0, "w": 6},
+        {"t": "gk", "x": 20, "y": 2},
+        {"t": "minigoal", "x": 12, "y": 30, "w": 3, "side": "bottom"},
+        {"t": "minigoal", "x": 28, "y": 30, "w": 3, "side": "bottom"},
+        {"t": "player", "team": "a", "x": 8, "y": 6},
+        {"t": "player", "team": "a", "x": 32, "y": 6},
+        {"t": "player", "team": "a", "x": 20, "y": 9},
+        {"t": "player", "team": "a", "x": 10, "y": 17},
+        {"t": "player", "team": "a", "x": 30, "y": 17},
+        {"t": "player", "team": "b", "x": 14, "y": 12},
+        {"t": "player", "team": "b", "x": 26, "y": 12},
+        {"t": "player", "team": "b", "x": 20, "y": 18},
+        {"t": "player", "team": "b", "x": 20, "y": 24},
+        {"t": "ball", "x": 33, "y": 7},
+        {"t": "pass", "from": [20, 2], "to": [32, 6]},
+        {"t": "run", "from": [26, 12], "to": [31, 8]},
+        {"t": "run", "from": [20, 18], "to": [27, 16]}
+      ]
+    }
+  },
+  {
+    "id": "defending-team-compact-02c",
+    "title": "Slide Together: Compact Block",
+    "topic": "defending-team",
+    "ages": ["9v9", "11v11"],
+    "players": "12-16 including a keeper",
+    "minutes": 20,
+    "intensity": "medium",
+    "space": "44 x 36 yards",
+    "equipment": ["1 goal", "Balls", "Pinnies", "10 cones"],
+    "summary": "Six defenders move as one block across three channels so attackers can't find a gap through or between them.",
+    "setup": "Goal with a keeper at one end. Split the area into three channels (left, middle, right) with cones. Six defenders (team b) set up in two lines of three. Five attackers (team a) start in the half away from goal.",
+    "how": [
+      "Attackers move the ball side to side, looking for a pass through the block to a runner or a chance to shoot.",
+      "Defenders slide toward the ball together: all six must be in the ball's channel or the one next to it.",
+      "Keep the two lines no more than 10 yards apart. The coach freezes play when a gap opens and asks players to fix it.",
+      "Attackers score 1 for a shot on target and 2 for a pass received behind the back line. Defenders score 1 by winning the ball and passing it to the coach at the far end.",
+      "Play 3-minute rounds and swap roles."
+    ],
+    "coaching": [
+      "When the ball travels, we travel - move while the pass is rolling",
+      "Squeeze the space between the lines and between teammates",
+      "Far-side players tuck in: give away the far side, never the middle",
+      "The player nearest the ball calls the shift"
+    ],
+    "easier": "Attackers must take three touches, giving defenders more time to slide.",
+    "harder": "Attackers play two-touch and add a free player who only switches play.",
+    "video": "",
+    "diagram": {
+      "w": 44, "h": 36,
+      "items": [
+        {"t": "goal", "x": 22, "y": 0, "w": 8},
+        {"t": "gk", "x": 22, "y": 2},
+        {"t": "zone", "x": 0, "y": 0, "w": 15, "h": 36, "label": "Left"},
+        {"t": "zone", "x": 15, "y": 0, "w": 14, "h": 36, "label": "Middle"},
+        {"t": "zone", "x": 29, "y": 0, "w": 15, "h": 36, "label": "Right"},
+        {"t": "player", "team": "b", "x": 8, "y": 10},
+        {"t": "player", "team": "b", "x": 14, "y": 10},
+        {"t": "player", "team": "b", "x": 20, "y": 10},
+        {"t": "player", "team": "b", "x": 9, "y": 18},
+        {"t": "player", "team": "b", "x": 15, "y": 18},
+        {"t": "player", "team": "b", "x": 21, "y": 18},
+        {"t": "player", "team": "a", "x": 4, "y": 28},
+        {"t": "player", "team": "a", "x": 14, "y": 30},
+        {"t": "player", "team": "a", "x": 26, "y": 30},
+        {"t": "player", "team": "a", "x": 38, "y": 26},
+        {"t": "player", "team": "a", "x": 30, "y": 21},
+        {"t": "ball", "x": 5, "y": 27},
+        {"t": "pass", "from": [14, 30], "to": [4, 28]},
+        {"t": "run", "from": [26, 10], "to": [20, 10]},
+        {"t": "run", "from": [27, 18], "to": [21, 18]}
+      ]
+    }
+  },
+  {
+    "id": "defending-team-cover-03c",
+    "title": "Pressure, Cover, Balance",
+    "topic": "defending-team",
+    "ages": ["7v7", "9v9", "11v11"],
+    "players": "8-12 including a keeper",
+    "minutes": 18,
+    "intensity": "high",
+    "space": "30 x 25 yards",
+    "equipment": ["1 goal", "Balls", "Pinnies", "4 cones"],
+    "summary": "Three defenders learn to share the jobs of pressure, cover and balance, swapping roles every time the ball moves.",
+    "setup": "Goal with a keeper at one end. Two small cone gates (4 yards wide) in the far corners. Three defenders (team b) start near the goal; three attackers (team a) start at the far end. Extra players wait in lines.",
+    "how": [
+      "The coach plays a ball to an attacker and the three defenders step out.",
+      "The nearest defender goes to the ball (pressure). The second sits a few yards behind and to the side (cover). The third tucks in on the far side to protect the middle (balance).",
+      "Each time the ball moves, the roles change: whoever is now nearest becomes pressure and the others adjust.",
+      "Attackers score in the goal. Defenders who win the ball score by passing through a corner gate.",
+      "Play until a goal or 45 seconds, then the next groups go."
+    ],
+    "coaching": [
+      "Pressure: close quickly, slow down for the last steps, stand side-on and stay on your feet",
+      "Cover: close enough to help, far enough that one dribble doesn't beat you both",
+      "Balance: see the ball and the runner behind you",
+      "Talk: 'I've got ball!', 'I'm behind you!'"
+    ],
+    "easier": "Play 3v2 in the defenders' favor or limit attackers to 3 touches.",
+    "harder": "Play 4v3 against the defenders so they have to stay compact and delay.",
+    "video": "",
+    "diagram": {
+      "w": 30, "h": 25,
+      "items": [
+        {"t": "goal", "x": 15, "y": 0, "w": 6},
+        {"t": "gk", "x": 15, "y": 2},
+        {"t": "cone", "x": 1, "y": 23},
+        {"t": "cone", "x": 5, "y": 23},
+        {"t": "cone", "x": 25, "y": 23},
+        {"t": "cone", "x": 29, "y": 23},
+        {"t": "player", "team": "a", "x": 8, "y": 15},
+        {"t": "player", "team": "a", "x": 15, "y": 19},
+        {"t": "player", "team": "a", "x": 23, "y": 15},
+        {"t": "ball", "x": 9, "y": 15},
+        {"t": "player", "team": "b", "x": 10, "y": 12, "label": "P"},
+        {"t": "player", "team": "b", "x": 13, "y": 9, "label": "C"},
+        {"t": "player", "team": "b", "x": 20, "y": 9, "label": "B"},
+        {"t": "pass", "from": [15, 19], "to": [8, 15]},
+        {"t": "run", "from": [12, 7], "to": [10, 12]}
+      ]
+    }
+  },
+  {
+    "id": "defending-team-cross-04c",
+    "title": "Claim It or Clear It",
+    "topic": "defending-team",
+    "ages": ["7v7", "9v9", "11v11"],
+    "players": "8-12 plus 1-2 keepers",
+    "minutes": 20,
+    "intensity": "medium",
+    "space": "40 x 30 yards",
+    "equipment": ["1 goal", "10 balls", "Pinnies", "6 cones"],
+    "summary": "The keeper and defenders handle balls from wide areas: the keeper claims what they can reach and defenders clear with the foot. No heading.",
+    "setup": "Goal with a keeper at one end. Cones mark a small keeper area (6 yards out) and a larger box (14 yards out). An 8-yard wide channel on each side holds a crosser. Two attackers and three defenders start in the box.",
+    "how": [
+      "A wide player dribbles down the channel and plays a low, driven cross toward the near post, the middle or the far post.",
+      "The keeper calls 'Keeper!' early and claims any ball they can reach in their area. Defenders protect the space in front of the keeper.",
+      "Defenders stay goal-side of the attackers, attack the ball and clear it with the foot toward the sideline. Crosses stay on the ground or below waist height - no heading.",
+      "Attackers score with any finish. Defenders score 1 for a clearance that goes out past the wide channel.",
+      "Alternate sides every cross. After 8 crosses, rotate attackers, defenders and crossers."
+    ],
+    "coaching": [
+      "Keeper: decide early, call loudly, and catch the ball at the safest high point",
+      "Defenders: stay between your attacker and the goal, with eyes on ball and runner",
+      "Clear high, wide and far - toward the sideline, never across our goal",
+      "Near-post defender owns the first space; the far-side defender tucks in"
+    ],
+    "easier": "Coach serves crosses by hand, rolled or tossed low, from the edge of the channel.",
+    "harder": "Add a third attacker making a late run. For 11v11 crosses can be lifted to the far post and the keeper must come and claim them; defenders still clear with the foot.",
+    "video": "",
+    "diagram": {
+      "w": 40, "h": 30,
+      "items": [
+        {"t": "goal", "x": 20, "y": 0, "w": 8},
+        {"t": "gk", "x": 20, "y": 2},
+        {"t": "cone", "x": 14, "y": 6},
+        {"t": "cone", "x": 26, "y": 6},
+        {"t": "cone", "x": 9, "y": 14},
+        {"t": "cone", "x": 31, "y": 14},
+        {"t": "zone", "x": 0, "y": 0, "w": 8, "h": 30, "label": "Wide"},
+        {"t": "zone", "x": 32, "y": 0, "w": 8, "h": 30, "label": "Wide"},
+        {"t": "player", "team": "a", "x": 4, "y": 12, "label": "X"},
+        {"t": "ball", "x": 5, "y": 12},
+        {"t": "dribble", "from": [4, 24], "to": [4, 13]},
+        {"t": "pass", "from": [5, 12], "to": [20, 6]},
+        {"t": "player", "team": "a", "x": 16, "y": 12},
+        {"t": "player", "team": "a", "x": 24, "y": 11},
+        {"t": "player", "team": "b", "x": 16, "y": 9},
+        {"t": "player", "team": "b", "x": 23, "y": 8},
+        {"t": "player", "team": "b", "x": 20, "y": 13},
+        {"t": "run", "from": [20, 2], "to": [19, 5]},
+        {"t": "run", "from": [24, 11], "to": [22, 5]}
+      ]
+    }
+  },
+  {
+    "id": "finishing-layoff-01c",
+    "title": "Set and Strike",
+    "topic": "finishing",
+    "ages": ["7v7", "9v9", "11v11"],
+    "players": "8-14 plus a keeper",
+    "minutes": 15,
+    "intensity": "medium",
+    "space": "30 x 25 yards",
+    "equipment": ["1 goal", "12 balls", "3 cones", "Pinnies"],
+    "summary": "Shooters pass into a target player, get the ball laid back into their path and finish first time or with one touch.",
+    "setup": "Goal with a keeper at one end. A target player stands at a cone about 12 yards from goal. Shooters line up with balls at a cone 22 yards out.",
+    "how": [
+      "The first shooter passes firmly into the target player's feet and follows the pass.",
+      "The target lays the ball off softly to one side, into the shooter's path.",
+      "The shooter strikes first time or after one touch.",
+      "Shooter becomes the target, the target collects a ball and joins the line. Switch the lay-off side every few turns."
+    ],
+    "coaching": [
+      "Pass firmly into the target and move straight away",
+      "Lay-off: soft, slightly to the side, into the path - not at the shooter's feet",
+      "Toe down, ankle locked, land on your shooting foot",
+      "Aim low and to the corners to make the keeper go down"
+    ],
+    "easier": "The target stops the ball dead for the shooter to strike.",
+    "harder": "Add a passive defender behind the target; shooter must finish within two touches.",
+    "video": "",
+    "diagram": {
+      "w": 30, "h": 25,
+      "items": [
+        {"t": "goal", "x": 15, "y": 0, "w": 6},
+        {"t": "gk", "x": 15, "y": 2},
+        {"t": "cone", "x": 15, "y": 12},
+        {"t": "cone", "x": 12, "y": 23},
+        {"t": "player", "team": "a", "x": 15, "y": 13, "label": "T"},
+        {"t": "player", "team": "a", "x": 12, "y": 22, "label": "1"},
+        {"t": "player", "team": "a", "x": 12, "y": 24, "label": "2"},
+        {"t": "ball", "x": 12, "y": 21},
+        {"t": "pass", "from": [12, 21], "to": [15, 13]},
+        {"t": "run", "from": [12, 21], "to": [13, 16]},
+        {"t": "pass", "from": [15, 13], "to": [13, 15]},
+        {"t": "shot", "from": [13, 15], "to": [17, 1]}
+      ]
+    }
+  },
+  {
+    "id": "finishing-angle-02c",
+    "title": "Wide Angle Finishing",
+    "topic": "finishing",
+    "ages": ["7v7", "9v9", "11v11"],
+    "players": "8-14 plus a keeper",
+    "minutes": 15,
+    "intensity": "medium",
+    "space": "30 x 25 yards",
+    "equipment": ["1 goal", "12 balls", "4 cones"],
+    "summary": "Players dribble in from a wide angle and shoot back across the keeper while a teammate attacks the far post for rebounds.",
+    "setup": "Goal with a keeper at one end. A cone gate (2 yards wide) on each side about 10 yards from goal and 8-10 yards from the near post. One line of players with balls on each side, 20 yards out.",
+    "how": [
+      "A player from the left line dribbles through the left gate and shoots.",
+      "As they go, the first player in the right line runs toward the far post to follow up any rebound.",
+      "Next turn starts from the right line, with a left-line runner to the far post.",
+      "Players switch lines after each turn so they finish with both feet."
+    ],
+    "coaching": [
+      "Head up before the gate to see where the keeper is standing",
+      "Shoot back across the keeper toward the far post",
+      "Keep it low: it can be saved, deflected or tapped in by the runner",
+      "Far-post runner: time your run to arrive as the shot is struck"
+    ],
+    "easier": "Move the gates closer to the middle so the angle is wider.",
+    "harder": "Add a recovering defender who starts beside the gate; shooters have 3 touches after the gate.",
+    "video": "",
+    "diagram": {
+      "w": 30, "h": 25,
+      "items": [
+        {"t": "goal", "x": 15, "y": 0, "w": 6},
+        {"t": "gk", "x": 14, "y": 2},
+        {"t": "cone", "x": 5, "y": 10},
+        {"t": "cone", "x": 7, "y": 10},
+        {"t": "cone", "x": 23, "y": 10},
+        {"t": "cone", "x": 25, "y": 10},
+        {"t": "player", "team": "a", "x": 4, "y": 20, "label": "1"},
+        {"t": "player", "team": "a", "x": 4, "y": 22},
+        {"t": "player", "team": "a", "x": 26, "y": 20, "label": "2"},
+        {"t": "ball", "x": 4, "y": 19},
+        {"t": "dribble", "from": [4, 19], "to": [9, 8]},
+        {"t": "shot", "from": [9, 8], "to": [17.5, 1]},
+        {"t": "run", "from": [26, 20], "to": [19, 4]}
+      ]
+    }
+  },
+  {
+    "id": "finishing-rebound-03c",
+    "title": "Rebound Hunters",
+    "topic": "finishing",
+    "ages": ["7v7", "9v9", "11v11"],
+    "players": "7-13 plus a keeper",
+    "minutes": 18,
+    "intensity": "high",
+    "space": "30 x 25 yards",
+    "equipment": ["1 goal", "12 balls", "1 cone", "Pinnies"],
+    "summary": "Two attackers take on one defender and the keeper, and every rebound is live, so players learn to follow every shot in.",
+    "setup": "Goal with a keeper at one end. The coach stands at a cone in the middle 24 yards out with the balls. Attackers wait in pairs; defenders wait in a line beside the goal.",
+    "how": [
+      "The coach passes to one of two attackers; one defender steps out from beside the goal.",
+      "Attackers try to score quickly. Whenever a shot is taken, the other attacker must follow it in toward goal.",
+      "Rebounds and parries stay in play until the keeper holds the ball, it goes out, or the defender clears it.",
+      "1 point for a goal, 2 points for a goal from a rebound. Next pair goes."
+    ],
+    "coaching": [
+      "Shoot low and on target - it creates rebounds",
+      "Follow every shot, expecting the keeper to drop it",
+      "Rebound finishes: side-foot, calm, aim for the open space",
+      "Defender: stay on your feet and stay goal-side of the second attacker"
+    ],
+    "easier": "Remove the defender for 2v0 plus keeper.",
+    "harder": "Add a second defender who joins from the end line 3 seconds later.",
+    "video": "",
+    "diagram": {
+      "w": 30, "h": 25,
+      "items": [
+        {"t": "goal", "x": 15, "y": 0, "w": 6},
+        {"t": "gk", "x": 15, "y": 2},
+        {"t": "cone", "x": 15, "y": 24},
+        {"t": "ball", "x": 15, "y": 23},
+        {"t": "player", "team": "a", "x": 10, "y": 15},
+        {"t": "player", "team": "a", "x": 20, "y": 15},
+        {"t": "player", "team": "b", "x": 15, "y": 11},
+        {"t": "pass", "from": [15, 23], "to": [10, 15]},
+        {"t": "dribble", "from": [10, 15], "to": [11, 10]},
+        {"t": "shot", "from": [11, 10], "to": [14, 1]},
+        {"t": "run", "from": [20, 15], "to": [16, 4]},
+        {"t": "run", "from": [15, 11], "to": [12, 9]}
+      ]
+    }
+  },
+  {
+    "id": "passing-triangle-01c",
+    "title": "Triangle Turn and Play",
+    "topic": "passing",
+    "ages": ["7v7", "9v9", "11v11"],
+    "players": "4 per triangle (set up as many triangles as needed)",
+    "minutes": 12,
+    "intensity": "medium",
+    "space": "15 x 14 yards per triangle",
+    "equipment": ["3 cones per triangle", "1 ball per triangle"],
+    "summary": "Players receive across their body on the back foot and play to the next cone, then follow their pass.",
+    "setup": "Three cones in a triangle about 10 yards apart. Two players start at cone 1 with the ball; one player at each of the other cones.",
+    "how": [
+      "Player 1 passes to cone 2 and follows the pass to take that spot.",
+      "The receiver at cone 2 opens up, takes the ball across the body with the back foot and passes to cone 3.",
+      "Keep the ball moving around the triangle. Every 2 minutes change direction.",
+      "Progression: receiver must take one touch to set and one to pass (two-touch), then one-touch when ready."
+    ],
+    "coaching": [
+      "Open your hips so you can see where the next pass is going",
+      "Receive with the foot farthest from the ball",
+      "Pass with the inside of the foot, ankle locked, onto the receiver's front foot",
+      "Check away a step, then come to the cone to receive"
+    ],
+    "easier": "Make the triangle smaller and allow extra touches.",
+    "harder": "Put a passive defender in the middle; the receiver must turn away from them.",
+    "video": "",
+    "diagram": {
+      "w": 15, "h": 14,
+      "items": [
+        {"t": "cone", "x": 2, "y": 12},
+        {"t": "cone", "x": 13, "y": 12},
+        {"t": "cone", "x": 7.5, "y": 2},
+        {"t": "player", "team": "a", "x": 2, "y": 11, "label": "1"},
+        {"t": "player", "team": "a", "x": 1, "y": 13, "label": "4"},
+        {"t": "player", "team": "a", "x": 13, "y": 11, "label": "2"},
+        {"t": "player", "team": "a", "x": 7.5, "y": 1, "label": "3"},
+        {"t": "ball", "x": 3, "y": 11},
+        {"t": "pass", "from": [3, 11], "to": [12, 11]},
+        {"t": "run", "from": [2, 12], "to": [12, 13]},
+        {"t": "pass", "from": [13, 11], "to": [8, 3]}
+      ]
+    }
+  },
+  {
+    "id": "passing-switch-02c",
+    "title": "Switch Through the Middle",
+    "topic": "passing",
+    "ages": ["9v9", "11v11"],
+    "players": "9-14",
+    "minutes": 20,
+    "intensity": "medium",
+    "space": "45 x 25 yards",
+    "equipment": ["8 cones", "Balls", "Pinnies"],
+    "summary": "Keep the ball in one end grid, then switch it across the middle to teammates in the other end when the defenders are drawn in.",
+    "setup": "Split the area into three 15-yard zones. Three attackers (team a) in each end grid. Two defenders (team b) start in the end grid with the ball; one defender patrols the middle zone.",
+    "how": [
+      "The ball starts with the three attackers in one end grid; the two defenders press them.",
+      "After at least 3 passes, attackers may switch the ball through the middle zone to the other end grid.",
+      "The middle defender tries to cut out the switch. The two pressing defenders run across to press in the new grid.",
+      "Attackers score 1 point for each successful switch. If defenders win it, they pass to the coach and get a point.",
+      "Play 3-minute rounds and rotate defenders."
+    ],
+    "coaching": [
+      "Draw the defenders in with short passes, then switch",
+      "The player switching needs a first touch out of their feet to open the long pass",
+      "Receivers spread wide and make an angle the middle defender can't block",
+      "Weight the switch so it arrives on the ground or at an easy height"
+    ],
+    "easier": "Remove the middle defender, or allow the switch after 2 passes.",
+    "harder": "Two-touch limit and the switch must be first time after the third pass.",
+    "video": "",
+    "diagram": {
+      "w": 45, "h": 25,
+      "items": [
+        {"t": "zone", "x": 0, "y": 0, "w": 15, "h": 25, "label": "Grid A"},
+        {"t": "zone", "x": 15, "y": 0, "w": 15, "h": 25, "label": "Middle"},
+        {"t": "zone", "x": 30, "y": 0, "w": 15, "h": 25, "label": "Grid B"},
+        {"t": "player", "team": "a", "x": 2, "y": 3},
+        {"t": "player", "team": "a", "x": 13, "y": 5},
+        {"t": "player", "team": "a", "x": 7, "y": 22},
+        {"t": "player", "team": "a", "x": 32, "y": 4},
+        {"t": "player", "team": "a", "x": 43, "y": 12},
+        {"t": "player", "team": "a", "x": 36, "y": 22},
+        {"t": "player", "team": "b", "x": 6, "y": 10},
+        {"t": "player", "team": "b", "x": 10, "y": 14},
+        {"t": "player", "team": "b", "x": 22, "y": 12},
+        {"t": "ball", "x": 13, "y": 6},
+        {"t": "pass", "from": [7, 22], "to": [13, 5]},
+        {"t": "pass", "from": [13, 6], "to": [36, 22]},
+        {"t": "run", "from": [10, 14], "to": [33, 15]}
+      ]
+    }
+  },
+  {
+    "id": "passing-thirdman-03c",
+    "title": "Find the Third Player",
+    "topic": "passing",
+    "ages": ["9v9", "11v11"],
+    "players": "6-12 in groups of 4",
+    "minutes": 15,
+    "intensity": "medium",
+    "space": "30 x 20 yards",
+    "equipment": ["4 cones per group", "2 balls per group"],
+    "summary": "A short pass into a target and a lay-off free a third player's pass into the run of the first player.",
+    "setup": "Player 1 starts at a cone at the bottom with a ball. Player 2 stands about 10 yards ahead with their back to the far end. Player 3 supports 5 yards to the side. Player 4 waits at a cone gate at the far end.",
+    "how": [
+      "Player 1 passes into player 2's feet.",
+      "Player 2 lays the ball back to player 3.",
+      "As soon as the first pass is played, player 1 runs forward past player 2. Player 3 passes into that run.",
+      "Player 1 receives on the move and passes to player 4 at the gate. Everyone moves up one spot and player 4 starts the next rep from the bottom."
+    ],
+    "coaching": [
+      "Player 1: pass and go - your run starts as the ball leaves your foot",
+      "Player 2: one touch, soft lay-off to the side, don't turn",
+      "Player 3: open up early so you can see the runner before the ball arrives",
+      "Pass in front of the runner so they don't have to stop"
+    ],
+    "easier": "Allow two touches for each player and walk through the pattern first.",
+    "harder": "Add a defender behind player 2 who can step to intercept; the group chooses third-player pass or turn.",
+    "video": "",
+    "diagram": {
+      "w": 30, "h": 20,
+      "items": [
+        {"t": "cone", "x": 5, "y": 19},
+        {"t": "cone", "x": 14, "y": 2},
+        {"t": "cone", "x": 18, "y": 2},
+        {"t": "player", "team": "a", "x": 5, "y": 18, "label": "1"},
+        {"t": "player", "team": "a", "x": 15, "y": 9, "label": "2"},
+        {"t": "player", "team": "a", "x": 10, "y": 14, "label": "3"},
+        {"t": "player", "team": "a", "x": 16, "y": 1, "label": "4"},
+        {"t": "ball", "x": 6, "y": 17},
+        {"t": "pass", "from": [6, 17], "to": [15, 10]},
+        {"t": "pass", "from": [15, 10], "to": [11, 13]},
+        {"t": "run", "from": [5, 18], "to": [20, 6]},
+        {"t": "pass", "from": [11, 13], "to": [20, 6]},
+        {"t": "pass", "from": [20, 6], "to": [16, 2]}
+      ]
+    }
+  },
+  {
+    "id": "warmup-lanes-01c",
+    "title": "Movement Lanes",
+    "topic": "warmup",
+    "ages": ["7v7", "9v9", "11v11"],
+    "players": "Any (3-5 per lane)",
+    "minutes": 10,
+    "intensity": "low",
+    "space": "20 x 15 yards",
+    "equipment": ["8 cones", "1 ball per player for the last round"],
+    "summary": "Players warm up in lanes with a new movement each trip, building to short bursts and a dribble.",
+    "setup": "Set up 3-4 lanes, each marked by a start cone and an end cone about 12 yards apart. Split players evenly behind the start cones.",
+    "how": [
+      "First trip: easy jog to the end cone and back.",
+      "Each trip adds a movement out and a jog back: high knees, side shuffle (face each way), skips for height, backward jog looking over the shoulder, hip swings (open and close the gate).",
+      "Bursts: half pace to the middle, three quick steps, then speed up for the last few yards.",
+      "Final trip with a ball: dribble out with inside and outside touches, turn at the end cone and dribble back."
+    ],
+    "coaching": [
+      "Stand tall and let the arms work with the legs",
+      "Quality first, then build the speed",
+      "Land quietly on the front of the foot",
+      "Stay in your lane and leave space for the player ahead"
+    ],
+    "easier": "Fewer movements and more jogging; young players copy a leader at the front.",
+    "harder": "Add reaction calls: on the coach's clap, turn and sprint back to the start.",
+    "video": "",
+    "diagram": {
+      "w": 20, "h": 15,
+      "items": [
+        {"t": "cone", "x": 4, "y": 14},
+        {"t": "cone", "x": 4, "y": 2},
+        {"t": "cone", "x": 10, "y": 14},
+        {"t": "cone", "x": 10, "y": 2},
+        {"t": "cone", "x": 16, "y": 14},
+        {"t": "cone", "x": 16, "y": 2},
+        {"t": "player", "team": "a", "x": 4, "y": 13},
+        {"t": "player", "team": "a", "x": 10, "y": 13},
+        {"t": "player", "team": "a", "x": 16, "y": 13},
+        {"t": "ball", "x": 16, "y": 12},
+        {"t": "run", "from": [4, 13], "to": [4, 3]},
+        {"t": "run", "from": [10, 13], "to": [10, 3]},
+        {"t": "dribble", "from": [16, 12], "to": [16, 3]}
+      ]
+    }
+  },
+  {
+    "id": "warmup-rondo-02c",
+    "title": "Wake-Up Rondo 5v2",
+    "topic": "warmup",
+    "ages": ["7v7", "9v9", "11v11"],
+    "players": "7 per square (set up extra squares)",
+    "minutes": 12,
+    "intensity": "medium",
+    "space": "12 x 12 yards",
+    "equipment": ["4 cones per square", "2 balls per square", "Pinnies"],
+    "summary": "Five players around a square keep the ball from two defenders in the middle to get touches and brains switched on.",
+    "setup": "Mark a 12 x 12 yard square. Five players spread around the outside edges; two defenders in pinnies stand in the middle.",
+    "how": [
+      "Outside players pass to keep the ball away from the two defenders. They can slide along their side but not step into the middle.",
+      "If a defender touches the ball or it leaves the square, the player who made the mistake swaps with the defender who has been in the middle longest.",
+      "Ten passes in a row earns the outside group a point.",
+      "Play 2-minute rounds with a short stretch between rounds."
+    ],
+    "coaching": [
+      "Open your body so you can see the next pass before the ball arrives",
+      "Pass to the foot farthest from the defender",
+      "Defenders work as a pair: one presses, one blocks the pass between them",
+      "Move along your side to make an angle for the player on the ball"
+    ],
+    "easier": "Play 6v2, or 4v1 for younger groups, and allow three touches.",
+    "harder": "Two-touch, then one-touch; a pass split between the defenders counts double.",
+    "video": "",
+    "diagram": {
+      "w": 12, "h": 12,
+      "items": [
+        {"t": "cone", "x": 0, "y": 0},
+        {"t": "cone", "x": 12, "y": 0},
+        {"t": "cone", "x": 0, "y": 12},
+        {"t": "cone", "x": 12, "y": 12},
+        {"t": "player", "team": "a", "x": 6, "y": 1},
+        {"t": "player", "team": "a", "x": 11, "y": 4},
+        {"t": "player", "team": "a", "x": 11, "y": 10},
+        {"t": "player", "team": "a", "x": 4, "y": 11},
+        {"t": "player", "team": "a", "x": 1, "y": 6},
+        {"t": "player", "team": "b", "x": 5, "y": 6},
+        {"t": "player", "team": "b", "x": 7, "y": 5},
+        {"t": "ball", "x": 6, "y": 2},
+        {"t": "pass", "from": [6, 2], "to": [11, 4]},
+        {"t": "pass", "from": [11, 4], "to": [4, 11]}
+      ]
+    }
+  },
+  {
+    "id": "warmup-tag-03c",
+    "title": "Dribble Tag Traffic",
+    "topic": "warmup",
+    "ages": ["7v7", "9v9"],
+    "players": "8-16",
+    "minutes": 10,
+    "intensity": "high",
+    "space": "25 x 25 yards",
+    "equipment": ["1 ball per dribbler", "4 cones", "3 pinnies for taggers"],
+    "summary": "Everyone dribbles inside a square while two or three taggers try to tag them; frozen players are freed by a teammate.",
+    "setup": "Mark a 25 x 25 yard square. Every player has a ball except 2-3 taggers, who carry a pinny in their hand.",
+    "how": [
+      "Dribblers keep their ball moving inside the square. Taggers try to tag them with a gentle touch on the back or shoulder - no pushing.",
+      "A tagged player freezes and holds their ball above their head.",
+      "A teammate frees them by dribbling a full circle around them.",
+      "Play 60-90 second rounds and change taggers each round. Count how many players are frozen at the end."
+    ],
+    "coaching": [
+      "Small touches so the ball stays close when you change direction",
+      "Head up: look for space and for frozen teammates",
+      "Use turns and changes of speed to escape",
+      "Use the whole square, not just the middle"
+    ],
+    "easier": "One tagger, and dribblers can pick up the ball for a 3-second safe spot on a cone.",
+    "harder": "Taggers also dribble a ball; the square shrinks each round.",
+    "video": "",
+    "diagram": {
+      "w": 25, "h": 25,
+      "items": [
+        {"t": "cone", "x": 0, "y": 0},
+        {"t": "cone", "x": 25, "y": 0},
+        {"t": "cone", "x": 0, "y": 25},
+        {"t": "cone", "x": 25, "y": 25},
+        {"t": "player", "team": "a", "x": 5, "y": 6},
+        {"t": "player", "team": "a", "x": 18, "y": 5},
+        {"t": "player", "team": "a", "x": 12, "y": 14},
+        {"t": "player", "team": "a", "x": 6, "y": 20},
+        {"t": "player", "team": "a", "x": 20, "y": 19},
+        {"t": "ball", "x": 6, "y": 7},
+        {"t": "player", "team": "b", "x": 10, "y": 10},
+        {"t": "player", "team": "b", "x": 18, "y": 13},
+        {"t": "run", "from": [10, 10], "to": [6, 7]},
+        {"t": "dribble", "from": [12, 14], "to": [16, 18]},
+        {"t": "dribble", "from": [6, 20], "to": [10, 22]}
+      ]
+    }
+  }
+]

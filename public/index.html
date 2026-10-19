@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Cottontown Coach</title>
+<meta name="description" content="Game tracker, practice planner and drill library for Cottontown United coaches.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/features.css">
+<link rel="icon" href="assets/logo.jpg">
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <span id="blogo"></span>
+      <div><div class="t1" id="bname"></div><div class="t2" id="bsub"></div></div>
+    </div>
+    <nav class="games" id="games" aria-label="Games"></nav>
+    <div class="clockbox">
+      <div class="clockface"><div class="sync" id="sync" hidden></div><div class="period" id="period"></div><div class="time" id="time">00:00</div></div>
+      <div class="next" id="next"></div>
+    </div>
+    <div class="ctrl" id="ctrl"></div>
+    <div class="adjrow" id="adjrow" hidden></div>
+  </header>
+  <div id="score"></div>
+  <div id="banner"></div>
+  <main class="main">
+    <section class="fieldcol">
+      <div id="fmode"></div>
+      <div class="pitchbox"><div class="pitch" id="pitch"></div></div>
+      <div class="hint" id="hint"></div>
+    </section>
+    <section class="panel">
+      <div id="score2"></div>
+      <div class="tabs" role="tablist" id="tabs"></div>
+      <div class="tbody" id="tbody"></div>
+    </section>
+  </main>
+</div>
+<div id="club" hidden></div>
+<div id="sheet"></div>
+<script src="js/app.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/drills.js"></script>
+<script src="js/practice.js"></script>
+<script src="js/season.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/admin.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,876 @@
+[
+  {
+    "id": "possession-rondo-01b",
+    "title": "Square Rondo 5v2",
+    "topic": "possession",
+    "ages": ["7v7", "9v9", "11v11"],
+    "players": "7-14",
+    "minutes": 12,
+    "intensity": "medium",
+    "space": "12 x 12 yards",
+    "equipment": ["1 ball per group plus spares", "4 cones per group", "Pinnies"],
+    "summary": "Five players on the outside of a small square keep the ball away from two defenders in the middle.",
+    "setup": "Mark a 12 x 12 yard square. Five attackers spread around the edges, two defenders start inside. Run two squares side by side if you have more than 7 players.",
+    "how": [
+      "Outside players pass around and across the square while the two defenders try to win the ball.",
+      "A pass that splits the two defenders counts as a point for the outside team.",
+      "If a defender touches the ball or it leaves the square, the player who made the mistake swaps in with the defender who has been in longest.",
+      "Play 60-90 second rounds and keep score of splits."
+    ],
+    "coaching": [
+      "Open your body so you can see the next pass before the ball arrives",
+      "Move along your line to make a passing lane when a defender blocks you",
+      "Pass to the foot farthest from the defender",
+      "Look for the gap between the two defenders first, then go around them"
+    ],
+    "easier": "Make the square bigger or play 5v1.",
+    "harder": "Limit outside players to two touches, or shrink the square to 10 x 10.",
+    "video": "",
+    "diagram": {
+      "w": 12, "h": 12,
+      "items": [
+        {"t": "cone", "x": 0, "y": 0},
+        {"t": "cone", "x": 12, "y": 0},
+        {"t": "cone", "x": 0, "y": 12},
+        {"t": "cone", "x": 12, "y": 12},
+        {"t": "player", "team": "a", "x": 6, "y": 1, "label": "1"},
+        {"t": "player", "team": "a", "x": 1, "y": 4, "label": "2"},
+        {"t": "player", "team": "a", "x": 11, "y": 4, "label": "3"},
+        {"t": "player", "team": "a", "x": 2, "y": 11, "label": "4"},
+        {"t": "player", "team": "a", "x": 10, "y": 11, "label": "5"},
+        {"t": "player", "team": "b", "x": 5, "y": 6},
+        {"t": "player", "team": "b", "x": 8, "y": 5},
+        {"t": "ball", "x": 6.8, "y": 1.4},
+        {"t": "pass", "from": [6, 1], "to": [11, 4]},
+        {"t": "pass", "from": [11, 4], "to": [2, 11]}
+      ]
+    }
+  },
+  {
+    "id": "possession-switch-boxes-02b",
+    "title": "Two-Box Switch",
+    "topic": "possession",
+    "ages": ["9v9", "11v11"],
+    "players": "10-14",
+    "minutes": 15,
+    "intensity": "high",
+    "space": "30 x 20 yards",
+    "equipment": ["6 balls", "6 cones", "Pinnies"],
+    "summary": "Keep the ball in one box, then switch it into the other box where teammates are waiting.",
+    "setup": "Mark a 30 x 20 area split into two 15 x 20 boxes. Put 4 attackers in each box. Two defenders start in the box with the ball and one defender waits in the other box.",
+    "how": [
+      "The four attackers in the ball box try to complete 5 passes against the two defenders.",
+      "After 5 passes they can switch the ball into the other box for a point.",
+      "Once the ball is switched, the two defenders who were pressing can send one player across to join the lone defender.",
+      "If defenders win the ball, they pass it to the coach and swap roles with the attackers who lost it."
+    ],
+    "coaching": [
+      "Make the field big: get wide and deep in your box",
+      "Look up before the fifth pass so you know where the switch is going",
+      "Players in the far box move to get free before the switch arrives",
+      "Switch with a firm, flat pass along the ground"
+    ],
+    "easier": "Only one defender presses in the ball box.",
+    "harder": "Switch after 3 passes but the switch must be a first-time pass.",
+    "video": "",
+    "diagram": {
+      "w": 30, "h": 20,
+      "items": [
+        {"t": "zone", "x": 0, "y": 0, "w": 15, "h": 20, "label": "Box 1"},
+        {"t": "zone", "x": 15, "y": 0, "w": 15, "h": 20, "label": "Box 2"},
+        {"t": "player", "team": "a", "x": 2, "y": 3},
+        {"t": "player", "team": "a", "x": 13, "y": 3},
+        {"t": "player", "team": "a", "x": 3, "y": 17},
+        {"t": "player", "team": "a", "x": 12, "y": 16},
+        {"t": "player", "team": "a", "x": 18, "y": 4},
+        {"t": "player", "team": "a", "x": 27, "y": 5},
+        {"t": "player", "team": "a", "x": 19, "y": 16},
+        {"t": "player", "team": "a", "x": 27, "y": 15},
+        {"t": "player", "team": "b", "x": 6, "y": 9},
+        {"t": "player", "team": "b", "x": 10, "y": 11},
+        {"t": "player", "team": "b", "x": 23, "y": 10},
+        {"t": "ball", "x": 12.6, "y": 15.4},
+        {"t": "pass", "from": [3, 17], "to": [12, 16]},
+        {"t": "pass", "from": [12, 16], "to": [27, 15]},
+        {"t": "run", "from": [10, 11], "to": [20, 13]}
+      ]
+    }
+  },
+  {
+    "id": "possession-end-zone-03b",
+    "title": "End Zone Keep-Away",
+    "topic": "possession",
+    "ages": ["7v7", "9v9", "11v11"],
+    "players": "8-12",
+    "minutes": 18,
+    "intensity": "high",
+    "space": "35 x 25 yards",
+    "equipment": ["6 balls", "8 cones", "Pinnies"],
+    "summary": "Teams keep the ball and score by passing to a teammate who runs into the end zone.",
+    "setup": "Mark a 35 x 25 area with a 4-yard end zone at each end. Two even teams of 4 or 5. Nobody may stand in an end zone; they can only run into it to receive.",
+    "how": [
+      "Start with a coach pass to one team. Each team attacks one end zone.",
+      "Score a point by passing to a teammate who times a run into the end zone and controls the ball there.",
+      "After a point, the scoring team keeps the ball and attacks the other end zone.",
+      "If the defending team wins the ball, they attack right away."
+    ],
+    "coaching": [
+      "Be patient: keep the ball until a runner is ready",
+      "Time your run so you arrive as the pass is played, not before",
+      "Pass into space in front of the runner",
+      "When you lose it, the nearest player presses straight away"
+    ],
+    "easier": "Allow a teammate to wait in the end zone, or add a free player who always plays for the team with the ball.",
+    "harder": "Require 4 passes before a team can score.",
+    "video": "",
+    "diagram": {
+      "w": 35, "h": 25,
+      "items": [
+        {"t": "zone", "x": 0, "y": 0, "w": 4, "h": 25, "label": "End zone"},
+        {"t": "zone", "x": 31, "y": 0, "w": 4, "h": 25, "label": "End zone"},
+        {"t": "player", "team": "a", "x": 10, "y": 6},
+        {"t": "player", "team": "a", "x": 12, "y": 18},
+        {"t": "player", "team": "a", "x": 18, "y": 12},
+        {"t": "player", "team": "a", "x": 24, "y": 5},
+        {"t": "player", "team": "a", "x": 26, "y": 20},
+        {"t": "player", "team": "b", "x": 14, "y": 10},
+        {"t": "player", "team": "b", "x": 16, "y": 16},
+        {"t": "player", "team": "b", "x": 21, "y": 8},
+        {"t": "player", "team": "b", "x": 22, "y": 18},
+        {"t": "player", "team": "b", "x": 28, "y": 12},
+        {"t": "ball", "x": 18.8, "y": 12.4},
+        {"t": "pass", "from": [18, 12], "to": [33, 9]},
+        {"t": "run", "from": [24, 5], "to": [33, 9]}
+      ]
+    }
+  },
+  {
+    "id": "build-out-keeper-start-01b",
+    "title": "Keeper Starts It (7v7)",
+    "topic": "build-out",
+    "ages": ["7v7"],
+    "players": "6-10",
+    "minutes": 15,
+    "intensity": "medium",
+    "space": "40 x 30 yards",
+    "equipment": ["Full-size 7v7 goal", "2 mini goals", "8 cones", "6 balls", "Pinnies"],
+    "summary": "Keeper and three teammates play out from the back against two forwards, using the 7v7 build-out line.",
+    "setup": "Use half of a 7v7 field. Mark the build-out line with cones (halfway between the top of the penalty area and the halfway line). Keeper plus 3 attackers start near goal; 2 defenders start on the far side of the build-out line. Two mini goals sit on the halfway line.",
+    "how": [
+      "Keeper starts with the ball. The two defenders must stay behind the build-out line until the keeper passes or rolls it to a teammate.",
+      "Once the ball is played, the defenders can press anywhere.",
+      "Attackers score by passing into either mini goal or dribbling across the halfway line.",
+      "If defenders win the ball, they try to score in the big goal. Reset with the keeper after each goal or ball out."
+    ],
+    "coaching": [
+      "Defenders split wide toward the sidelines to give the keeper options",
+      "Keeper, play to the side away from the closest forward",
+      "Receive with an open body so you can play forward",
+      "The midfielder moves into a gap between the two forwards"
+    ],
+    "easier": "Only one defender presses.",
+    "harder": "Add a third defender who can press from the start; attackers must pass to the midfielder before scoring.",
+    "video": "",
+    "diagram": {
+      "w": 40, "h": 30,
+      "items": [
+        {"t": "goal", "x": 20, "y": 30, "w": 6},
+        {"t": "gk", "x": 20, "y": 28},
+        {"t": "zone", "x": 0, "y": 14.5, "w": 40, "h": 1, "label": "Build-out line"},
+        {"t": "player", "team": "a", "x": 8, "y": 25, "label": "2"},
+        {"t": "player", "team": "a", "x": 32, "y": 25, "label": "3"},
+        {"t": "player", "team": "a", "x": 20, "y": 20, "label": "6"},
+        {"t": "player", "team": "b", "x": 16, "y": 12},
+        {"t": "player", "team": "b", "x": 24, "y": 12},
+        {"t": "minigoal", "x": 10, "y": 0, "w": 3, "side": "top"},
+        {"t": "minigoal", "x": 30, "y": 0, "w": 3, "side": "top"},
+        {"t": "ball", "x": 20, "y": 27},
+        {"t": "pass", "from": [20, 28], "to": [8, 25]},
+        {"t": "pass", "from": [8, 25], "to": [20, 20]},
+        {"t": "run", "from": [32, 25], "to": [36, 14]}
+      ]
+    }
+  },
+  {
+    "id": "build-out-back-three-02b",
+    "title": "Back Three Build (9v9)",
+    "topic": "build-out",
+    "ages": ["9v9"],
+    "players": "10-14",
+    "minutes": 20,
+    "intensity": "medium",
+    "space": "50 x 35 yards",
+    "equipment": ["Full-size 9v9 goal", "2 mini goals", "10 cones", "8 balls", "Pinnies"],
+    "summary": "Keeper, three defenders and two midfielders build out against four pressing players, respecting the 9v9 build-out line.",
+    "setup": "Use half of a 9v9 field. Mark the build-out line with cones (halfway between the top of the penalty area and the halfway line). Keeper plus 5 attackers vs 4 defenders. Two mini goals on the halfway line.",
+    "how": [
+      "Every restart begins with the keeper. Defenders stay on the far side of the build-out line until the keeper's pass is received.",
+      "Attackers try to pass or dribble into either mini goal.",
+      "Defenders who win the ball try to score in the big goal within 8 seconds.",
+      "After 4 minutes, rotate players through the back line and midfield roles."
+    ],
+    "coaching": [
+      "Center back drops near the keeper; outside backs push wide and high",
+      "Play into the midfielder's back foot so they can turn forward",
+      "If the front is blocked, go back to the keeper and switch sides",
+      "Communicate early: call 'time' or 'man on' for the receiver"
+    ],
+    "easier": "Three defenders press instead of four.",
+    "harder": "Remove the build-out line after the first round so forwards can press the keeper.",
+    "video": "",
+    "diagram": {
+      "w": 50, "h": 35,
+      "items": [
+        {"t": "goal", "x": 25, "y": 35, "w": 8},
+        {"t": "gk", "x": 25, "y": 33},
+        {"t": "zone", "x": 0, "y": 19.5, "w": 50, "h": 1, "label": "Build-out line"},
+        {"t": "player", "team": "a", "x": 10, "y": 29, "label": "2"},
+        {"t": "player", "team": "a", "x": 25, "y": 29, "label": "4"},
+        {"t": "player", "team": "a", "x": 40, "y": 29, "label": "3"},
+        {"t": "player", "team": "a", "x": 18, "y": 22, "label": "6"},
+        {"t": "player", "team": "a", "x": 32, "y": 22, "label": "8"},
+        {"t": "player", "team": "b", "x": 15, "y": 15},
+        {"t": "player", "team": "b", "x": 25, "y": 14},
+        {"t": "player", "team": "b", "x": 35, "y": 15},
+        {"t": "player", "team": "b", "x": 25, "y": 8},
+        {"t": "minigoal", "x": 12, "y": 0, "w": 3, "side": "top"},
+        {"t": "minigoal", "x": 38, "y": 0, "w": 3, "side": "top"},
+        {"t": "ball", "x": 25, "y": 32},
+        {"t": "pass", "from": [25, 33], "to": [10, 29]},
+        {"t": "pass", "from": [10, 29], "to": [18, 22]},
+        {"t": "dribble", "from": [18, 22], "to": [13, 6]}
+      ]
+    }
+  },
+  {
+    "id": "build-out-first-line-03b",
+    "title": "Through the First Line (11v11)",
+    "topic": "build-out",
+    "ages": ["11v11"],
+    "players": "14-16",
+    "minutes": 22,
+    "intensity": "high",
+    "space": "60 x 45 yards",
+    "equipment": ["Full-size goal", "10 cones", "10 balls", "Pinnies"],
+    "summary": "A back four and two central midfielders play past three pressing forwards to find a target player in the end zone.",
+    "setup": "Mark 60 x 45 from the goal line, with an 8-yard end zone at the far end. Keeper, back four and two central mids (team a) plus two targets in the end zone. Five defenders: three forwards and two midfielders. There is no build-out line at 11v11, so forwards may press the keeper.",
+    "how": [
+      "Keeper starts each rep. Team a must get the ball to a target in the end zone for a point.",
+      "A point is worth double if the ball reaches a central midfielder who turns before the final pass.",
+      "Defenders who win the ball attack the big goal straight away.",
+      "Play 3-minute rounds; rotate the targets and mids."
+    ],
+    "coaching": [
+      "Create a 3v2 or 4v3 against the forwards by dropping a midfielder or using the keeper",
+      "Hold the ball to draw a forward in, then pass past them",
+      "Center backs carry the ball forward when nobody steps to them",
+      "Midfielders check shoulders and position on the far side of the press"
+    ],
+    "easier": "Only the three forwards press; midfield defenders stay passive.",
+    "harder": "Targets must receive with one touch and play back into a midfielder to finish the point.",
+    "video": "",
+    "diagram": {
+      "w": 60, "h": 45,
+      "items": [
+        {"t": "goal", "x": 30, "y": 45, "w": 8},
+        {"t": "gk", "x": 30, "y": 43},
+        {"t": "zone", "x": 0, "y": 0, "w": 60, "h": 8, "label": "End zone"},
+        {"t": "player", "team": "a", "x": 8, "y": 35, "label": "2"},
+        {"t": "player", "team": "a", "x": 23, "y": 38, "label": "4"},
+        {"t": "player", "team": "a", "x": 37, "y": 38, "label": "5"},
+        {"t": "player", "team": "a", "x": 52, "y": 35, "label": "3"},
+        {"t": "player", "team": "a", "x": 25, "y": 26, "label": "6"},
+        {"t": "player", "team": "a", "x": 35, "y": 24, "label": "8"},
+        {"t": "player", "team": "a", "x": 15, "y": 4, "label": "T"},
+        {"t": "player", "team": "a", "x": 45, "y": 4, "label": "T"},
+        {"t": "player", "team": "b", "x": 18, "y": 32},
+        {"t": "player", "team": "b", "x": 30, "y": 34},
+        {"t": "player", "team": "b", "x": 42, "y": 32},
+        {"t": "player", "team": "b", "x": 25, "y": 18},
+        {"t": "player", "team": "b", "x": 38, "y": 18},
+        {"t": "ball", "x": 30, "y": 42},
+        {"t": "pass", "from": [30, 43], "to": [23, 38]},
+        {"t": "pass", "from": [23, 38], "to": [8, 35]},
+        {"t": "pass", "from": [8, 35], "to": [25, 26]},
+        {"t": "pass", "from": [25, 26], "to": [15, 4]}
+      ]
+    }
+  },
+  {
+    "id": "finishing-turn-shoot-01b",
+    "title": "Check, Turn and Shoot",
+    "topic": "finishing",
+    "ages": ["7v7", "9v9", "11v11"],
+    "players": "6-12",
+    "minutes": 12,
+    "intensity": "medium",
+    "space": "30 x 25 yards",
+    "equipment": ["Goal", "10 balls", "4 cones"],
+    "summary": "A striker checks toward a server, turns with the first touch and shoots before reaching the shooting line.",
+    "setup": "Goal on the end line with a keeper. Server with balls about 22 yards out. Striker starts near the penalty spot. Two cones mark a shooting line about 12 yards from goal. Others wait in a line next to the server.",
+    "how": [
+      "Striker checks toward the server, who passes along the ground.",
+      "Striker turns with the first touch, toward either side of the cones.",
+      "Striker shoots before passing the shooting line.",
+      "Striker becomes the server, server joins the line."
+    ],
+    "coaching": [
+      "Look over your shoulder before the ball arrives so you know where to turn",
+      "First touch goes out of your feet and toward goal",
+      "Strike low and across the keeper",
+      "Follow your shot in for rebounds"
+    ],
+    "easier": "Striker starts facing goal and the server rolls the ball in front of them.",
+    "harder": "Add a defender who starts behind the striker and pressures the turn.",
+    "video": "",
+    "diagram": {
+      "w": 30, "h": 25,
+      "items": [
+        {"t": "goal", "x": 15, "y": 0, "w": 7},
+        {"t": "gk", "x": 15, "y": 1},
+        {"t": "cone", "x": 9, "y": 12},
+        {"t": "cone", "x": 21, "y": 12},
+        {"t": "player", "team": "a", "x": 15, "y": 22, "label": "S"},
+        {"t": "player", "team": "a", "x": 15, "y": 15, "label": "9"},
+        {"t": "player", "team": "a", "x": 12, "y": 23},
+        {"t": "player", "team": "a", "x": 18, "y": 23},
+        {"t": "ball", "x": 15, "y": 21},
+        {"t": "run", "from": [15, 13], "to": [15, 15]},
+        {"t": "pass", "from": [15, 22], "to": [15, 15]},
+        {"t": "dribble", "from": [15, 15], "to": [18, 10]},
+        {"t": "shot", "from": [18, 10], "to": [13, 1]}
+      ]
+    }
+  },
+  {
+    "id": "finishing-cutback-02b",
+    "title": "Wide Runs and Cut-Backs",
+    "topic": "finishing",
+    "ages": ["9v9", "11v11"],
+    "players": "8-14",
+    "minutes": 18,
+    "intensity": "medium",
+    "space": "40 x 30 yards",
+    "equipment": ["Goal", "12 balls", "4 cones", "Pinnies"],
+    "summary": "Wingers dribble to the end line and pull the ball back low for two runners attacking the near post and the penalty spot.",
+    "setup": "Goal with a keeper. A winger line on each side about 20 yards out. Two runner lines in the middle about 22 yards out. Cones mark the point where wingers must reach before passing.",
+    "how": [
+      "Winger dribbles down the side past the cone toward the end line.",
+      "Two central runners go: one to the near post, one to the penalty spot.",
+      "Winger passes back low and hard across the box. Runners finish with one or two touches.",
+      "Alternate sides. Add one passive defender in the box once players get the timing."
+    ],
+    "coaching": [
+      "Winger, look up before the pass and pick a runner",
+      "Runners, arrive late and fast rather than waiting in the box",
+      "Keep the delivery on the ground; finish with the inside of the foot",
+      "Near-post runner pulls the defender away for the second runner"
+    ],
+    "easier": "Winger stops the ball on the end line and passes from a standstill.",
+    "harder": "Add an active defender and a recovering defender chasing the winger.",
+    "video": "",
+    "diagram": {
+      "w": 40, "h": 30,
+      "items": [
+        {"t": "goal", "x": 20, "y": 0, "w": 8},
+        {"t": "gk", "x": 20, "y": 1},
+        {"t": "cone", "x": 34, "y": 10},
+        {"t": "cone", "x": 6, "y": 10},
+        {"t": "player", "team": "a", "x": 35, "y": 20, "label": "7"},
+        {"t": "player", "team": "a", "x": 5, "y": 20, "label": "11"},
+        {"t": "player", "team": "a", "x": 15, "y": 22, "label": "9"},
+        {"t": "player", "team": "a", "x": 25, "y": 22, "label": "10"},
+        {"t": "player", "team": "b", "x": 20, "y": 9},
+        {"t": "ball", "x": 35, "y": 19},
+        {"t": "dribble", "from": [35, 20], "to": [37, 4]},
+        {"t": "run", "from": [25, 22], "to": [24, 4]},
+        {"t": "run", "from": [15, 22], "to": [17, 10]},
+        {"t": "pass", "from": [37, 4], "to": [17, 10]},
+        {"t": "shot", "from": [17, 10], "to": [18, 1]}
+      ]
+    }
+  },
+  {
+    "id": "finishing-2v1-03b",
+    "title": "2v1 to Goal",
+    "topic": "finishing",
+    "ages": ["7v7", "9v9", "11v11"],
+    "players": "7-12",
+    "minutes": 15,
+    "intensity": "high",
+    "space": "35 x 30 yards",
+    "equipment": ["Goal", "10 balls", "6 cones", "Pinnies"],
+    "summary": "Two attackers race at one defender and the keeper, deciding whether to dribble, pass or shoot.",
+    "setup": "Goal with a keeper. Two attacker lines about 26 yards out, 10 yards apart. A defender line at the side of the goal.",
+    "how": [
+      "Defender passes to either attacker line and steps out to defend.",
+      "The two attackers combine to score; aim to shoot within 8 seconds.",
+      "If the defender wins it, they try to dribble out over the start line.",
+      "Rotate: attackers go to the back of the other line, defender joins an attacker line."
+    ],
+    "coaching": [
+      "Dribble at the defender to make them choose",
+      "If the defender steps to you, pass; if they hang back, keep going and shoot",
+      "Supporting attacker stays level or slightly behind the ball, not blocked by the defender",
+      "Shoot early when you have a clear sight of goal"
+    ],
+    "easier": "Defender starts farther away, giving attackers more time.",
+    "harder": "Play 3v2 with a defender who recovers from behind.",
+    "video": "",
+    "diagram": {
+      "w": 35, "h": 30,
+      "items": [
+        {"t": "goal", "x": 17.5, "y": 0, "w": 7},
+        {"t": "gk", "x": 17.5, "y": 1},
+        {"t": "cone", "x": 12, "y": 28},
+        {"t": "cone", "x": 23, "y": 28},
+        {"t": "player", "team": "a", "x": 12, "y": 26},
+        {"t": "player", "team": "a", "x": 23, "y": 26},
+        {"t": "player", "team": "b", "x": 17.5, "y": 15},
+        {"t": "ball", "x": 12.6, "y": 25.4},
+        {"t": "dribble", "from": [12, 26], "to": [15, 17]},
+        {"t": "run", "from": [23, 26], "to": [24, 12]},
+        {"t": "pass", "from": [15, 17], "to": [24, 12]},
+        {"t": "shot", "from": [24, 12], "to": [19, 1]}
+      ]
+    }
+  },
+  {
+    "id": "transition-quick-counter-01b",
+    "title": "Five-Second Counter",
+    "topic": "transition",
+    "ages": ["7v7", "9v9"],
+    "players": "10-12",
+    "minutes": 18,
+    "intensity": "high",
+    "space": "25 x 35 yards",
+    "equipment": ["2 goals", "8 balls", "Pinnies", "4 cones"],
+    "summary": "A 4v4 game with keepers where a goal scored within five seconds of winning the ball counts double.",
+    "setup": "Field 25 yards wide by 35 yards long with a goal and keeper at each end. Two teams of 4. Coach stands on the side with spare balls.",
+    "how": [
+      "Play a normal 4v4 game.",
+      "When a team wins the ball, the coach counts out loud to five.",
+      "A goal scored before the count ends is worth 2; any other goal is worth 1.",
+      "Restart from the keeper after goals; coach plays a new ball in when it goes out."
+    ],
+    "coaching": [
+      "When you win it, look forward first",
+      "Teammates sprint forward into space the moment the ball is won",
+      "First pass goes forward into a runner if it is on",
+      "If the counter is not on, keep the ball and build again"
+    ],
+    "easier": "Allow eight seconds for the bonus.",
+    "harder": "The team that loses the ball scores a bonus point if it wins the ball back within five seconds.",
+    "video": "",
+    "diagram": {
+      "w": 25, "h": 35,
+      "items": [
+        {"t": "goal", "x": 12.5, "y": 0, "w": 6},
+        {"t": "goal", "x": 12.5, "y": 35, "w": 6},
+        {"t": "gk", "x": 12.5, "y": 1},
+        {"t": "gk", "x": 12.5, "y": 34},
+        {"t": "player", "team": "a", "x": 10, "y": 20},
+        {"t": "player", "team": "a", "x": 6, "y": 24},
+        {"t": "player", "team": "a", "x": 19, "y": 22},
+        {"t": "player", "team": "a", "x": 13, "y": 28},
+        {"t": "player", "team": "b", "x": 11, "y": 18},
+        {"t": "player", "team": "b", "x": 17, "y": 16},
+        {"t": "player", "team": "b", "x": 7, "y": 12},
+        {"t": "player", "team": "b", "x": 14, "y": 9},
+        {"t": "ball", "x": 10.6, "y": 19.4},
+        {"t": "pass", "from": [10, 20], "to": [19, 12]},
+        {"t": "run", "from": [19, 22], "to": [19, 12]},
+        {"t": "run", "from": [6, 24], "to": [8, 8]},
+        {"t": "shot", "from": [19, 12], "to": [13, 1]}
+      ]
+    }
+  },
+  {
+    "id": "transition-recovery-run-02b",
+    "title": "Recovery Run 3v2+1",
+    "topic": "transition",
+    "ages": ["7v7", "9v9", "11v11"],
+    "players": "8-14",
+    "minutes": 15,
+    "intensity": "high",
+    "space": "40 x 30 yards",
+    "equipment": ["Goal", "10 balls", "6 cones", "Pinnies"],
+    "summary": "Three attackers break on two defenders while a third defender sprints back from behind to help.",
+    "setup": "Goal with a keeper. Mark a start zone about 20-30 yards from goal. Three attackers start in the zone with the coach. Two defenders wait near the edge of the box. A third defender starts behind the attackers.",
+    "how": [
+      "Coach plays the ball to one of the three attackers.",
+      "Attackers go to goal straight away while the two defenders step up to slow them down.",
+      "The recovering defender sprints back on the goal side to make it 3v3 as fast as possible.",
+      "If defenders win the ball, they score by dribbling into the start zone. Rotate roles every few reps."
+    ],
+    "coaching": [
+      "Recovering defender runs toward the goal first, not toward the ball",
+      "Front defenders delay: back off and keep the attackers in front",
+      "Attackers attack quickly before the extra defender gets back",
+      "Talk: recovering defender tells teammates which attacker to pick up"
+    ],
+    "easier": "Recovering defender starts closer to the goal.",
+    "harder": "Two recovering defenders start behind, making it 3v4 if attackers are slow.",
+    "video": "",
+    "diagram": {
+      "w": 40, "h": 30,
+      "items": [
+        {"t": "goal", "x": 20, "y": 0, "w": 7},
+        {"t": "gk", "x": 20, "y": 1},
+        {"t": "zone", "x": 0, "y": 20, "w": 40, "h": 10, "label": "Start zone"},
+        {"t": "player", "team": "a", "x": 12, "y": 22},
+        {"t": "player", "team": "a", "x": 20, "y": 24},
+        {"t": "player", "team": "a", "x": 28, "y": 22},
+        {"t": "player", "team": "b", "x": 15, "y": 10},
+        {"t": "player", "team": "b", "x": 25, "y": 10},
+        {"t": "player", "team": "b", "x": 20, "y": 28},
+        {"t": "ball", "x": 20, "y": 23},
+        {"t": "dribble", "from": [20, 24], "to": [20, 15]},
+        {"t": "pass", "from": [20, 15], "to": [29, 12]},
+        {"t": "run", "from": [28, 22], "to": [29, 12]},
+        {"t": "run", "from": [20, 28], "to": [19, 7]}
+      ]
+    }
+  },
+  {
+    "id": "transition-win-back-03b",
+    "title": "Lose It, Win It Back",
+    "topic": "transition",
+    "ages": ["9v9", "11v11"],
+    "players": "10-14",
+    "minutes": 20,
+    "intensity": "high",
+    "space": "35 x 45 yards",
+    "equipment": ["8 balls", "10 cones", "Pinnies"],
+    "summary": "A 6v6 end-zone game where the team that loses the ball earns a bonus for winning it back fast.",
+    "setup": "Field 35 wide by 45 long with a 5-yard end zone at each end. Two teams of 5-7. Coach on the side with balls.",
+    "how": [
+      "Teams score by dribbling into the end zone they attack, or by passing to a teammate who runs onto the ball there.",
+      "When a team loses the ball, the coach counts to five out loud.",
+      "If that team wins the ball back before five, it earns a bonus point.",
+      "Play 4-minute games and change the bonus window as players improve."
+    ],
+    "coaching": [
+      "Closest player presses the ball right away; others shut the nearby passing lanes",
+      "Press as a group, not one player alone",
+      "If you cannot win it in five seconds, drop back and get compact",
+      "Team with the ball: first pass away from the press, toward open space"
+    ],
+    "easier": "Use a seven-second window.",
+    "harder": "Only one bonus point if you win it back in your attacking half of the field.",
+    "video": "",
+    "diagram": {
+      "w": 35, "h": 45,
+      "items": [
+        {"t": "zone", "x": 0, "y": 0, "w": 35, "h": 5, "label": "End zone"},
+        {"t": "zone", "x": 0, "y": 40, "w": 35, "h": 5, "label": "End zone"},
+        {"t": "player", "team": "a", "x": 10, "y": 18},
+        {"t": "player", "team": "a", "x": 15, "y": 22},
+        {"t": "player", "team": "a", "x": 22, "y": 20},
+        {"t": "player", "team": "a", "x": 28, "y": 14},
+        {"t": "player", "team": "a", "x": 8, "y": 30},
+        {"t": "player", "team": "a", "x": 24, "y": 32},
+        {"t": "player", "team": "b", "x": 13, "y": 20},
+        {"t": "player", "team": "b", "x": 6, "y": 15},
+        {"t": "player", "team": "b", "x": 20, "y": 26},
+        {"t": "player", "team": "b", "x": 26, "y": 10},
+        {"t": "player", "team": "b", "x": 15, "y": 10},
+        {"t": "player", "team": "b", "x": 18, "y": 36},
+        {"t": "ball", "x": 13.5, "y": 20.8},
+        {"t": "run", "from": [15, 22], "to": [13.5, 20.5]},
+        {"t": "run", "from": [10, 18], "to": [8, 16]},
+        {"t": "run", "from": [22, 20], "to": [20, 24]},
+        {"t": "pass", "from": [13, 20], "to": [20, 26]}
+      ]
+    }
+  },
+  {
+    "id": "1v1-defend-jockey-channel-01b",
+    "title": "Jockey the Channel",
+    "topic": "1v1-defend",
+    "ages": ["7v7", "9v9", "11v11"],
+    "players": "4-12",
+    "minutes": 12,
+    "intensity": "medium",
+    "space": "10 x 20 yards",
+    "equipment": ["1 ball per pair", "4 cones per channel"],
+    "summary": "A defender passes to an attacker, closes down quickly and jockeys to stop them dribbling over the defender's line.",
+    "setup": "Mark a 10 x 20 channel. Defender stands on one end line with the ball, attacker on the other end line. Set up several channels for larger groups.",
+    "how": [
+      "Defender passes to the attacker and sprints out to close the distance.",
+      "As the attacker gets close, the defender slows down, gets low and jockeys.",
+      "Attacker scores by stopping the ball on the defender's end line. Defender scores by winning the ball and stopping it on the attacker's line.",
+      "Swap roles every rep; play 6 reps each."
+    ],
+    "coaching": [
+      "Sprint while the ball travels, then slow down with short steps as you arrive",
+      "Arrive about an arm's length away, knees bent, weight on the balls of your feet",
+      "Stand side-on, not square, so you can turn and run with the attacker",
+      "Stay on your feet and be patient; poke the ball only on a heavy touch"
+    ],
+    "easier": "Make the channel narrower so the attacker has less room.",
+    "harder": "Make the channel wider, or the attacker can score on either of two cone gates.",
+    "video": "",
+    "diagram": {
+      "w": 10, "h": 20,
+      "items": [
+        {"t": "cone", "x": 0, "y": 0},
+        {"t": "cone", "x": 10, "y": 0},
+        {"t": "cone", "x": 0, "y": 20},
+        {"t": "cone", "x": 10, "y": 20},
+        {"t": "player", "team": "b", "x": 5, "y": 1},
+        {"t": "player", "team": "a", "x": 5, "y": 19},
+        {"t": "ball", "x": 5, "y": 18},
+        {"t": "pass", "from": [5, 1], "to": [5, 18]},
+        {"t": "run", "from": [5, 2], "to": [6, 11]},
+        {"t": "dribble", "from": [5, 19], "to": [7, 12]}
+      ]
+    }
+  },
+  {
+    "id": "1v1-defend-curved-approach-02b",
+    "title": "Curve and Show Outside",
+    "topic": "1v1-defend",
+    "ages": ["7v7", "9v9", "11v11"],
+    "players": "4-12",
+    "minutes": 15,
+    "intensity": "medium",
+    "space": "20 x 20 yards",
+    "equipment": ["1 mini goal", "4 cones", "1 ball per pair"],
+    "summary": "Defenders use a curved approach to push the attacker away from the central mini goal and toward the wide gates.",
+    "setup": "Mark a 20 x 20 square. Put a mini goal in the middle of one end line and a 3-yard cone gate in each corner of that line. Attackers start on the opposite line; defenders start beside the mini goal.",
+    "how": [
+      "Defender passes to the attacker, then closes down.",
+      "Attacker scores 3 points through the mini goal or 1 point through either wide gate.",
+      "Defender earns 1 point for winning the ball, or for forcing the attacker out of the side of the square.",
+      "Swap roles after each rep; keep a running score."
+    ],
+    "coaching": [
+      "Bend your run so you arrive on the inside of the attacker, blocking the middle",
+      "Show them the sideline with your body angle",
+      "Keep your feet moving; do not dive in or go to ground",
+      "Stay between the ball and the goal at all times"
+    ],
+    "easier": "Attacker must start with the ball stopped, giving the defender time.",
+    "harder": "Defender must start from a cone 5 yards farther back.",
+    "video": "",
+    "diagram": {
+      "w": 20, "h": 20,
+      "items": [
+        {"t": "minigoal", "x": 10, "y": 0, "w": 3, "side": "top"},
+        {"t": "cone", "x": 1, "y": 1},
+        {"t": "cone", "x": 4, "y": 1},
+        {"t": "cone", "x": 16, "y": 1},
+        {"t": "cone", "x": 19, "y": 1},
+        {"t": "player", "team": "b", "x": 13, "y": 3},
+        {"t": "player", "team": "a", "x": 10, "y": 18},
+        {"t": "ball", "x": 10, "y": 17},
+        {"t": "pass", "from": [13, 3], "to": [10, 17]},
+        {"t": "run", "from": [13, 4], "to": [11, 11]},
+        {"t": "dribble", "from": [10, 17], "to": [4, 6]}
+      ]
+    }
+  },
+  {
+    "id": "1v1-defend-goalside-03b",
+    "title": "Delay and Deny to Goal",
+    "topic": "1v1-defend",
+    "ages": ["7v7", "9v9", "11v11"],
+    "players": "6-12",
+    "minutes": 15,
+    "intensity": "high",
+    "space": "30 x 30 yards",
+    "equipment": ["Goal", "10 balls", "4 cones"],
+    "summary": "A 1v1 toward a real goal and keeper where the defender's job is to keep the attacker out of the central shooting zone.",
+    "setup": "Goal with a keeper. Mark a central 'danger zone' in front of goal with cones. Attacker line about 27 yards out; defender line beside the post.",
+    "how": [
+      "Defender passes out to the attacker and closes down quickly.",
+      "Attacker tries to score; defender tries to steer them wide and away from the danger zone.",
+      "Defender earns a point for winning the ball or forcing a shot from outside the danger zone.",
+      "Rotate lines after each rep."
+    ],
+    "coaching": [
+      "Close quickly, then slow down and get low before you reach the attacker",
+      "Angle your approach to cut off the middle and send them wide",
+      "Stay on your feet; no slide tackles. Win the ball with a block or a poke when they push it too far",
+      "Work with the keeper: if you push them wide, the keeper covers the near post"
+    ],
+    "easier": "Attacker starts farther from goal, giving the defender more time.",
+    "harder": "Attacker has a 6-second limit to shoot, forcing faster decisions from both players.",
+    "video": "",
+    "diagram": {
+      "w": 30, "h": 30,
+      "items": [
+        {"t": "goal", "x": 15, "y": 0, "w": 7},
+        {"t": "gk", "x": 15, "y": 1},
+        {"t": "zone", "x": 9, "y": 0, "w": 12, "h": 12, "label": "Danger zone"},
+        {"t": "cone", "x": 12, "y": 28},
+        {"t": "cone", "x": 18, "y": 28},
+        {"t": "player", "team": "a", "x": 15, "y": 27},
+        {"t": "player", "team": "b", "x": 15, "y": 14},
+        {"t": "ball", "x": 15, "y": 26},
+        {"t": "dribble", "from": [15, 27], "to": [23, 15]},
+        {"t": "run", "from": [15, 14], "to": [20, 17]},
+        {"t": "shot", "from": [24, 12], "to": [17, 1]}
+      ]
+    }
+  },
+  {
+    "id": "small-sided-four-goal-01b",
+    "title": "Four Mini-Goal Game",
+    "topic": "small-sided",
+    "ages": ["7v7", "9v9"],
+    "players": "8-10",
+    "minutes": 18,
+    "intensity": "high",
+    "space": "30 x 25 yards",
+    "equipment": ["4 mini goals", "8 balls", "Pinnies", "4 cones"],
+    "summary": "A 4v4 game where each team defends two wide mini goals, so switching the point of attack pays off.",
+    "setup": "Field 30 wide by 25 long. Place two mini goals near each corner on both end lines. Two teams of 4 or 5. No keepers.",
+    "how": [
+      "Each team attacks the two mini goals on the opposite end line.",
+      "Score in either mini goal; restart from your own end line after a goal against.",
+      "Coach keeps balls ready and plays a new one in quickly when the ball goes out.",
+      "Play 4-minute games with short rests."
+    ],
+    "coaching": [
+      "If one goal is crowded, switch quickly to the other",
+      "Spread out wide so the defenders have to cover more ground",
+      "Defenders shift together toward the side the ball is on",
+      "Look up after every touch to see which goal is open"
+    ],
+    "easier": "Make the field wider so goals are farther apart.",
+    "harder": "A goal only counts if the team has used both halves of the field width in that attack.",
+    "video": "",
+    "diagram": {
+      "w": 30, "h": 25,
+      "items": [
+        {"t": "minigoal", "x": 5, "y": 0, "w": 3, "side": "top"},
+        {"t": "minigoal", "x": 25, "y": 0, "w": 3, "side": "top"},
+        {"t": "minigoal", "x": 5, "y": 25, "w": 3, "side": "bottom"},
+        {"t": "minigoal", "x": 25, "y": 25, "w": 3, "side": "bottom"},
+        {"t": "player", "team": "a", "x": 7, "y": 12},
+        {"t": "player", "team": "a", "x": 15, "y": 16},
+        {"t": "player", "team": "a", "x": 24, "y": 13},
+        {"t": "player", "team": "a", "x": 13, "y": 21},
+        {"t": "player", "team": "b", "x": 8, "y": 8},
+        {"t": "player", "team": "b", "x": 12, "y": 13},
+        {"t": "player", "team": "b", "x": 18, "y": 9},
+        {"t": "player", "team": "b", "x": 6, "y": 4},
+        {"t": "ball", "x": 7.6, "y": 12.4},
+        {"t": "pass", "from": [7, 12], "to": [15, 16]},
+        {"t": "pass", "from": [15, 16], "to": [24, 13]},
+        {"t": "dribble", "from": [24, 13], "to": [25, 6]},
+        {"t": "shot", "from": [25, 6], "to": [25, 1]}
+      ]
+    }
+  },
+  {
+    "id": "small-sided-wide-channels-02b",
+    "title": "Free Wings Game",
+    "topic": "small-sided",
+    "ages": ["9v9", "11v11"],
+    "players": "12-14",
+    "minutes": 22,
+    "intensity": "high",
+    "space": "35 x 45 yards",
+    "equipment": ["2 goals", "12 cones", "10 balls", "Pinnies"],
+    "summary": "A 5v5 game with keepers and two side channels that defenders cannot enter, rewarding wide play and low crosses.",
+    "setup": "Field 35 wide by 45 long with goals and keepers. Mark a 6-yard channel down each side. Two teams of 5 plus keepers.",
+    "how": [
+      "Only one attacking player may enter a side channel at a time; defenders may not enter.",
+      "Players in a channel have three touches to pass or cross back into the middle.",
+      "A goal scored from a ball played out of a channel counts double.",
+      "Play two 8-minute halves; swap who plays in the channels."
+    ],
+    "coaching": [
+      "Move the ball wide early to get it into the free channel",
+      "Central players make runs as the ball goes wide, near post and far post",
+      "Wide player: look up, then deliver low and hard across the goal",
+      "Defenders tuck in and protect the middle when the ball is wide"
+    ],
+    "easier": "Allow unlimited touches in the channel.",
+    "harder": "One defender may enter the channel to press for a maximum of three seconds.",
+    "video": "",
+    "diagram": {
+      "w": 35, "h": 45,
+      "items": [
+        {"t": "goal", "x": 17.5, "y": 0, "w": 6},
+        {"t": "goal", "x": 17.5, "y": 45, "w": 6},
+        {"t": "gk", "x": 17.5, "y": 1},
+        {"t": "gk", "x": 17.5, "y": 44},
+        {"t": "zone", "x": 0, "y": 0, "w": 6, "h": 45, "label": "Channel"},
+        {"t": "zone", "x": 29, "y": 0, "w": 6, "h": 45, "label": "Channel"},
+        {"t": "player", "team": "a", "x": 32, "y": 10, "label": "7"},
+        {"t": "player", "team": "a", "x": 15, "y": 12},
+        {"t": "player", "team": "a", "x": 22, "y": 20},
+        {"t": "player", "team": "a", "x": 12, "y": 26},
+        {"t": "player", "team": "a", "x": 20, "y": 34},
+        {"t": "player", "team": "b", "x": 14, "y": 8},
+        {"t": "player", "team": "b", "x": 22, "y": 9},
+        {"t": "player", "team": "b", "x": 18, "y": 16},
+        {"t": "player", "team": "b", "x": 10, "y": 18},
+        {"t": "player", "team": "b", "x": 24, "y": 28},
+        {"t": "ball", "x": 32, "y": 9},
+        {"t": "pass", "from": [22, 20], "to": [32, 10]},
+        {"t": "pass", "from": [32, 6], "to": [16, 5]},
+        {"t": "run", "from": [15, 12], "to": [16, 5]},
+        {"t": "shot", "from": [16, 5], "to": [18, 1]}
+      ]
+    }
+  },
+  {
+    "id": "small-sided-build-out-match-03b",
+    "title": "Build-Out Line Match (7v7)",
+    "topic": "small-sided",
+    "ages": ["7v7"],
+    "players": "12-16",
+    "minutes": 25,
+    "intensity": "high",
+    "space": "40 x 55 yards",
+    "equipment": ["2 goals", "12 cones", "8 balls", "Pinnies"],
+    "summary": "A full 7v7 match using build-out lines where every goal kick and keeper save must be played out on the ground.",
+    "setup": "7v7 field 40 wide by 55 long. Mark a build-out line at each end with cones, halfway between the top of the penalty area and the halfway line. Two teams of 6 plus keepers.",
+    "how": [
+      "Play a normal 7v7 game.",
+      "On goal kicks and when the keeper holds the ball, opponents retreat behind the build-out line.",
+      "The keeper must restart with a pass or roll; no punts or long kicks.",
+      "Opponents may cross the build-out line once a teammate receives the restart. Award a bonus point for a goal that started with a keeper pass."
+    ],
+    "coaching": [
+      "Spread wide quickly when your keeper gets the ball",
+      "Keeper, pick the open side and pass firmly",
+      "Forwards, wait behind the line and step up together when the ball is received",
+      "After receiving, look to play forward before playing back"
+    ],
+    "easier": "Opponents can only press once the ball crosses the build-out line.",
+    "harder": "Bonus point only if the attack reaches the opponent's box in under 6 passes.",
+    "video": "",
+    "diagram": {
+      "w": 40, "h": 55,
+      "items": [
+        {"t": "goal", "x": 20, "y": 0, "w": 6},
+        {"t": "goal", "x": 20, "y": 55, "w": 6},
+        {"t": "gk", "x": 20, "y": 1},
+        {"t": "gk", "x": 20, "y": 54},
+        {"t": "zone", "x": 0, "y": 19.5, "w": 40, "h": 1, "label": "Build-out line"},
+        {"t": "zone", "x": 0, "y": 34.5, "w": 40, "h": 1, "label": "Build-out line"},
+        {"t": "player", "team": "a", "x": 8, "y": 48},
+        {"t": "player", "team": "a", "x": 32, "y": 48},
+        {"t": "player", "team": "a", "x": 20, "y": 42},
+        {"t": "player", "team": "a", "x": 8, "y": 37},
+        {"t": "player", "team": "a", "x": 32, "y": 37},
+        {"t": "player", "team": "a", "x": 20, "y": 30},
+        {"t": "player", "team": "b", "x": 14, "y": 32},
+        {"t": "player", "team": "b", "x": 26, "y": 32},
+        {"t": "player", "team": "b", "x": 20, "y": 26},
+        {"t": "player", "team": "b", "x": 10, "y": 20},
+        {"t": "player", "team": "b", "x": 30, "y": 20},
+        {"t": "player", "team": "b", "x": 20, "y": 12},
+        {"t": "ball", "x": 20, "y": 53},
+        {"t": "pass", "from": [20, 54], "to": [8, 48]},
+        {"t": "run", "from": [8, 37], "to": [6, 28]}
+      ]
+    }
+  }
+]
