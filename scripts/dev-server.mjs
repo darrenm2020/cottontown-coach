@@ -12,6 +12,8 @@ const pub = join(root, "public"), data = join(root, ".devdata");
 const port = +(process.argv[2] || 8888);
 const env = {};
 if (existsSync(join(root, ".env"))) for (const l of readFileSync(join(root, ".env"), "utf8").split(/\r?\n/)) { const m = l.match(/^([A-Z_]+)=(.*)$/); if (m) env[m[1]] = m[2]; }
+// A value set in the shell wins over .env (e.g. a throwaway COACH_CODE while testing).
+for (const k of ["COACH_CODE", "AUTH_REQUIRED", "DEV_SHOW_LINK"]) if (process.env[k]) env[k] = process.env[k];
 
 await mkdir(data, { recursive: true });
 const file = (k) => join(data, encodeURIComponent(k) + ".json");

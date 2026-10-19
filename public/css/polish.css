@@ -1,0 +1,157 @@
+/* Polish layer: one consistent finish on top of app.css and features.css.
+   Shared Cottontown colors; one strong primary action (crimson), restrained secondary actions,
+   12px corners, 44px touch targets, calm cards. Loaded last, so it wins ties. */
+:root{--r:12px;--gap:12px;--pad:14px;--ok:#14532d;--ok-bg:#e3f3e7;--warn:#7a3d00;--warn-bg:#fdf1dc}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ok:#bbf7d0;--ok-bg:#12351f;--warn:#fde3b5;--warn-bg:#3a2a10}}
+:root[data-theme="dark"]{--ok:#bbf7d0;--ok-bg:#12351f;--warn:#fde3b5;--warn-bg:#3a2a10}
+
+/* ---------- buttons ---------- */
+.btn{border-radius:var(--r)}
+.btn.small{min-height:44px;padding:8px 14px}
+.btn.primary-s{background:var(--crimson);border-color:var(--crimson);color:var(--on-crimson)}
+.btn.primary-s:hover{background:var(--crimson-2);border-color:var(--crimson-2)}
+.btn:focus-visible,.mitem:focus-visible,.schbtn:focus-visible,.dira:focus-visible,.crow:focus-visible,.tlink:focus-visible,.remind:focus-visible,.menubtn:focus-visible,.tab:focus-visible,.top .brand[data-act]:focus-visible{outline:3px solid var(--crimson);outline-offset:2px}
+
+/* ---------- header: the team is always named ---------- */
+.top .brand>div{display:block!important;min-width:0}
+.top .brand{min-width:0;padding:4px 6px 4px 0}
+.top .brand .t1{display:flex;align-items:center;gap:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:22px}
+.top .brand .t1 .caret{flex:none;font-size:15px;color:var(--muted)}
+.menubtn{flex:none;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--line);background:var(--surface-2);color:var(--ink);font:700 24px/1 "Barlow",sans-serif;cursor:pointer;display:grid;place-items:center;padding:0}
+.top{grid-template-areas:"brand games clock ctrl menu";grid-template-columns:minmax(0,auto) minmax(0,1fr) auto auto auto}
+.top .brand{grid-area:brand}.top .games{grid-area:games}.top .clockbox{grid-area:clock}.top .ctrl{grid-area:ctrl}.top .menubtn{grid-area:menu}.top .adjrow{grid-column:1/-1}
+@media (max-width:1440px) and (min-width:900px){
+  .top{grid-template-areas:"brand clock ctrl menu" "games games games games";grid-template-columns:minmax(0,1fr) auto auto auto}
+  .top .brand .t2{display:none}
+}
+@media (max-width:899px){
+  .top{grid-template-areas:"brand menu" "clock ctrl" "games games";grid-template-columns:minmax(0,1fr) auto;gap:8px 10px;padding:10px 14px}
+  .top .brand .t2{display:none}
+  .clockbox{gap:10px;justify-content:flex-start;min-width:0}
+  .ctrl{justify-content:flex-end}
+  .ctrl .btn.primary{min-width:0;padding:10px 18px}
+}
+@media (max-width:420px){
+  .time{font-size:46px}
+  .next{min-width:0;padding:5px 10px}
+  .next b{font-size:22px}
+  .top .brand .t1{font-size:20px}
+  .brand img{height:34px}
+}
+/* No game chrome in Practice and Team modes */
+.app.practice .top{grid-template-areas:"brand menu";grid-template-columns:minmax(0,1fr) auto}
+.app.onetab .tabs{display:none}
+
+/* ---------- mode switch ---------- */
+.modesw{gap:4px;border-radius:var(--r)}
+.modesw button{min-height:46px;font-size:19px;border-radius:9px}
+
+/* ---------- connection badge (never "Live") ---------- */
+.sync.view{background:var(--ok-bg);color:var(--ok)}
+.sync.lost{background:var(--warn-bg);color:var(--warn)}
+
+/* ---------- game status ---------- */
+.livepill{display:inline-block;margin-left:0;font:700 13px/1.5 "Barlow",sans-serif;padding:1px 9px;border-radius:20px;background:var(--crimson);color:#fff}
+.stpill{display:inline-block;font:600 13px/1.5 "Barlow",sans-serif;padding:1px 9px;border-radius:20px;background:var(--warn-bg);color:var(--warn);white-space:nowrap}
+.gamestate{margin:8px 0 2px;text-align:center;font:600 16px "Barlow",sans-serif;color:var(--warn)}
+.gamestate.await{color:var(--warn)}
+.resultbox{margin:10px 0 4px;padding:12px;border-radius:var(--r);background:var(--warn-bg);color:var(--ink)}
+.resultbox p{margin:0 0 8px;font-size:15px}
+.rsin{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.rsin label{display:flex;flex-direction:column;gap:4px;font:600 13px "Barlow",sans-serif;color:var(--muted);min-width:0}
+.rsin label span{max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rsin input{width:78px;min-height:48px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:700 26px "Barlow Condensed",sans-serif;text-align:center}
+.rsin .dash{font:700 26px "Barlow Condensed",sans-serif;padding-bottom:8px}
+
+/* ---------- ⋯ menu ---------- */
+.menup h4{margin:16px 0 6px}
+.mlist{display:flex;flex-direction:column;gap:6px}
+.mitem{display:flex;align-items:center;min-height:48px;padding:0 14px;border-radius:var(--r);border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:600 16px "Barlow",sans-serif;text-align:left;text-decoration:none;cursor:pointer}
+.mitem:disabled{opacity:.45;cursor:default}
+.mdanger{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+.mitem.danger{color:var(--crimson);border-color:var(--crimson)}
+.mitem.danger.armed{background:var(--crimson);color:#fff}
+.menup .unlockcard{border:0;padding:0;margin:0}
+.menup .unlockcard h3{display:none}
+
+/* ---------- parent Game / Schedule / Team ---------- */
+.subacts{margin:12px 0 4px}
+.subhead{margin-bottom:8px}
+.sched{padding:0;gap:8px}
+.schbtn{flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:10px 4px;background:none;border:0;color:var(--ink);text-align:left;cursor:pointer;min-height:56px;font:inherit}
+.schbtn .sgrow{display:flex;flex-direction:column;min-width:0}
+.schbtn .sgrow .fine{font-size:14px}
+.schbtn .sres{margin-left:auto;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.sched.cur{background:var(--surface-2);border-radius:10px}
+.sched .maplink{flex:none;padding:10px 6px;font-size:14px}
+.evhead{display:flex;flex-direction:column;gap:2px;margin:14px 0 4px;padding:8px 12px;border-left:4px solid var(--crimson);background:var(--surface-2);border-radius:0 10px 10px 0}
+.evhead .evname{font:700 17px "Barlow Condensed",sans-serif}
+.teamhead{display:flex;flex-direction:column;gap:2px;margin-bottom:6px}
+.teamhead b{font:700 22px "Barlow Condensed",sans-serif}
+.teamrec{margin:0 0 6px;font-size:15px}
+.rosterl{display:flex;flex-direction:column}
+.rrow{display:flex;align-items:center;gap:8px;padding:9px 2px;border-bottom:1px solid var(--line);font-size:16px}
+.rnum{width:34px;color:var(--muted);font-variant-numeric:tabular-nums}
+.teamfoot{margin-top:14px}
+
+/* ---------- club page ---------- */
+.clubmain{padding-bottom:40px}
+.cs h2{font-size:22px;margin:22px 0 10px}
+.cgrid{grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:var(--gap)}
+.ccard.tcard{gap:8px;padding:var(--pad);border-radius:var(--r);border-width:1px}
+.ccard.tcard.live{border-color:var(--crimson);box-shadow:0 0 0 1px var(--crimson) inset}
+.tchead{display:flex;gap:10px;align-items:flex-start}
+.tct{flex:1;min-width:0}
+.tcard h3{margin:2px 0 0;font:700 23px/1.1 "Barlow Condensed",sans-serif}
+.tcard h3 a{color:inherit;text-decoration:none}
+.tcard h3 a:hover{text-decoration:underline}
+.tbadges{margin:4px 0 0}
+.tbadge{border-width:1px;font-size:12.5px}
+.tev{margin:0;font:600 14px "Barlow",sans-serif;color:var(--ink)}
+.tgline{margin:0;font-size:16px;line-height:1.35;display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px}
+.tgwhen{flex-basis:100%;font-size:15px;color:var(--muted)}
+.tglabel{font:700 12px "Barlow",sans-serif;text-transform:uppercase;letter-spacing:.05em;color:var(--crimson)}
+.tsc{font:700 20px "Barlow Condensed",sans-serif}
+.tacts{display:flex;align-items:center;gap:14px;margin-top:2px}
+.tacts .btn{min-height:44px}
+.tlink{color:var(--ink);font:600 15px "Barlow",sans-serif;text-underline-offset:3px;padding:10px 2px}
+.remind{font:600 14px "Barlow",sans-serif;color:var(--warn);background:var(--warn-bg);border-radius:10px;padding:8px 10px;text-decoration:none}
+.starbtn{width:44px;height:44px;border-width:1.5px}
+.crow{min-height:56px}
+.liverow .cfinal{font:700 22px "Barlow Condensed",sans-serif}
+.morebtn{margin-top:10px}
+.dirlist{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.dirrow{display:flex;align-items:center;gap:8px;padding:6px 10px 6px 0;border-bottom:1px solid var(--line)}
+.dirrow:last-child{border-bottom:0}
+.dira{flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:8px 12px;color:var(--ink);text-decoration:none;min-height:48px}
+.dirt{display:flex;flex-direction:column;min-width:0}
+.dirt b{font:700 19px "Barlow Condensed",sans-serif}
+.dirt .fine{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px}
+.ctools{margin-top:26px;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+.ctools summary{cursor:pointer;font:700 18px "Barlow Condensed",sans-serif;min-height:32px}
+.ctours:empty{display:none}
+.ctours .cfbtn{font-size:15px}
+
+/* ---------- Team mode: tournaments ---------- */
+.tourform{margin-top:8px}
+.tourgames{display:flex;flex-direction:column;margin:8px 0}
+.tgrow{display:flex;align-items:center;gap:10px;min-height:48px;padding:4px 0;border-bottom:1px solid var(--line)}
+.tgrow input{width:22px;height:22px;flex:none}
+.tgrow span{display:flex;flex-direction:column}
+
+/* ---------- motion ---------- */
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* Filter rows stay compact: one line each, scrolling sideways when needed. */
+.clubctl .cfilters{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.clubctl .cfilters::-webkit-scrollbar{display:none}
+.clubctl .cfbtn{flex:0 0 auto}
+.clubctl .ctours .cfbtn{min-height:44px;padding:6px 14px;font-size:16px}
+.games .gbtn.clubbtn{display:flex;align-items:center}
+.games .gbtn.clubbtn b{font-size:17px}
+.formmsg{margin:6px 0 0;font:600 14px "Barlow",sans-serif;color:var(--crimson);min-height:0}
+.formmsg:empty{display:none}
+.scorebar .resultbox,.scorebar .gamestate{grid-column:1/-1}
+.top .brand .t1 .bn{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.clockface.pre .time{display:none}
+.clockface.pre .period{font-size:18px;color:var(--ink)}

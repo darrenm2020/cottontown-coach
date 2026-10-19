@@ -8,19 +8,22 @@ const gameLabel=gc=>gc.opp?(gc.title&&gc.title!==gc.opp&&!gc.opp.startsWith(gc.t
 renderBrand=(base=>function(){
   base();
   const b=document.querySelector('.top .brand');
-  if(b){b.dataset.act='teampick';b.setAttribute('role','button');b.tabIndex=0;b.setAttribute('aria-label','Switch team');b.setAttribute('aria-haspopup','dialog');}
+  if(b){b.dataset.act='teampick';b.setAttribute('role','button');b.tabIndex=0;b.setAttribute('aria-label','Switch team. Now showing '+CFG().name);b.setAttribute('aria-haspopup','dialog');}
   const n=$('bname');if(n&&!n.querySelector('.caret'))n.insertAdjacentHTML('beforeend',' <span class="caret" aria-hidden="true">▾</span>');
 })(renderBrand);
 
 renderGames=function(){
   const gc=GC();if(!gc)return;const i=curIdx();
-  $('games').innerHTML=`<a class="gbtn clubbtn" href="${clubLink()}"><b>‹ Club</b><small>All teams</small></a>
+  $('games').innerHTML=`<a class="gbtn clubbtn" href="${clubLink()}" aria-label="All teams"><b>‹ All teams</b></a>
     <button class="gbtn gpick" data-act="gamepick" aria-haspopup="dialog" aria-label="Pick a game: ${esc(gameLabel(gc))}"><span class="gpt"><b>${esc(gameLabel(gc))}</b><small data-lv="gstat" data-i="${i}">${esc(status(gc))}</small></span><span class="caret" aria-hidden="true">▾</span></button>`;
 };
 
-function resultChip(st){
-  if(!st||!st.started)return '';
-  if(!st.fullDone)return '<span class="livepill">Live</span>';
+function resultChip(st,gc){
+  const k=gc?gStatus(gc):'';
+  if(k==='live'||k==='halftime')return `<span class="livepill">${k==='halftime'?'Halftime':'Live'}</span>`;
+  if(k==='awaiting')return `<span class="stpill">${esc(statusLabel(k,st))}</span>`;
+  if(k==='postponed')return '<span class="stpill">Postponed</span>';
+  if(!st||!st.fullDone)return '';
   const sc=scoreOf(st);const r=sc.us>sc.them?'W':sc.us<sc.them?'L':(st.pk?(pkScore(st).us>pkScore(st).them?'W':'L'):'D');
   return `<span class="res r${r}">${r}</span> <b>${sc.us}–${sc.them}</b>`;
 }
@@ -28,11 +31,11 @@ function gamePickHTML(){
   if(NAV.open!=='game'||!CFG())return '';
   const now=T();
   const games=CFG().games.map((gc,i)=>({gc,i,st:TS().games[gc.id],t:kickoffMs(gc)}));
-  const by=b=>games.filter(x=>gameBucket(x.gc,x.st,now)===b);
+  const by=b=>games.filter(x=>gBucket(x.gc)===b);
   const asc=(a,b)=>a.t-b.t,desc=(a,b)=>b.t-a.t;
   const live=by('live'),today=by('today').sort(asc),up=by('upcoming').sort(asc),needs=by('needs-result').sort(desc),undated=by('undated');
   const done=by('final').sort((a,b)=>(Number.isFinite(b.t)?b.t:0)-(Number.isFinite(a.t)?a.t:0));
-  const row=x=>`<button class="grow ${x.i===curIdx()?'cur':''}" data-act="navgame" data-i="${x.i}">${logoImg(oppLogoOf(x.gc),'glg')}<span class="grt"><b>${esc(gameLabel(x.gc))}</b><small>${esc(whenText(x.gc))}${x.gc.field?', '+esc(x.gc.field):''}</small></span><span class="grr">${resultChip(x.st)}</span></button>`;
+  const row=x=>`<button class="grow ${x.i===curIdx()?'cur':''}" data-act="navgame" data-i="${x.i}">${logoImg(oppLogoOf(x.gc),'glg')}<span class="grt"><b>${esc(gameLabel(x.gc))}</b><small>${esc(whenText(x.gc))}${x.gc.field?', '+esc(x.gc.field):''}</small></span><span class="grr">${resultChip(x.st,x.gc)}</span></button>`;
   const sec=(t,l,note)=>l.length?`<h4>${t}</h4>${note?`<p class="fine">${note}</p>`:''}${l.map(row).join('')}`:'';
   const shown=NAV.allRes?done:done.slice(0,8);
   return `<div class="ovbg" data-act="navclose"></div><div class="ovp navp" role="dialog" aria-label="Games">
@@ -73,9 +76,28 @@ function teamPickHTML(){
     <div id="nav-tlist">${teamPickListHTML()}</div>
     <div class="gacts"><a class="btn small" href="${clubLink()}">Club scoreboard</a>${isAdmin()?'<button class="btn small primary-s" data-act="adminopen">Club admin</button>':''}</div></div>`;
 }
-OVERLAYS.unshift(gamePickHTML,teamPickHTML);
+/* The ⋯ menu: less frequent actions, kept out of the way during a game. Parents find coach sign-in here. */
+function menuHTML(){
+  if(NAV.open!=='menu'||!CFG())return '';
+  const g=G(),ed=canEdit();
+  let h=`<div class="ovbg" data-act="navclose"></div><div class="ovp navp menup" role="dialog" aria-label="Menu">
+    <div class="sh"><div><b>${esc(teamShortTitle(CFG()))}</b><div class="fine">${esc(CFG().name)}</div></div><button class="btn small" data-act="navclose">Close</button></div>
+    <div class="mlist"><button class="mitem" data-act="teampick">Switch team</button><a class="mitem" href="${clubLink()}">All teams</a></div>`;
+  if(ed){
+    h+=`<h4>This game</h4><div class="mlist"><button class="mitem" data-act="menuundo" ${g.events.length?'':'disabled'}>Undo last sub</button>
+      <button class="mitem" data-act="menuclock" ${g.started?'':'disabled'}>Fix the clock or add time</button></div>`;
+    if(g.started&&!g.fullDone)h+=`<div class="mlist mdanger"><button class="mitem danger ${armed('endgame')?'armed':''}" data-act="menuend">${armed('endgame')?'Tap again to end the game':'End game'}</button></div>`;
+    h+=`<h4>This device</h4><div class="mlist">${ME.user?`<p class="fine">Signed in as ${whoLine()}</p><button class="mitem" data-act="signout">Sign out</button>`:`<button class="mitem" data-act="editor">Stop editing on this device</button>`}</div>`;
+  }else h+=`<h4>Coaches</h4>${renderCoachUnlock()}`;
+  return h+'</div>';
+}
+OVERLAYS.unshift(gamePickHTML,teamPickHTML,menuHTML);
+EXT.menu=()=>{NAV.open=NAV.open==='menu'?'':'menu';};
+EXT.menuundo=()=>{NAV.open='';act('undo',{});return false;};
+EXT.menuclock=()=>{NAV.open='';UI.adj=true;};
+EXT.menuend=()=>{act('endgame',{});if(G().fullDone)NAV.open='';renderAll();return false;};
 
-['teampick','gamepick','navclose','navgame','navteam','navallres','navfilter','navclear','fav'].forEach(a=>VIEW_OK.add(a));
+['teampick','gamepick','navclose','navgame','navteam','navallres','navfilter','navclear','fav','menu'].forEach(a=>VIEW_OK.add(a));
 EXT.navfilter=ds=>{S.clubFilter=ds.v;saveLocal();};
 EXT.navclear=()=>{S.clubFilter='all';S.clubQ='';saveLocal();const q=$('nav-q');if(q){q.value='';q.blur();}};
 // Stars in the team switcher (favorites live on this device; they never grant editing).
@@ -87,5 +109,7 @@ EXT.navclose=()=>{NAV.open='';};
 EXT.navallres=()=>{NAV.allRes=true;};
 EXT.navgame=ds=>{NAV.open='';act('game',ds);return false;};
 EXT.navteam=ds=>{NAV.open='';if(ds.id!==S.team)switchTeam(ds.id);};
-EXT.navaddgame=()=>{NAV.open='';act('gmadd',{});S.tab='setup';saveLocal();return false;};
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&(NAV.open||UI.adj)){NAV.open='';UI.adj=false;renderAll();}});
+EXT.navaddgame=()=>{NAV.open='';act('gmadd',{});S.mode='team';S.tab='schedule';saveLocal();renderAll();return false;};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&(NAV.open||UI.adj)){const was=NAV.open;NAV.open='';UI.adj=false;renderAll();
+  // Return focus to what opened the panel.
+  const back=was==='menu'?$('menubtn'):was==='team'?document.querySelector('.top .brand'):was==='game'?document.querySelector('.gpick'):null;if(back)back.focus();}});
