@@ -650,7 +650,7 @@ function slug(s){return (s||'team').toLowerCase().replace(/[^a-z0-9]+/g,'-').rep
 const PUB_VER='2026-10-18e';
 /* APP_VER changes with every deploy that coach devices should pick up. When the published page's APP_VER
    differs from the running one, a coach device reloads itself if no clock is running, or shows a Refresh button. */
-const APP_VER='2026-10-19c';
+const APP_VER='2026-10-19d';
 const VER={tag:null,ready:false};
 async function checkVersion(){
   if(!SY.on||!canEdit()||document.visibilityState!=='visible')return;
@@ -1048,6 +1048,7 @@ document.addEventListener('change',e=>{
   const el=e.target;const k=el&&el.dataset&&el.dataset.cfg;if(!k||!CFG()||!canEdit())return;
   const c=CFG();
   if(k==='team'){c[el.dataset.f]=el.value.trim();}
+  else if(k==='pl'&&el.dataset.f==='grad'){const p=P[el.dataset.id];if(p){if(+el.value)p.grad=+el.value;else delete p.grad;}}
   else if(k==='pl'){const p=P[el.dataset.id];if(p&&el.dataset.f==='num')p.num=el.value.replace(/[^0-9]/g,'').slice(0,3);else if(p&&el.value.trim())p[el.dataset.f]=el.value.trim();}
   else if(k==='gm'){const gc=c.games.find(x=>x.id===el.dataset.gid);if(!gc)return;const f=el.dataset.f;
     if(f==='half'||f==='sub'){const v=parseInt(el.value,10);if(!v)return;const lim=f==='half'?[5,60]:[2,30];const nv=Math.min(lim[1],Math.max(lim[0],v));
@@ -1377,7 +1378,7 @@ function renderPlayers(d){
   PLAYERS.forEach(p=>{const here=av(g,p.id);const pos=POS.find(x=>d.L[x]===p.id);const s=d.st[p.id];
     const stat=pos?`On at ${pos}`:here?`Bench <span data-lv="sit" data-id="${p.id}">${fmt(d.now-s.offAt)}</span>`:'Out';
     const pm=here?plannedFor(g,p.id):0;
-    h+=`<div class="prow ${here?'':'out'}"><div class="pn"><b>${esc(p.name)}</b>${jn(p)} ${p.guest?'<span class="tag">Guest</span>':''}${goalTag(g,p.id)}<div class="r">${esc(roleText(p))}</div></div>
+    h+=`<div class="prow ${here?'':'out'}"><div class="pn"><b>${esc(p.name)}</b>${jn(p)} ${gradeHTML(p)}${p.guest?'<span class="tag">Guest</span>':''}${goalTag(g,p.id)}<div class="r">${esc(roleText(p))}</div></div>
       <div class="pst">${stat}</div>
       <div class="pmin"><b data-lv="played" data-id="${p.id}">${fmt(s.played)}</b><small>${here&&usePlan()?pm+' min planned':'played'}</small></div>
       <button class="tog ${here?'on':''}" data-act="avail" data-id="${p.id}" aria-pressed="${here}">${here?'Here':'Out'}</button></div>`;});
@@ -1452,6 +1453,15 @@ function renderCoachUnlock(){
     <form class="codebox" data-form="unlock"><input id="code" type="password" autocomplete="current-password" enterkeyhint="go" placeholder="Coach code" aria-label="Coach code"><button class="btn small primary-s" type="submit">Unlock</button></form>
     ${authTeamHTML()}</div>`;
 }
+/* School teams show each player's grade (saved as a graduation year so it moves up each August). */
+const showGrades=()=>!!(CFG().program||CFG().players.some(p=>p.grad));
+const gradeHTML=p=>{const t=p.grad?gradeTag(p.grad,T()):'';return t?`<span class="tag gradetag">${t}</span> `:'';};
+function gradeSelectHTML(p){
+  const now=T(),cur=p.grad?gradeOf(p.grad,now):null;
+  const opts=[6,7,8,9,10,11,12].map(gr=>`<option value="${gradFor(gr,now)}" ${cur===gr?'selected':''}>${gr}th grade</option>`).join('');
+  const past=cur!=null&&(cur>12||cur<6)?`<option value="${p.grad}" selected>${esc(gradeTag(p.grad,now)||'Class of '+p.grad)}</option>`:'';
+  return `<label class="gradesel">Grade <select data-cfg="pl" data-f="grad" data-id="${p.id}" aria-label="${esc(p.name)} grade"><option value="">Not set</option>${opts}${past}</select></label>`;
+}
 function renderSetup(){
   const c=CFG();let h='';
   if(SY.on&&!isHead())return `<div class="notice">You’re signed in as ${esc(ROLE_NAME[myRole()]||'a coach')} for this team. Only a head coach can change the roster, schedule and team settings.</div>`+authSetupHTML();
@@ -1469,7 +1479,7 @@ function renderSetup(){
   h+=`<div class="card"><h3>Roster (${c.players.length})</h3><p class="fine" style="margin-top:-4px">Tap GK, D, M and F for the positions each player can play. The automatic rotation uses these, and keepers marked only GK stay in goal.</p>`;
   c.players.forEach(p=>{
     h+=`<div class="prow2"><div><div class="pnrow"><input class="pnum" data-cfg="pl" data-f="num" data-id="${p.id}" value="${esc(p.num||'')}" inputmode="numeric" placeholder="#" aria-label="Jersey number"><input class="pname" id="pl-${p.id}" data-cfg="pl" data-f="name" data-id="${p.id}" value="${esc(p.name)}" aria-label="Player name"></div>
-      <div class="grp">${GROUPS.map(([g2,ab])=>`<button class="${p.gr.includes(g2)?'on':''}" data-act="grp" data-id="${p.id}" data-g="${g2}" aria-pressed="${p.gr.includes(g2)}">${ab}</button>`).join('')}<button class="${p.guest?'on':''}" data-act="guest" data-id="${p.id}" aria-pressed="${!!p.guest}">Guest</button></div></div>
+      <div class="grp">${GROUPS.map(([g2,ab])=>`<button class="${p.gr.includes(g2)?'on':''}" data-act="grp" data-id="${p.id}" data-g="${g2}" aria-pressed="${p.gr.includes(g2)}">${ab}</button>`).join('')}<button class="${p.guest?'on':''}" data-act="guest" data-id="${p.id}" aria-pressed="${!!p.guest}">Guest</button></div>${showGrades()?gradeSelectHTML(p):''}</div>
       <button class="btn small ${armed('pldel'+p.id)?'danger-s armed':''}" data-act="pldel" data-id="${p.id}">${armed('pldel'+p.id)?'Tap again':'Remove'}</button></div>`;});
   h+=`<button class="btn small" data-act="pladd" style="margin-top:10px">+ Add player</button></div>`;
   h+=`<div class="card"><h3>Games</h3><p class="fine" style="margin-top:-4px">Parents see the kickoff time, field and a map link before each game. Changing a game’s length rebuilds its rotation if it hasn’t started.</p>`;
@@ -1511,7 +1521,7 @@ function renderTeam(d){
   let h=CFG().placing?`<div class="ctx cplace">${esc(placeText(CFG().placing))}</div>`:'';
   h+=`<h3>${esc(gc.title)}</h3><p class="fine" style="margin-top:-4px">${esc(gameNote(gc,g))}</p>`;
   PLAYERS.filter(p=>av(g,p.id)).forEach(p=>{const pos=POS.find(x=>d.L[x]===p.id);
-    h+=`<div class="prow pteam"><div class="pn"><b>${esc(p.name)}</b>${jn(p)} ${p.guest?'<span class="tag">Guest</span>':''}${goalTag(g,p.id)}</div><div class="pst">${!g.started?'Here':pos?'On the field ('+pos+')':'Bench'}</div></div>`;});
+    h+=`<div class="prow pteam"><div class="pn"><b>${esc(p.name)}</b>${jn(p)} ${gradeHTML(p)}${p.guest?'<span class="tag">Guest</span>':''}${goalTag(g,p.id)}</div><div class="pst">${!g.started?'Here':pos?'On the field ('+pos+')':'Bench'}</div></div>`;});
   const tsd=x=>{const v=new Date(x.dt).getTime();return isNaN(v)?Infinity:v;};
   // Schedule shows live, today's and future games only; past games without a result and undated games are listed apart.
   const nowT=T(),bk=x=>gameBucket(x,TS().games[x.id],nowT);

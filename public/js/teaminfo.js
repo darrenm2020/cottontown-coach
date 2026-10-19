@@ -69,6 +69,16 @@ function programsOf(teams) {
   return [...m.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
 
+/* ---------- school grades ---------- */
+/* A player's graduation year is saved, so the grade moves up on its own each August. */
+const schoolYearEnd = (now) => { const d = new Date(now); return d.getMonth() >= 7 ? d.getFullYear() + 1 : d.getFullYear(); };
+const gradeOf = (grad, now) => (grad ? 12 - (+grad - schoolYearEnd(now)) : null);
+const gradFor = (grade, now) => schoolYearEnd(now) + (12 - grade);
+function gradeTag(grad, now) {
+  const g = gradeOf(grad, now); if (g == null || g < 1) return "";
+  return g > 12 ? "Class of " + grad : "Gr " + g;
+}
+
 /* ---------- games ---------- */
 const kickoffMs = (g) => { if (!g || !g.dt) return NaN; const v = new Date(g.dt).getTime(); return v; };
 /* Where a game belongs: live, final, today (not started yet), upcoming, needs-result (date passed, no result), undated. */

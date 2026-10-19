@@ -267,3 +267,12 @@ test("fair play: zero-minute available games count, unavailable and results-only
   assert.deepEqual(sd.unknown, ["d"]);
   assert.equal(sd.goalsB, 2, "results-only goals still count");
 });
+
+test("school grades: saved as a graduation year, so the grade moves up each August", () => {
+  const { run } = loadApp();
+  const at = (y, m) => new Date(y, m, 15).getTime();
+  assert.equal(run(`gradeTag(2028, ${at(2026, 3)})`), "Gr 10", "spring 2026: class of 2028 is in 10th grade");
+  assert.equal(run(`gradeTag(2028, ${at(2026, 9)})`), "Gr 11", "fall 2026: moved up to 11th");
+  assert.equal(run(`gradeTag(2026, ${at(2026, 9)})`), "Class of 2026", "graduated seniors say so");
+  assert.equal(run(`gradFor(9, ${at(2026, 9)})`), 2030);
+});
