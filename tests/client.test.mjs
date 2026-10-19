@@ -214,6 +214,22 @@ test("school programs get their own page; the club page keeps its own teams", ()
   assert.equal(run("clubLink()"), "/?club=1&program=athens-city-schools");
 });
 
+test("game and practice modes: game day opens Game mode, each mode shows only its own tabs", () => {
+  const { run } = loadApp();
+  const now = new Date(2026, 9, 21, 12, 0).getTime();
+  const p2 = (n) => String(n).padStart(2, "0");
+  const dt = (d) => { const x = new Date(now + d * 864e5); return `${x.getFullYear()}-${p2(x.getMonth() + 1)}-${p2(x.getDate())}T15:00`; };
+  run(`OFF=${now}-Date.now();S={v:2,team:'t1',cur:{},T:{t1:{cfg:{id:'t1',name:'T',players:[],games:[{id:'g1',title:'A',dt:'${dt(3)}',half:30}]},games:{}}},auth:{},mode:'practice',tab:'season'};`);
+  assert.equal(run("coachMode()"), "practice", "no game today: the chosen mode stays");
+  run("UI.modeTeam=null;S.T.t1.cfg.games[0].dt='" + dt(0) + "'");
+  assert.equal(run("coachMode()+'/'+S.tab"), "game/bench", "a game today opens Game mode on the field");
+  run("S.mode='game';S.tab='setup'");
+  assert.equal(run("coachMode()"), "practice", "opening Setup (e.g. + Add a game) switches to Practice");
+  run("EXT.mode({m:'game'})");
+  assert.equal(run("S.mode+'/'+S.tab"), "game/bench");
+  assert.deepEqual(JSON.parse(run("JSON.stringify(MODE_TABS)")), { game: ["players", "plan", "bench", "log", "stats", "minutes"], practice: ["practice", "season", "setup"] });
+});
+
 test("favorites are per device and never grant editing", () => {
   const { run } = loadApp();
   run("S={v:2,team:'cottontown',cur:{},T:{},auth:{},favTeams:[]};SY.on=true;");
