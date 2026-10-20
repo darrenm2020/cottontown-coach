@@ -82,7 +82,7 @@ function menuHTML(){
   const g=G(),ed=canEdit();
   let h=`<div class="ovbg" data-act="navclose"></div><div class="ovp navp menup" role="dialog" aria-label="Menu">
     <div class="sh"><div><b>${esc(teamShortTitle(CFG()))}</b><div class="fine">${esc(CFG().name)}</div></div><button class="btn small" data-act="navclose">Close</button></div>
-    <div class="mlist"><button class="mitem" data-act="teampick">Switch team</button><a class="mitem" href="${clubLink()}">All teams</a><button class="mitem" data-feedback>Send feedback</button></div>`;
+    <div class="mlist"><button class="mitem" data-act="teampick">Switch team</button><a class="mitem" href="${clubLink()}">All teams</a>${typeof canOfferInstall==='function'&&canOfferInstall()?'<button class="mitem" data-install>Add to Home Screen</button>':''}<button class="mitem" data-feedback>Send feedback</button></div>`;
   if(ed){
     h+=`<h4>This game</h4><div class="mlist"><button class="mitem" data-act="menuundo" ${g.events.length?'':'disabled'}>Undo last sub</button>
       <button class="mitem" data-act="menuclock" ${g.started?'':'disabled'}>Fix the clock or add time</button></div>`;

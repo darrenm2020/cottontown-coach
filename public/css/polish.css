@@ -209,3 +209,15 @@
 .fblink:focus-visible{outline:3px solid var(--crimson);outline-offset:2px}
 .app .main{padding-bottom:12px}
 @media (min-width:900px){.appfoot{padding-bottom:12px}}
+
+/* Add to Home Screen */
+.appfoot{gap:10px;flex-wrap:wrap}
+.appfoot [hidden]{display:none}
+#inst:not(:empty){position:fixed;inset:0;z-index:60;overflow-y:auto;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+#inst .ovbg{position:fixed;inset:0}
+#inst .ovp{position:relative;left:auto;top:auto;transform:none;margin:16px auto 24px;max-height:none}
+.inststeps{margin:10px 0;padding-left:22px;font-size:17px;line-height:1.5}
+.inststeps li{margin:6px 0}
+.shareico{display:inline-grid;place-items:center;width:26px;height:26px;border:1.5px solid var(--line);border-radius:6px;font-size:14px;vertical-align:middle}
+/* Opened from the Home Screen: keep content clear of the iPhone status bar. */
+@media (display-mode: standalone){.top,.clubtop{padding-top:calc(10px + env(safe-area-inset-top,0px))}}
