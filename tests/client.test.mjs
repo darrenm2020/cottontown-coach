@@ -6,7 +6,7 @@ import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
 const JS = new URL("../public/js/", import.meta.url);
-const FILES = ["teaminfo.js", "app.js", "auth.js", "drills.js", "practice.js", "season.js", "nav.js", "events.js", "formations.js", "feedback.js", "admin.js", "home.js"];
+const FILES = ["teaminfo.js", "app.js", "auth.js", "drills.js", "practice.js", "season.js", "nav.js", "events.js", "formations.js", "feedback.js", "install.js", "admin.js", "home.js"];
 
 // A stand-in for anything on the page: every property and call returns another stand-in.
 function anything() {
@@ -383,4 +383,16 @@ test("custom formations: saved per team with their own position names; games kee
   assert.match(run("fbProblem(FB.draft,CFG())"), /already/);
   run("FB.draft.name='X';FB.draft.pos[1].id=FB.draft.pos[2].id");
   assert.match(run("fbProblem(FB.draft,CFG())"), /different short name/);
+});
+
+test("Add to Home Screen: offered on iPhone and iPad until the app is opened from the Home Screen", () => {
+  const { run } = loadApp();
+  run("navigator.userAgent='Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1'");
+  assert.equal(run("canOfferInstall()"), true);
+  run("navigator.standalone=true");
+  assert.equal(run("canOfferInstall()"), false, "already installed: no prompt");
+  run("navigator.standalone=false;navigator.userAgent='Mozilla/5.0 (Windows NT 10.0) Chrome/130'");
+  assert.equal(run("canOfferInstall()"), false, "desktop Chrome: only once the browser offers its own install prompt");
+  run("INST.prompt={prompt(){}}");
+  assert.equal(run("canOfferInstall()"), true);
 });

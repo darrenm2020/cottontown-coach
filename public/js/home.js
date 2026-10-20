@@ -47,7 +47,7 @@ function buildClubShell() {
       <div class="csearch"><label class="sr" for="club-q">Search teams</label><input id="club-q" type="search" placeholder="Search teams, ages or coaches" autocomplete="off" value="${esc(clubQuery())}"></div>
     </div>
     <main class="clubmain" id="club-body" aria-live="polite"></main>
-    <footer class="appfoot"><button class="fblink" data-feedback>Send feedback</button></footer>`;
+    <footer class="appfoot"><button class="fblink" data-install hidden>Add to Home Screen</button><button class="fblink" data-feedback>Send feedback</button></footer>`;
   HOME.built = true;
 }
 function setIfChanged(id, html) { const el = $(id); if (el && el.innerHTML !== html) el.innerHTML = html; }
@@ -58,7 +58,7 @@ renderClub = function () {
   if (!HOME.built || !$("club-body")) buildClubShell();
   const t = $("club-title"); if (t && t.textContent !== pageName(d)) t.textContent = pageName(d);
   const lg = $("club-logo-img"); if (lg && lg.getAttribute("src") !== pageLogo(d)) lg.setAttribute("src", pageLogo(d));
-  if (document.title !== pageName(d)) document.title = pageName(d);
+  if (document.title !== pageName(d)) { document.title = pageName(d); setAppTitle(clubProgram(d) ? pageName(d) : "Cottontown"); }
   setIfChanged("club-progs", programNavHTML(d));
   const pd = Object.assign({}, d, { teams: programTeams(d), allTeams: d.teams });
   // Connection status, never "Live" (that word is only for games being played).

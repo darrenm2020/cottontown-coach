@@ -4,6 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Cottontown" id="apptitle">
+<meta name="theme-color" content="#ffffff">
+<!-- No start_url in the manifest on purpose: an icon added to the Home Screen opens the page it was added from
+     (a team's page goes straight to that team). -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <title>Cottontown Coach</title>
 <meta name="description" content="Game tracker, practice planner and drill library for Cottontown United coaches.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -45,7 +53,7 @@
       <div class="tbody" id="tbody"></div>
     </section>
   </main>
-  <footer class="appfoot"><button class="fblink" data-feedback>Send feedback</button></footer>
+  <footer class="appfoot"><button class="fblink" data-install hidden>Add to Home Screen</button><button class="fblink" data-feedback>Send feedback</button></footer>
 </div>
 <div id="club" hidden></div>
 <div id="sheet"></div>
@@ -59,6 +67,7 @@
 <script src="js/events.js"></script>
 <script src="js/formations.js"></script>
 <script src="js/feedback.js"></script>
+<script src="js/install.js"></script>
 <script src="js/admin.js"></script>
 <script src="js/home.js"></script>
 <script src="js/main.js"></script>

@@ -23,7 +23,7 @@ const store = {
   async delete(k) { try { await unlink(file(k)); } catch {} },
   async list(o = {}) { const keys = (await readdir(data)).filter((f) => f.endsWith(".json")).map((f) => decodeURIComponent(f.slice(0, -5))); return { blobs: keys.filter((k) => !o.prefix || k.startsWith(o.prefix)).map((key) => ({ key })) }; },
 };
-const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json", ".jpg": "image/jpeg", ".png": "image/png", ".svg": "image/svg+xml", ".mp3": "audio/mpeg", ".ico": "image/x-icon" };
+const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json", ".jpg": "image/jpeg", ".png": "image/png", ".svg": "image/svg+xml", ".mp3": "audio/mpeg", ".ico": "image/x-icon", ".webmanifest": "application/manifest+json" };
 
 http.createServer(async (req, res) => {
   try {
