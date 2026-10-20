@@ -33,6 +33,7 @@ const starHTML = (t, act) => {
   return `<button class="starbtn ${on ? "on" : ""}" data-${act}="fav" data-id="${esc(t.id)}" aria-pressed="${on}" aria-label="${on ? "Remove " + esc(title) + " from My teams" : "Add " + esc(title) + " to My teams"}" title="${on ? "Remove from My teams" : "Add to My teams"}"><span aria-hidden="true">${on ? "★" : "☆"}</span></button>`;
 };
 const gameWhen = (g) => { const t = kickoffMs(g); if (!Number.isFinite(t)) return g.when || "Date to be set";
+  if (timeTBD(g)) return new Date(t).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }) + " · Time TBD";
   const d = new Date(t); return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }) + " · " + d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }); };
 
 /* ---------- page shell (drawn once) ---------- */

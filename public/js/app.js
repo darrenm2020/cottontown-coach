@@ -206,7 +206,7 @@ function team1718(){
 }
 const OPP_LOGOS={"cullman": "assets/opp/cullman.jpg", "vero": "assets/opp/vero.jpg", "alfc": "assets/opp/alfc.jpg", "nasc": "assets/opp/nasc.jpg"};
 function libLogo(name){const n=String(name||'');if(/cullman/i.test(n))return OPP_LOGOS.cullman;if(/nasc|north alabama/i.test(n))return OPP_LOGOS.nasc;
-  if(/vero/i.test(n))return OPP_LOGOS.vero;if(/\bafc\b|alabaster|alabama fc/i.test(n))return OPP_LOGOS.alfc;return '';}
+  if(/vero/i.test(n))return OPP_LOGOS.vero;if(/alabaster|alabama fc south/i.test(n)||(/\bafc\b/i.test(n)&&!/huntsville|hsv/i.test(n)))return OPP_LOGOS.alfc;return '';}
 const oppLogoOf=gc=>(gc&&(gc.oppLogo||libLogo(gc.opp)))||'';
 const logoImg=(src,cls)=>src?`<img class="${cls}" src="${esc(src)}" alt="">`:'';
 const CU_HISTORY=[
@@ -526,8 +526,9 @@ function pkOrderHTML(g){const order=g.pkOrder||[];
 function pkScore(g){return g.pk?{us:g.pk.us.filter(k=>k.made).length,them:g.pk.them.filter(Boolean).length}:{us:0,them:0};}
 
 /* ---------- Game-day info ---------- */
-function whenText(gc){if(gc.dt){const d=new Date(gc.dt);if(!isNaN(d)){const days=(d-Date.now())/864e5;const o=days>-1&&days<6?{weekday:'short',hour:'numeric',minute:'2-digit'}:{weekday:'short',month:'numeric',day:'numeric',hour:'numeric',minute:'2-digit'};return d.toLocaleString('en-US',o);}}return gc.when||'Time to be set';}
-function countdown(gc){if(!gc.dt)return '';const d=new Date(gc.dt);if(isNaN(d))return '';const ms=d-Date.now();if(ms<=0)return 'Kickoff soon';
+function whenText(gc){if(timeTBD(gc)){const d=new Date(kickoffMs(gc));return d.toLocaleDateString('en-US',{weekday:'short',month:'numeric',day:'numeric'})+', time TBD';}
+  if(gc.dt){const d=new Date(gc.dt);if(!isNaN(d)){const days=(d-Date.now())/864e5;const o=days>-1&&days<6?{weekday:'short',hour:'numeric',minute:'2-digit'}:{weekday:'short',month:'numeric',day:'numeric',hour:'numeric',minute:'2-digit'};return d.toLocaleString('en-US',o);}}return gc.when||'Time to be set';}
+function countdown(gc){if(!gc.dt||timeTBD(gc))return '';const d=new Date(gc.dt);if(isNaN(d))return '';const ms=d-Date.now();if(ms<=0)return 'Kickoff soon';
   const m=Math.floor(ms/60000),dd=Math.floor(m/1440),hh=Math.floor(m%1440/60),mm=m%60;return 'Kickoff in '+(dd?dd+'d '+hh+'h':hh?hh+'h '+mm+'m':mm+'m');}
 const mapUrl=q=>'https://maps.apple.com/?q='+encodeURIComponent(q);
 
@@ -677,7 +678,7 @@ function slug(s){return (s||'team').toLowerCase().replace(/[^a-z0-9]+/g,'-').rep
 const PUB_VER='2026-10-18e';
 /* APP_VER changes with every deploy that coach devices should pick up. When the published page's APP_VER
    differs from the running one, a coach device reloads itself if no clock is running, or shows a Refresh button. */
-const APP_VER='2026-10-20b';
+const APP_VER='2026-10-20c';
 const VER={tag:null,ready:false};
 async function checkVersion(){
   if(!SY.on||!canEdit()||document.visibilityState!=='visible')return;
@@ -1081,6 +1082,7 @@ document.addEventListener('change',e=>{
   else if(k==='gm'){const gc=c.games.find(x=>x.id===el.dataset.gid);if(!gc)return;const f=el.dataset.f;
     if(f==='half'||f==='sub'){const v=parseInt(el.value,10);if(!v)return;const lim=f==='half'?[5,60]:[2,30];const nv=Math.min(lim[1],Math.max(lim[0],v));
       if(nv!==gc[f]){gc[f]=nv;gc.plan=null;const st=TS().games[gc.id];if(st){st[f]=nv;if(!st.started){st.plan=autoPlan(st);st.start=Object.assign({},st.plan[0]||{});}}}}
+    else if(f==='dtdate'||f==='dttime'){const cur=String(gc.dt||''),d=f==='dtdate'?el.value:cur.slice(0,10),t=f==='dttime'?el.value:cur.slice(11,16);gc.dt=d?(t?d+'T'+t:d):'';}
     else gc[f]=el.value.trim();}
   else if(k==='logo'){readLogo(el.files&&el.files[0]);return;}
   else if(k==='opplogo'){const gc=c.games.find(x=>x.id===el.dataset.gid);const f=el.files&&el.files[0];if(!gc||!f)return;const r=new FileReader();
@@ -1563,7 +1565,8 @@ function renderSetup(part){
   h+=`<div class="card"><h3>Games</h3><p class="fine" style="margin-top:-4px">Parents see the kickoff time, field and a map link.</p>`;
   const gcard=gc=>{const st=TS().games[gc.id];const ol=oppLogoOf(gc);let h='';
     h+=`<div class="gcard"><div class="grid2"><label class="fld">Name<input data-cfg="gm" data-f="title" data-gid="${gc.id}" value="${esc(gc.title)}"></label><label class="fld">Opponent<input data-cfg="gm" data-f="opp" data-gid="${gc.id}" value="${esc(gc.opp||'')}"></label>
-      <label class="fld">Kickoff<input type="datetime-local" data-cfg="gm" data-f="dt" data-gid="${gc.id}" value="${esc(gc.dt||'')}"></label><label class="fld">Field<input data-cfg="gm" data-f="field" data-gid="${gc.id}" value="${esc(gc.field||'')}" placeholder="e.g. Field 12A"></label></div>
+      <label class="fld">Date<input type="date" data-cfg="gm" data-f="dtdate" data-gid="${gc.id}" value="${esc(String(gc.dt||'').slice(0,10))}"></label><label class="fld">Kickoff time <small class="fine">(blank = TBD)</small><input type="time" data-cfg="gm" data-f="dttime" data-gid="${gc.id}" value="${esc(String(gc.dt||'').slice(11,16))}"></label></div>
+      <label class="fld">Field<input data-cfg="gm" data-f="field" data-gid="${gc.id}" value="${esc(gc.field||'')}" placeholder="e.g. Field 12A"></label>
       <label class="fld">Address or park name (for the map link)<input data-cfg="gm" data-f="place" data-gid="${gc.id}" value="${esc(gc.place||'')}"></label>
       <div class="grid2"><label class="fld">Half length (min)<input type="number" inputmode="numeric" min="5" max="60" data-cfg="gm" data-f="half" data-gid="${gc.id}" value="${gc.half||30}"></label><label class="fld">Sub every (min)<input type="number" inputmode="numeric" min="2" max="30" data-cfg="gm" data-f="sub" data-gid="${gc.id}" value="${gc.sub||10}"></label></div>
       <div class="gacts"><button class="btn small" data-act="gmplan" data-gid="${gc.id}">${armed('gmplan'+gc.id)?'Tap again to rebuild':'Rebuild rotation'}</button><button class="btn small ${armed('gmdel'+gc.id)?'danger-s armed':''}" data-act="gmdel" data-gid="${gc.id}">${armed('gmdel'+gc.id)?'Tap again to remove':'Remove game'}</button>${st&&st.started?'<span class="fine">'+(gc.imported?'Final '+scoreOf(st).us+'–'+scoreOf(st).them:'Started')+'</span>':''}</div>
