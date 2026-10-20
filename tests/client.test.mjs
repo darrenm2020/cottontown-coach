@@ -396,3 +396,18 @@ test("Add to Home Screen: offered on iPhone and iPad until the app is opened fro
   run("INST.prompt={prompt(){}}");
   assert.equal(run("canOfferInstall()"), true);
 });
+
+test("games with a date but time TBD: upcoming until that day ends, shown as Time TBD", () => {
+  const { run } = loadApp();
+  const at = (d, h) => new Date(2026, 10, d, h, 0).getTime(); // November 2026
+  const st = (now) => run(`gameStatus({dt:'2026-11-01',half:30},null,${now},0)`);
+  assert.equal(st(at(1, 8)), "today", "the morning of: still today, not overdue");
+  assert.equal(st(at(1, 22)), "today", "late that evening: still today");
+  assert.equal(st(at(2, 9)), "awaiting", "the next day: waiting for a result");
+  assert.equal(st(new Date(2026, 9, 20, 12).getTime()), "upcoming");
+  assert.equal(run("timeTBD({dt:'2026-11-01'})"), true);
+  assert.equal(run("timeTBD({dt:'2026-11-01T09:00'})"), false);
+  assert.match(run("whenText({dt:'2026-11-01'})"), /time TBD/);
+  assert.equal(run("libLogo('AFC Huntsville (United) WU12G')"), "", "AFC Huntsville isn't Alabama FC's logo");
+  assert.equal(run("libLogo('AFC Alabaster U12G Premier')"), "assets/opp/alfc.jpg");
+});

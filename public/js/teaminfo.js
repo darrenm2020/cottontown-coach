@@ -80,7 +80,14 @@ function gradeTag(grad, now) {
 }
 
 /* ---------- games ---------- */
-const kickoffMs = (g) => { if (!g || !g.dt) return NaN; const v = new Date(g.dt).getTime(); return v; };
+/* A game can have a date with the time still to be set (dt "2026-11-01"). It sorts at noon that day and isn't
+   "awaiting a result" until the day is over. */
+const timeTBD = (g) => /^\d{4}-\d{2}-\d{2}$/.test(String((g && g.dt) || ""));
+const kickoffMs = (g) => {
+  if (!g || !g.dt) return NaN;
+  if (timeTBD(g)) { const [y, m, d] = g.dt.split("-").map(Number); return new Date(y, m - 1, d, 12, 0).getTime(); }
+  return new Date(g.dt).getTime();
+};
 /* ---------- game status ----------
    One answer for "what's happening with this game", used everywhere a game is shown.
    A game is only Live with evidence of play (the clock has run) inside a believable time window. A game
@@ -109,7 +116,8 @@ function gameStatus(g, s, now, lastAt) {
     return "live";
   }
   if (!Number.isFinite(k)) return "undated";
-  if (k + len < now) return "awaiting";
+  const ends = timeTBD(g) ? new Date(new Date(k).setHours(23, 59, 59, 0)).getTime() : k + len;
+  if (ends < now) return "awaiting";
   const a = new Date(k), b = new Date(now);
   if (a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()) return "today";
   return k > now ? "upcoming" : "today";
