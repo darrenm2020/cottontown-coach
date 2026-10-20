@@ -16,3 +16,12 @@
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=604800"
+# The app manifest needs its own file type for browsers to treat the site as installable.
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Content-Type = "application/manifest+json"
+[[headers]]
+  for = "/icons/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
