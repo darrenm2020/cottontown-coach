@@ -157,3 +157,55 @@
 .clockface.pre .period{font-size:18px;color:var(--ink)}
 .evnote{margin:2px 0 10px 16px}
 .set select{min-height:44px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:600 15px "Barlow",sans-serif;padding:0 8px}
+
+/* Formation editor */
+.formh{margin:14px 0 6px;font:700 14px "Barlow",sans-serif;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.formseg{flex-wrap:wrap}
+.fbp{width:min(560px,calc(100% - 20px))}
+.fbpitch{position:relative;width:min(100%,380px);aspect-ratio:68/100;margin:8px auto 10px;background:var(--pitch);border-radius:12px;overflow:hidden;touch-action:none}
+.fbpitch .mlines,.fbpitch .mlines svg{position:absolute;inset:0;width:100%;height:100%}
+.fbchip{position:absolute;transform:translate(-50%,-50%);min-width:48px;min-height:44px;padding:0 8px;border-radius:10px;border:2px solid rgba(255,255,255,.85);background:#1f4fa3;color:#fff;font:700 17px "Barlow Condensed",sans-serif;cursor:grab;touch-action:none;user-select:none}
+.fbchip.g-gk{background:#f4d35e;color:#14181a}
+.fbchip.sel{outline:3px solid #fff;box-shadow:0 0 0 6px rgba(157,2,8,.85)}
+.fbchip:active{cursor:grabbing}
+.fbedit{margin-top:4px}
+.fbspacer{flex:1}
+
+/* Guest players: a collapsed list under the regular roster */
+.guests{margin:12px 0 4px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface-2)}
+.guests>summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;min-height:48px;padding:12px 14px;cursor:pointer;list-style-position:inside}
+.guests>summary b{font:700 17px "Barlow Condensed",sans-serif}
+.guests[open]>summary{border-bottom:1px solid var(--line)}
+.guests>.prow,.guests>.prow2,.guests>.rosterl{background:var(--surface);margin:0}
+.guests>.prow,.guests>.prow2{padding-left:12px;padding-right:12px}
+.guests>.rosterl{padding:0 12px}
+
+/* Feedback */
+.clubtop .clubtt{flex:1;min-width:0}
+.fbbtn{flex:none;align-self:center}
+.fbkp{width:min(560px,calc(100% - 20px))}
+.fbktypes{display:flex;flex-wrap:wrap;gap:8px;border:0;padding:0;margin:8px 0}
+.fbkt{position:relative}
+.fbkt input{position:absolute;opacity:0;inset:0;cursor:pointer}
+.fbkt span{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border-radius:24px;border:1.5px solid var(--line);background:var(--surface);font:700 17px "Barlow Condensed",sans-serif}
+.fbkt input:checked+span{background:var(--crimson);border-color:var(--crimson);color:var(--on-crimson)}
+.fbkt input:focus-visible+span{outline:3px solid var(--crimson);outline-offset:2px}
+.fbkp textarea{width:100%;min-height:120px;border:1.5px solid var(--line);border-radius:10px;padding:10px;font:16px "Barlow",sans-serif;background:var(--surface);color:var(--ink);box-sizing:border-box}
+.fbkp input{font-size:16px}
+.fbkhp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.fbki{padding:12px 0;border-bottom:1px solid var(--line)}
+.fbki.done{opacity:.7}
+.fbkm{display:flex;gap:8px;align-items:center}
+.fbkt2{margin:6px 0;white-space:pre-wrap;font-size:16px}
+#fbk:not(:empty){position:fixed;inset:0;z-index:60;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+#fbk .ovbg{position:fixed;inset:0}
+#fbk .ovp{position:relative;left:auto;top:auto;transform:none;margin:16px auto 24px;max-height:none}
+@media (max-width:520px){.clubtop h1{font-size:24px}.fbbtn{padding:6px 12px;font-size:16px}}
+
+/* Every page ends with a way to send feedback */
+.appfoot{display:flex;justify-content:center;padding:6px 16px calc(72px + env(safe-area-inset-bottom,0px))}
+.fblink{min-height:44px;padding:0 16px;border:1.5px solid var(--line);border-radius:24px;background:var(--surface);color:var(--ink);font:600 15px "Barlow",sans-serif;cursor:pointer}
+.fblink:hover{background:var(--surface-2)}
+.fblink:focus-visible{outline:3px solid var(--crimson);outline-offset:2px}
+.app .main{padding-bottom:12px}
+@media (min-width:900px){.appfoot{padding-bottom:12px}}

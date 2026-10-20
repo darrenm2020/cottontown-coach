@@ -160,6 +160,17 @@ async function sendLoginEmail(env, to, name, link) {
   });
   return r.ok;
 }
+// A copy of each feedback note by email, only if FEEDBACK_TO (and RESEND_API_KEY) are set in Netlify.
+async function sendFeedbackEmail(env, f) {
+  const key = String(env.RESEND_API_KEY || "").trim(), to = String(env.FEEDBACK_TO || "").trim();
+  if (!key || !to) return false;
+  const from = String(env.MAIL_FROM || "Cottontown Coach <onboarding@resend.dev>");
+  const lines = [f.text, "", f.type ? "Type: " + f.type : "", f.name ? "From: " + f.name : "", f.contact ? "Contact: " + f.contact : "",
+    "Page: " + (f.page || "?") + (f.team ? " (team " + f.team + (f.game ? ", game " + f.game : "") + ")" : ""), f.role ? "Viewing as: " + f.role : ""].filter((x) => x !== "");
+  const r = await fetch("https://api.resend.com/emails", { method: "POST", headers: { Authorization: "Bearer " + key, "Content-Type": "application/json" },
+    body: JSON.stringify({ from, to: [to], subject: "Cottontown Coach feedback" + (f.type ? " (" + f.type + ")" : ""), text: lines.join("\n") }) });
+  return r.ok;
+}
 async function newSession(store, uid, env) {
   const t = token();
   // Main-code sessions remember which main code made them, so changing COACH_CODE signs them out.
@@ -205,6 +216,25 @@ export async function handle(req, { store, env }) {
     if (!okId(team)) return json({ error: "bad team" }, 400);
     const kind = b.kind || (b.verify ? "verify" : "");
     const creds = { code: b.code, session: b.session || hdr("x-session") };
+
+    // --- feedback from anyone (no sign-in); only admins can read it ---
+    if (kind === "feedback") {
+      const f = b.feedback && typeof b.feedback === "object" ? b.feedback : {};
+      if (f.website) return json({ ok: true, now }); // hidden field only bots fill in
+      const text = String(f.text || "").trim();
+      if (text.length < 3) return json({ error: "Write a little more so we know what you mean." }, 400);
+      const list = (await store.get("feedback", { type: "json" })) || [];
+      if (list.filter((x) => now - x.at < 10 * 60000).length >= 30) return json({ error: "Lots of feedback just came in. Please try again in a few minutes." }, 429);
+      const types = ["idea", "problem", "question", "praise"];
+      const item = { id: "f" + now.toString(36) + Math.random().toString(36).slice(2, 6), at: now, text: clip(text, 2000),
+        type: types.includes(f.type) ? f.type : "", name: clip(String(f.name || "").trim(), 60), contact: clip(String(f.contact || "").trim(), 120),
+        page: clip(String(f.page || ""), 200), team: okId(f.team) ? f.team : "", game: okGid(f.game) ? f.game : "", tab: clip(String(f.tab || ""), 20),
+        role: ["parent", "coach"].includes(f.role) ? f.role : "", ver: clip(String(f.ver || ""), 20), screen: clip(String(f.screen || ""), 20), done: false };
+      list.unshift(item);
+      await store.setJSON("feedback", list.slice(0, 500));
+      await sendFeedbackEmail(env, item).catch(() => {});
+      return json({ ok: true, now });
+    }
 
     // --- parents' positive stats (no sign-in) ---
     if (kind === "pstat" || kind === "pstatdel") {
@@ -369,6 +399,15 @@ export async function handle(req, { store, env }) {
       list.push({ ...t, id, team, by: clip(w.name, 60), at: now });
       await store.setJSON("tournaments", list);
       return json({ ok: true, now, id, tournaments: list });
+    }
+    if (kind === "feedback-done" || kind === "feedback-del") {
+      if (!w.admin) return json({ error: "Admins only" }, 403);
+      const list = (await store.get("feedback", { type: "json" })) || [];
+      const i = list.findIndex((x) => x.id === b.id);
+      if (i < 0) return json({ error: "not found" }, 404);
+      if (kind === "feedback-del") list.splice(i, 1); else list[i].done = !!b.done;
+      await store.setJSON("feedback", list);
+      return json({ ok: true, now, feedback: list });
     }
     if (kind === "tournament-del") {
       if (!w.admin) return json({ error: "Only an admin can remove a tournament" }, 403);
@@ -553,6 +592,11 @@ export async function handle(req, { store, env }) {
     const u = userAt(users, w.uid);
     const favs = (await store.get("favs-" + w.uid, { type: "json" })) || [];
     return json({ now, user: u ? publicUser(u) : null, favs });
+  }
+  if (q.get("feedback")) {
+    const w = await whoIs(store, env, "", creds);
+    if (!w || !w.admin) return json({ error: "Admins only" }, 403);
+    return json({ now, feedback: (await store.get("feedback", { type: "json" })) || [] });
   }
   if (q.get("users")) {
     const w = await whoIs(store, env, "", creds);

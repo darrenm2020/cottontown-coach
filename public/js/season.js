@@ -14,7 +14,7 @@ function seasonGames(){
 }
 /* Minutes each player spent at each position group in one game, from its starting lineup and sub log. */
 function posMinutes(g){
-  const F=formOf(g.form);const grp=Object.fromEntries(F.map(p=>[p.id,p.g]));
+  const F=formOf(g);const grp=Object.fromEntries(F.map(p=>[p.id,p.g]));
   const L=Object.assign({},g.start||{});const out={};let t0=0;const end=Math.max(0,clock(g));
   const add=(t1)=>{const dt=Math.max(0,Math.min(t1,end)-t0);if(!dt)return;Object.entries(L).forEach(([pos,id])=>{if(!id||!grp[pos])return;const o=out[id]=out[id]||{};o[grp[pos]]=(o[grp[pos]]||0)+dt;});};
   for(const e of (g.events||[])){add(e.t);t0=Math.max(t0,Math.min(e.t,end));L[e.pos]=e.to||null;}
