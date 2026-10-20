@@ -39,14 +39,15 @@ const gameWhen = (g) => { const t = kickoffMs(g); if (!Number.isFinite(t)) retur
 function buildClubShell() {
   const el = $("club");
   const d = CLUB.data, prog = clubProgram(d);
-  el.innerHTML = `<header class="clubtop"><img id="club-logo-img" src="${esc(pageLogo(d))}" alt=""><div><h1 id="club-title">${esc(pageName(d))}</h1><p>${prog ? "Soccer" : "Club scoreboard"} <span id="club-sync"></span></p></div></header>
+  el.innerHTML = `<header class="clubtop"><img id="club-logo-img" src="${esc(pageLogo(d))}" alt=""><div class="clubtt"><h1 id="club-title">${esc(pageName(d))}</h1><p>${prog ? "Soccer" : "Club scoreboard"} <span id="club-sync"></span></p></div><button class="btn small fbbtn" data-feedback>Feedback</button></header>
     <nav class="cprogs" id="club-progs" aria-label="Clubs and schools"></nav>
     <div class="clubctl" role="search">
       <div class="cfilters" id="club-filters" role="group" aria-label="Show teams"></div>
       <div class="cfilters ctours" id="club-tours" role="group" aria-label="Tournament"></div>
       <div class="csearch"><label class="sr" for="club-q">Search teams</label><input id="club-q" type="search" placeholder="Search teams, ages or coaches" autocomplete="off" value="${esc(clubQuery())}"></div>
     </div>
-    <main class="clubmain" id="club-body" aria-live="polite"></main>`;
+    <main class="clubmain" id="club-body" aria-live="polite"></main>
+    <footer class="appfoot"><button class="fblink" data-feedback>Send feedback</button></footer>`;
   HOME.built = true;
 }
 function setIfChanged(id, html) { const el = $(id); if (el && el.innerHTML !== html) el.innerHTML = html; }

@@ -6,7 +6,7 @@ import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
 const JS = new URL("../public/js/", import.meta.url);
-const FILES = ["teaminfo.js", "app.js", "auth.js", "drills.js", "practice.js", "season.js", "nav.js", "events.js", "admin.js", "home.js"];
+const FILES = ["teaminfo.js", "app.js", "auth.js", "drills.js", "practice.js", "season.js", "nav.js", "events.js", "formations.js", "feedback.js", "admin.js", "home.js"];
 
 // A stand-in for anything on the page: every property and call returns another stand-in.
 function anything() {
@@ -355,4 +355,32 @@ test("tournament sign-ups show before games are posted, and disappear once the e
   assert.equal(run("pendingEntries(D.teams[0],T()).length"), 0, "once games are posted, the games show instead");
   run("D.teams[0].games=[];TOURS.list[0].start='2026-10-01';TOURS.list[0].end='2026-10-02'");
   assert.equal(run("pendingEntries(D.teams[0],T()).length"), 0, "past events aren't shown as coming up");
+});
+
+test("custom formations: saved per team with their own position names; games keep the positions they were set up with", () => {
+  const { run } = loadApp();
+  run(`S={v:2,team:'t1',cur:{},T:{t1:{cfg:{id:'t1',name:'T',format:'9v9',formation:'3-3-2',players:[],games:[{id:'g1',title:'A',dt:'',half:30,sub:10},{id:'g2',title:'B',dt:'',half:30,sub:10}]},games:{}}},auth:{}};
+    S.T.t1.cfg=fixCfg(S.T.t1.cfg);save=()=>{};useTeam();`);
+  // A new formation starts from the current one; rename two positions and move one.
+  run("EXT.fbnew();FB.draft.name='Diamond';const p=FB.draft.pos.find(x=>x.id==='CM');p.id='CDM';p.name='Holding mid';p.y=60;FB.draft.pos.find(x=>x.id==='LM').id='LW';");
+  assert.equal(run("fbProblem(FB.draft,CFG())"), "");
+  run("EXT.fbsave()");
+  assert.equal(run("CFG().forms.length"), 1);
+  assert.equal(run("formName(CFG())"), "Diamond", "the new formation is put to use");
+  assert.ok(run("posIds(G()).includes('CDM')"), "games use the new position names");
+  assert.equal(run("G().formDef.find(x=>x.id==='CDM').name"), "Holding mid", "a game keeps its own copy of the positions");
+  // Start game 1, then edit the formation: game 1 keeps its lineup spots; game 2 (not started) takes the change.
+  run("S.T.t1.games[CFG().games[0].id].started=true;EXT.fbedit({id:CFG().forms[0].id});FB.draft.pos.find(x=>x.id==='CDM').id='DM';EXT.fbsave();");
+  assert.ok(run("formOf(S.T.t1.games.g1).some(x=>x.id==='CDM')"), "a started game isn't changed by later edits");
+  assert.ok(run("formOf(stateOf(CFG().games[1])).some(x=>x.id==='DM')"), "a game that hasn't started gets the edit");
+  // Deleting it switches the team back to a built-in formation; the started game still has its positions.
+  run("EXT.fbedit({id:CFG().forms[0].id});EXT.fbdel();EXT.fbdel();");
+  assert.equal(run("CFG().forms.length"), 0);
+  assert.equal(run("CFG().formation"), "3-3-2");
+  assert.ok(run("formOf(S.T.t1.games.g1).some(x=>x.id==='CDM')"));
+  // Problems are explained instead of saved.
+  run("EXT.fbnew();FB.draft.name='3-3-2'");
+  assert.match(run("fbProblem(FB.draft,CFG())"), /already/);
+  run("FB.draft.name='X';FB.draft.pos[1].id=FB.draft.pos[2].id");
+  assert.match(run("fbProblem(FB.draft,CFG())"), /different short name/);
 });

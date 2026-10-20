@@ -334,3 +334,26 @@ test("club summary carries the last save time and postponed status for game stat
   assert.equal(g.status, "postponed");
   assert.ok(g.at > 0, "last saved time is included");
 });
+
+test("feedback: anyone can send it, only admins can read or manage it", async () => {
+  const { a } = await setup();
+  // A parent (no code) sends feedback with page context.
+  let r = await a.post({ kind: "feedback", feedback: { text: "Love the live score!", type: "praise", name: "Jo", contact: "jo@example.com", page: "/?team=t1", team: "t1", role: "parent" } });
+  assert.equal(r.status, 200);
+  assert.equal((await a.post({ kind: "feedback", feedback: { text: "x" } })).status, 400, "too short");
+  assert.equal((await a.post({ kind: "feedback", feedback: { text: "spam spam", website: "http://bot" } })).status, 200, "bots get a quiet OK…");
+  // …but nothing is saved for them, and nobody without the admin code can read feedback.
+  assert.equal((await a.get("?feedback=1")).status, 403);
+  r = await a.post({ kind: "user-save", user: { name: "Randy", roles: { t1: "head" } }, code: "main-1234" });
+  await a.post({ kind: "user-code", id: r.body.user.id, newCode: "randy-777", code: "main-1234" });
+  const head = (await a.post({ kind: "login", code: "randy-777" })).body.session;
+  assert.equal((await a.get("?feedback=1", { "x-session": head })).status, 403, "a head coach who isn't an admin can't read it");
+  const list = (await a.get("?feedback=1", { "x-code": "main-1234" })).body.feedback;
+  assert.equal(list.length, 1);
+  assert.deepEqual([list[0].text, list[0].type, list[0].team, list[0].role, list[0].done], ["Love the live score!", "praise", "t1", "parent", false]);
+  assert.ok(!JSON.stringify((await a.get("?club=1")).body).includes("jo@example.com"), "feedback never shows on public pages");
+  // Admin marks it done, then deletes it; others can't.
+  assert.equal((await a.post({ kind: "feedback-done", team: "t1", id: list[0].id, done: true, session: head })).status, 403);
+  assert.equal((await a.post({ kind: "feedback-done", id: list[0].id, done: true, code: "main-1234" })).body.feedback[0].done, true);
+  assert.equal((await a.post({ kind: "feedback-del", id: list[0].id, code: "main-1234" })).body.feedback.length, 0);
+});

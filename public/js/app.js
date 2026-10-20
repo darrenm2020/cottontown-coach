@@ -23,11 +23,21 @@ const FORMS={
   }
 };
 const FORMATS=Object.keys(FORMS);
-function formOf(key){
-  const [f,n]=String(key||'').split('/');
-  const fm=(FORMS[f]&&FORMS[f][n])?FORMS[f][n]:FORMS['9v9']['3-3-2'];
-  return fm.map(a=>({id:a[0],name:a[1],g:a[2],x:a[3],y:a[4]}));
+/* A formation's positions [{id,name,g,x,y}]. Pass a game to use the copy of the positions saved with it (so editing
+   or deleting a team's own formation never changes a game already set up), or a key: '9v9/3-3-2' (built in) or
+   '9v9/c-…' (one of this team's own formations, kept in its settings as `forms`). */
+const FORMAT_N={'7v7':7,'9v9':9,'11v11':11};
+const validFormDef=d=>Array.isArray(d)&&d.length>=4&&d.length<=11&&d.filter(p=>p&&p.g==='GK').length===1&&d.some(p=>p&&p.id==='GK')&&new Set(d.map(p=>p&&p.id)).size===d.length;
+const customForm=id=>{const c=S&&S.T&&S.T[S.team]&&S.T[S.team].cfg;return c&&Array.isArray(c.forms)?c.forms.find(x=>x&&x.id===id)||null:null;};
+function formOf(x){
+  if(x&&typeof x==='object'){if(validFormDef(x.formDef))return x.formDef.map(p=>Object.assign({},p));x=x.form;}
+  const [f,n]=String(x||'').split('/');
+  if(FORMS[f]&&FORMS[f][n])return FORMS[f][n].map(a=>({id:a[0],name:a[1],g:a[2],x:a[3],y:a[4]}));
+  const cf=customForm(n);if(cf&&validFormDef(cf.pos))return cf.pos.map(p=>Object.assign({},p));
+  return FORMS['9v9']['3-3-2'].map(a=>({id:a[0],name:a[1],g:a[2],x:a[3],y:a[4]}));
 }
+/* Display name for a team's current formation. */
+const formName=c=>{const cf=(c.forms||[]).find(x=>x.id===c.formation);return cf?cf.name:c.formation;};
 const GROUPS=[['GK','GK'],['DEF','D'],['MID','M'],['FWD','F']];
 const GNAME={GK:'Keeper',DEF:'Defense',MID:'Midfield',FWD:'Forward'};
 
@@ -106,7 +116,8 @@ function fixCfg(c){
   c.players=Array.isArray(c.players)?c.players:[];c.games=Array.isArray(c.games)?c.games:[];
   c.players.forEach(p=>{if(!Array.isArray(p.gr))p.gr=[];});
   if(!FORMS[c.format])c.format='9v9';
-  if(!FORMS[c.format][c.formation])c.formation=Object.keys(FORMS[c.format])[0];
+  c.forms=Array.isArray(c.forms)?c.forms.filter(f=>f&&typeof f.id==='string'&&FORMS[f.format]&&validFormDef(f.pos)):[];
+  if(!FORMS[c.format][c.formation]&&!c.forms.some(f=>f.id===c.formation&&f.format===c.format))c.formation=Object.keys(FORMS[c.format])[0];
   if(!c.games.length)c.games.push({id:'g1',title:'Game 1',opp:'',dt:'',field:'',place:'',half:30,sub:10,out:[]});
   return c;
 }
@@ -354,9 +365,9 @@ function stateOf(gc){const ts=TS();if(!ts.games[gc.id])ts.games[gc.id]=freshGame
 const G=()=>stateOf(GC());
 const PL=()=>G().plan;
 let POS=[],PI={},PLAYERS=[],P={};
-function useForm(key){const f=formOf(key);POS=f.map(p=>p.id);PI=Object.fromEntries(f.map(p=>[p.id,p]));}
-function useTeam(){const c=CFG();PLAYERS=c?c.players:[];P=Object.fromEntries(PLAYERS.map(p=>[p.id,p]));if(c)useForm(G().form);}
-const posIds=g=>formOf(g.form).map(p=>p.id);
+function useForm(x){const f=formOf(x);POS=f.map(p=>p.id);PI=Object.fromEntries(f.map(p=>[p.id,p]));}
+function useTeam(){const c=CFG();PLAYERS=c?c.players:[];P=Object.fromEntries(PLAYERS.map(p=>[p.id,p]));if(c)useForm(G());}
+const posIds=g=>formOf(g).map(p=>p.id);
 const nm=id=>id?(P[id]?P[id].name:'Removed player'):'Empty';
 const av=(g,id)=>g.avail[id]!==false;
 const teamKey=c=>c.format+'/'+c.formation;
@@ -371,19 +382,19 @@ function arm(k){UI.arm={k,t:Date.now()};setTimeout(()=>{if(UI.arm&&UI.arm.k===k&
 
 function validPlan(plan,form){const ids=formOf(form).map(p=>p.id);return Array.isArray(plan)&&plan.length>0&&plan.every(b=>b&&ids.every(p=>p in b));}
 function freshGame(gc,keep){
-  const c=CFG();const form=teamKey(c);const avail={};
+  const c=CFG();const form=teamKey(c);const avail={};const cf=customForm(c.formation);
   c.players.forEach(p=>avail[p.id]=!(gc.out||[]).includes(p.id));
-  const g=fixGame({form,avail:keep?keep.avail:avail,half:keep?keep.half:(gc.half||30),sub:keep?keep.sub:(gc.sub||10),
+  const g=fixGame({form,...(cf?{formDef:cf.pos.map(p=>Object.assign({},p))}:{}),avail:keep?keep.avail:avail,half:keep?keep.half:(gc.half||30),sub:keep?keep.sub:(gc.sub||10),
     otLen:keep?keep.otLen:5,otN:keep?keep.otN:2,events:[],goals:[],saves:[],acc:0,running:false,runStart:0,started:false,
     halfDone:false,fullDone:false,stops:[],alerted:[],pending:null,batch:0,ot:null,pk:null});
-  g.plan=validPlan(gc.plan,form)?gc.plan.map(b=>Object.assign({},b)):autoPlan(g);
+  g.plan=validPlan(gc.plan,g)?gc.plan.map(b=>Object.assign({},b)):autoPlan(g);
   g.start=Object.assign({},g.plan[0]||{});
   return g;
 }
 
 /* ---------- Automatic rotation ---------- */
 function autoPlan(g){
-  const F=formOf(g.form);const n=Math.max(1,Math.min(12,Math.ceil(2*g.half/g.sub)));
+  const F=formOf(g);const n=Math.max(1,Math.min(12,Math.ceil(2*g.half/g.sub)));
   const avail=PLAYERS.filter(p=>av(g,p.id));
   const gkPos=F.find(p=>p.g==='GK');const field=F.filter(p=>p.g!=='GK');
   let keepers=avail.filter(pureGK);if(!keepers.length)keepers=avail.filter(p=>gr(p).includes('GK'));
@@ -666,7 +677,7 @@ function slug(s){return (s||'team').toLowerCase().replace(/[^a-z0-9]+/g,'-').rep
 const PUB_VER='2026-10-18e';
 /* APP_VER changes with every deploy that coach devices should pick up. When the published page's APP_VER
    differs from the running one, a coach device reloads itself if no clock is running, or shows a Refresh button. */
-const APP_VER='2026-10-19f';
+const APP_VER='2026-10-20a';
 const VER={tag:null,ready:false};
 async function checkVersion(){
   if(!SY.on||!canEdit()||document.visibilityState!=='visible')return;
@@ -885,8 +896,9 @@ function addGoal(o){const g=G();if(!g.started){g.started=true;g.runStart=T();}o.
 /* ---------- Setup actions ---------- */
 function applyForm(){
   const c=CFG();const key=teamKey(c);let n=0;
-  c.games.forEach(gc=>{gc.plan=null;const st=TS().games[gc.id];if(st&&!st.started){st.form=key;st.plan=autoPlan(st);st.start=Object.assign({},st.plan[0]||{});n++;}});
-  useTeam();say(c.format+' '+c.formation+' set'+(n?'. Rotations rebuilt for '+n+' game'+(n>1?'s':''):''));
+  const cf=customForm(c.formation);
+  c.games.forEach(gc=>{gc.plan=null;const st=TS().games[gc.id];if(st&&!st.started){st.form=key;if(cf)st.formDef=cf.pos.map(p=>Object.assign({},p));else delete st.formDef;st.plan=autoPlan(st);st.start=Object.assign({},st.plan[0]||{});n++;}});
+  useTeam();say(c.format+' '+formName(c)+' set'+(n?'. Rotations rebuilt for '+n+' game'+(n>1?'s':''):''));
 }
 function uid(p){return p+Date.now().toString(36)+Math.floor(Math.random()*1296).toString(36);}
 function readLogo(f){
@@ -1002,7 +1014,7 @@ function act(a,ds){
     case 'pickset':pickSet(ds.id);return;
     case 'planview':S.planView=ds.v;saveLocal();break;
     case 'planreset':
-      if(armed('planreset')){const gc=GC();g.plan=validPlan(gc.plan,g.form)?gc.plan.map(b=>Object.assign({},b)):autoPlan(g);UI.arm=null;UI.pick=null;say('Saved plan restored');save();}
+      if(armed('planreset')){const gc=GC();g.plan=validPlan(gc.plan,g)?gc.plan.map(b=>Object.assign({},b)):autoPlan(g);UI.arm=null;UI.pick=null;say('Saved plan restored');save();}
       else arm('planreset');break;
     case 'planauto':
       if(armed('planauto')){g.plan=autoPlan(g);if(!g.started)g.start=Object.assign({},g.plan[0]||{});UI.arm=null;UI.pick=null;say('New rotation built from who’s here');save();}
@@ -1375,7 +1387,7 @@ function renderBench(d){
 }
 function miniField(g,b,i,editable,pk,base){
   let h=`<div class="mpitch f${String(g.form).split('v')[0]}${pk?' choosing':''}"><div class="mlines">${LINES}</div>`;
-  formOf(g.form).forEach(pi=>{const p=pi.id,id=b[p];const cls=['mchip'];if(p==='GK')cls.push('gk');
+  formOf(g).forEach(pi=>{const p=pi.id,id=b[p];const cls=['mchip'];if(p==='GK')cls.push('gk');
     if(id&&!av(g,id))cls.push('warn');if(base&&id&&!POS.some(x=>base[x]===id))cls.push('new');if(pk&&pk.p===p)cls.push('picked');
     const st=`left:${pi.x}%;top:${((pi.y-12)/86*100).toFixed(1)}%`;
     const inner=`<span class="mps">${p}</span><span class="mnm">${esc(id?nm(id):'Empty')}${id&&!av(g,id)?' (out)':''}</span>`;
@@ -1422,7 +1434,7 @@ function renderPlan(d){
   });
   h+=pkOrderHTML(g);
   h+=`<button class="btn danger ${armed('planauto')?'armed':''}" data-act="planauto">${armed('planauto')?'Tap again to rebuild the rotation':'Rebuild the rotation from who’s here'}</button>`;
-  if(validPlan(gc.plan,g.form))h+=`<button class="btn danger ${armed('planreset')?'armed':''}" data-act="planreset">${armed('planreset')?'Tap again to restore the saved plan':'Restore the saved plan'}</button>`;
+  if(validPlan(gc.plan,g))h+=`<button class="btn danger ${armed('planreset')?'armed':''}" data-act="planreset">${armed('planreset')?'Tap again to restore the saved plan':'Restore the saved plan'}</button>`;
   return h;
 }
 function goalTag(g,id){const gs=g.goals.filter(x=>x.by===id).length,as=g.goals.filter(x=>x.ast===id).length;return gs||as?`<span class="gtag">${gs?gs+' G':''}${gs&&as?', ':''}${as?as+' A':''}</span>`:'';}
@@ -1431,13 +1443,17 @@ function renderPlayers(d){
   if(SY.on)h+=`<h3>Coach controls</h3><div class="set"><span>This device runs ${esc(CFG().name)} games. Everyone else with the link sees changes live.</span><button class="btn small" data-act="editor">Lock</button></div>`;
   h+=`<h3>${esc(gc.title)}: who’s here</h3><p class="fine" style="margin-top:-4px">${esc(gameNote(gc,g))}. Tap Here or Out to change it.</p>`;
   if(!PLAYERS.length)h+='<div class="empty">No players yet. Add your roster on the Setup tab.</div>';
-  PLAYERS.forEach(p=>{const here=av(g,p.id);const pos=POS.find(x=>d.L[x]===p.id);const s=d.st[p.id];
+  const prow=p=>{const here=av(g,p.id);const pos=POS.find(x=>d.L[x]===p.id);const s=d.st[p.id];
     const stat=pos?`On at ${pos}`:here?`Bench <span data-lv="sit" data-id="${p.id}">${fmt(d.now-s.offAt)}</span>`:'Out';
     const pm=here?plannedFor(g,p.id):0;
     h+=`<div class="prow ${here?'':'out'}"><div class="pn"><b>${esc(p.name)}</b>${jn(p)} ${gradeHTML(p)}${p.guest?'<span class="tag">Guest</span>':''}${goalTag(g,p.id)}<div class="r">${esc(roleText(p))}</div></div>
       <div class="pst">${stat}</div>
       <div class="pmin"><b data-lv="played" data-id="${p.id}">${fmt(s.played)}</b><small>${here&&usePlan()?pm+' min planned':'played'}</small></div>
-      <button class="tog ${here?'on':''}" data-act="avail" data-id="${p.id}" aria-pressed="${here}">${here?'Here':'Out'}</button></div>`;});
+      <button class="tog ${here?'on':''}" data-act="avail" data-id="${p.id}" aria-pressed="${here}">${here?'Here':'Out'}</button></div>`;};
+  PLAYERS.filter(p=>!p.guest).forEach(prow);
+  const guests=PLAYERS.filter(p=>p.guest);
+  if(guests.length){const n=guests.filter(p=>av(g,p.id)).length,on=guests.filter(p=>POS.some(x=>d.L[x]===p.id)).length;
+    h+=guestsWrap('players',`Guest players (${guests.length})`,`${n} here${on?', '+on+' on the field':''}`);guests.forEach(prow);h+='</details>';}
   if(g.fullDone&&gameLocked())h+=`<div class="ctx">This game is final and locked, so its score and subs can’t change by accident. <button class="btn small" data-act="unlockgame">Unlock to edit</button></div>`;
   else if(g.fullDone&&UI.unlock[GC().id])h+=`<div class="ctx">Unlocked on this device. <button class="btn small" data-act="relock">Lock again</button> <button class="btn small ${armed('reopen')?'danger-s armed':''}" data-act="reopen">${armed('reopen')?'Tap again to reopen':'Reopen game'}</button></div>`;
   else if(g.fullDone)h+=`<div class="ctx">This game is final. <button class="btn small ${armed('reopen')?'danger-s armed':''}" data-act="reopen">${armed('reopen')?'Tap again to reopen':'Reopen game'}</button></div>`;
@@ -1532,15 +1548,16 @@ function renderSetup(part){
     <div class="fld">Logo<div class="logorow">${c.logo?`<img src="${esc(c.logo)}" alt="">`:'<span class="muted">No logo yet</span>'}<label class="btn small filebtn">Upload<input type="file" accept="image/*" data-cfg="logo" hidden></label>${c.logo?'<button class="btn small" data-act="logodel">Remove</button>':''}</div></div>
     <div class="set"><span>Rotation plan<small class="fine" style="display:block">Plan who plays when, block by block. Adds a Plan tab and planned subs. When off, sub alerts still sound and you tap bench players to line up who goes in.</small></span><button class="tog ${c.usePlan?'on':''}" data-act="cfgplan" aria-pressed="${!!c.usePlan}">${c.usePlan?'On':'Off'}</button></div>
     <div class="set"><span>Goal song (the Cottontown chant)</span><button class="tog ${c.song?'on':''}" data-act="cfgsong" aria-pressed="${!!c.song}">${c.song?'On':'Off'}</button></div></div>`;
-  h+=`<div class="card"><h3>Format</h3><div class="seg">${FORMATS.map(f=>`<button data-act="fmt" data-f="${f}" aria-pressed="${c.format===f}">${f}</button>`).join('')}</div>
-    <div class="seg" style="margin-top:8px">${Object.keys(FORMS[c.format]).map(n=>`<button data-act="formation" data-n="${n}" aria-pressed="${c.formation===n}">${n}</button>`).join('')}</div>
-    <p class="fine">Changing the format or formation rebuilds the rotation for games that haven’t started. Games already underway keep their lineup.</p></div>`;
+  h+=formationsCardHTML(c);
   out.setup+=h;h='';
   h+=`<div class="card"><h3>Roster (${c.players.length})</h3><p class="fine" style="margin-top:-4px">Tap GK, D, M and F for the positions each player can play. The automatic rotation uses these, and keepers marked only GK stay in goal.</p>`;
-  c.players.forEach(p=>{
+  const rosterRow=p=>{
     h+=`<div class="prow2"><div><div class="pnrow"><input class="pnum" data-cfg="pl" data-f="num" data-id="${p.id}" value="${esc(p.num||'')}" inputmode="numeric" placeholder="#" aria-label="Jersey number"><input class="pname" id="pl-${p.id}" data-cfg="pl" data-f="name" data-id="${p.id}" value="${esc(p.name)}" aria-label="Player name"></div>
       <div class="grp">${GROUPS.map(([g2,ab])=>`<button class="${p.gr.includes(g2)?'on':''}" data-act="grp" data-id="${p.id}" data-g="${g2}" aria-pressed="${p.gr.includes(g2)}">${ab}</button>`).join('')}<button class="${p.guest?'on':''}" data-act="guest" data-id="${p.id}" aria-pressed="${!!p.guest}">Guest</button></div>${showGrades()?gradeSelectHTML(p):''}</div>
-      <button class="btn small ${armed('pldel'+p.id)?'danger-s armed':''}" data-act="pldel" data-id="${p.id}">${armed('pldel'+p.id)?'Tap again':'Remove'}</button></div>`;});
+      <button class="btn small ${armed('pldel'+p.id)?'danger-s armed':''}" data-act="pldel" data-id="${p.id}">${armed('pldel'+p.id)?'Tap again':'Remove'}</button></div>`;};
+  c.players.filter(p=>!p.guest).forEach(rosterRow);
+  const gl=c.players.filter(p=>p.guest);
+  if(gl.length){h+=guestsWrap('roster',`Guest players (${gl.length})`,'Tap Guest on a player to move them back');gl.forEach(rosterRow);h+='</details>';}
   h+=`<button class="btn small" data-act="pladd" style="margin-top:10px">+ Add player</button></div>`;
   out.roster+=h;h='';
   h+=`<div class="card"><h3>Games</h3><p class="fine" style="margin-top:-4px">Parents see the kickoff time, field and a map link.</p>`;
@@ -1580,6 +1597,10 @@ function renderParentBench(d){
   return bench.length?'<div class="bgrid">'+bench.map(p=>`<div class="bp"><span class="n">${esc(p.name)}${jn(p)}${p.guest?'<span class="tag">Guest</span>':''}</span><span class="r">On the bench</span></div>`).join('')+'</div>'
     :'<div class="empty">Everyone who’s here is on the field.</div>';
 }
+/* Guest players sit in their own collapsed list; whether it's open is remembered while the page is open. */
+function guestsWrap(where,title,note){const open=UI.guestsOpen&&UI.guestsOpen[where];
+  return `<details class="guests" data-guests="${where}"${open?' open':''}><summary><b>${esc(title)}</b>${note?`<span class="fine">${esc(note)}</span>`:''}</summary>`;}
+document.addEventListener('toggle',e=>{const w=e.target&&e.target.dataset&&e.target.dataset.guests;if(!w)return;UI.guestsOpen=UI.guestsOpen||{};UI.guestsOpen[w]=e.target.open;},true);
 /* Parents: Game (score, clock and goals first; stats and great plays one tap away), Schedule and Team. */
 EXT.pview=ds=>{UI.pview=ds.v||'';};
 EXT.opengame=ds=>{act('game',ds);S.tab=isParent()?'game':'bench';if(!isParent())S.mode='game';saveLocal();try{window.scrollTo(0,0);}catch(e){}renderAll();return false;};
@@ -1641,8 +1662,11 @@ function renderParentTeam(){
   const c=CFG(),rec=seasonRecord();
   let h=`<div class="teamhead"><b>${esc(c.name)}</b>${c.sub?`<span class="fine">${esc(c.sub)}</span>`:''}</div>`;
   if(c.placing||rec)h+=`<p class="teamrec">${c.placing?`<span class="cplace">${esc(placeText(c.placing))}</span>`:''}${c.placing&&rec?' · ':''}${rec?`${rec} this season <span class="muted">(W-D-L)</span>`:''}</p>`;
-  h+=`<h3>Players (${PLAYERS.length})</h3>`;
-  h+=PLAYERS.length?'<div class="rosterl">'+PLAYERS.map(p=>`<div class="rrow"><span class="rnum">${p.num?'#'+esc(p.num):''}</span><b>${esc(p.name)}</b>${gradeHTML(p)}${p.guest?'<span class="tag">Guest</span>':''}</div>`).join('')+'</div>':'<p class="muted">No players listed yet.</p>';
+  h+=`<h3>Players (${PLAYERS.filter(p=>!p.guest).length})</h3>`;
+  const rrow=p=>`<div class="rrow"><span class="rnum">${p.num?'#'+esc(p.num):''}</span><b>${esc(p.name)}</b>${gradeHTML(p)}</div>`;
+  const reg=PLAYERS.filter(p=>!p.guest),gst=PLAYERS.filter(p=>p.guest);
+  h+=reg.length?'<div class="rosterl">'+reg.map(rrow).join('')+'</div>':gst.length?'':'<p class="muted">No players listed yet.</p>';
+  if(gst.length)h+=guestsWrap('team',`Guest players (${gst.length})`,'')+'<div class="rosterl">'+gst.map(rrow).join('')+'</div></details>';
   h+=`<p class="fine teamfoot"><a class="maplink" href="${clubLink()}">All teams</a> · Coaches sign in from the ⋯ menu.</p>`;
   return h;
 }
