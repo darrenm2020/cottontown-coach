@@ -31,6 +31,7 @@ function renderPractice(){
     <div class="gacts"><button class="btn small" data-act="propen" data-id="${esc(p.id)}">Open</button><button class="btn small" data-act="prrun" data-id="${esc(p.id)}" ${(p.blocks||[]).length?'':'disabled'}>Run it</button><button class="btn small" data-act="prcopy" data-id="${esc(p.id)}">Copy</button></div></div>`;
   h+=`<h3>Coming up</h3>`+(up.length?up.map(card).join(''):'<p class="fine">No practices planned. Tap New practice to build one from the drill library.</p>');
   if(past.length)h+=`<details class="past"><summary>Past practices (${past.length})</summary>${past.map(card).join('')}</details>`;
+  if(typeof voiceBar==='function')h+=voiceBar('practice');
   return h;
 }
 
@@ -50,6 +51,7 @@ function practiceEditHTML(){
   h+=`<div class="gacts"><button class="btn small primary-s" data-act="prpick">+ From the drill library</button><button class="btn small" data-act="pbblank">+ Blank block</button></div>`;
   h+=`<h3>Who's here</h3><p class="fine" style="margin-top:-4px">Tap players who came. Season reports count attendance.</p><div class="attgrid">${PLAYERS.map(pl=>{const on=!!(p.attendance||{})[pl.id];return `<button class="${on?'on':''}" data-act="patt" data-id="${pl.id}" aria-pressed="${on}">${esc(pl.name)}</button>`;}).join('')}</div>`;
   h+=`<label class="fld">Notes after practice<textarea id="pe-notes" rows="3">${esc(p.notes||'')}</textarea></label>`;
+  if(typeof voiceBar==='function')h+=voiceBar('practice');
   h+=`<div class="gacts stick"><button class="btn primary-s" data-act="prsave">Save practice</button><button class="btn" data-act="prrunedit" ${b.length?'':'disabled'}>Run it</button><button class="btn" data-act="prcancel">Close</button>
     ${p.saved?`<button class="btn ${armed('prdel')?'danger-s armed':''}" data-act="prdel">${armed('prdel')?'Tap again to delete':'Delete'}</button>`:''}</div>`;
   return h;
@@ -114,7 +116,7 @@ EXT.pbdel=ds=>{syncPracticeForm();PR.edit.blocks.splice(+ds.i,1);};
 EXT.pbmove=ds=>{syncPracticeForm();const B=PR.edit.blocks,i=+ds.i,j=i+(+ds.d);if(j<0||j>=B.length)return;[B[i],B[j]]=[B[j],B[i]];};
 EXT.patt=ds=>{syncPracticeForm();const a=PR.edit.attendance=PR.edit.attendance||{};a[ds.id]=!a[ds.id];};
 EXT.dropenx=ds=>{syncPracticeForm();DR.open=ds.id;};
-EXT.prsave=()=>{syncPracticeForm();const p=PR.edit;(async()=>{if(await savePractice(p)){p.saved=true;say('Practice saved');}renderAll();})();};
+EXT.prsave=()=>{syncPracticeForm();const p=PR.edit;(async()=>{if(await savePractice(p)){p.saved=true;if(typeof VOX!=='undefined')VOX.saved=true;say('Practice saved');}renderAll();})();};
 EXT.prdel=()=>{
   if(!armed('prdel')){arm('prdel');return;}
   UI.arm=null;const id=PR.edit.id;

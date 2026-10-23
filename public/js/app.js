@@ -687,7 +687,7 @@ function slug(s){return (s||'team').toLowerCase().replace(/[^a-z0-9]+/g,'-').rep
 const PUB_VER='2026-10-18e';
 /* APP_VER changes with every deploy that coach devices should pick up. When the published page's APP_VER
    differs from the running one, a coach device reloads itself if no clock is running, or shows a Refresh button. */
-const APP_VER='2026-10-24b';
+const APP_VER='2026-10-24c';
 const VER={tag:null,ready:false};
 async function checkVersion(){
   if(!SY.on||!canEdit()||document.visibilityState!=='visible')return;
@@ -1444,6 +1444,7 @@ function renderPlan(d){
     h+=`<div class="blk ${state==='next'?'upnext':state}${ed?' editing':''}"><div class="bh"><b>${blockRange(g,i)}</b><span class="bhr">${ed?'<span class="pill ed">Editing</span>':''}${pill}${ebtn}</span></div>${picker}${fv?miniField(g,b,i,editable,pk,subBase):`<div class="cells">${cells}</div>`}${bench}${diff}${btn}</div>`;
   });
   h+=pkOrderHTML(g);
+  if(!isParent()&&typeof voiceBar==='function')h+=voiceBar('game');
   h+=`<button class="btn danger ${armed('planauto')?'armed':''}" data-act="planauto">${armed('planauto')?'Tap again to rebuild the rotation':'Rebuild the rotation from who’s here'}</button>`;
   if(validPlan(gc.plan,g))h+=`<button class="btn danger ${armed('planreset')?'armed':''}" data-act="planreset">${armed('planreset')?'Tap again to restore the saved plan':'Restore the saved plan'}</button>`;
   return h;

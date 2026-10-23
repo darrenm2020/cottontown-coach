@@ -6,6 +6,25 @@ import { readFile, writeFile, mkdir, readdir, unlink } from "node:fs/promises";
 import { existsSync, readFileSync } from "node:fs";
 import { join, extname, normalize, sep } from "node:path";
 import { handle, takeBackup } from "../netlify/lib/core.mjs";
+import { handle as voiceHandle } from "../netlify/functions/voice.mjs";
+// FAKE_AI=1: a stand-in for Claude so voice changes can be tried without an API key.
+//   Game plan: "Olivia in goal" for every block not yet played. Practice: the first two library drills plus a scrimmage.
+const fakeAI = { beta: { messages: { create: async (p) => fakeVoice(p) } }, messages: { create: async (p) => fakeVoice(p) } };
+function fakeVoice(p) {
+  const props = p.output_config.format.schema.properties;
+  let out;
+  if (props.out) {
+    const blocks = [...p.system.matchAll(/^Block \d+ \([^)]*\)( LOCKED[^:]*)?: (.*)$/gm)].map((m) => ({ locked: !!m[1], lineup: Object.fromEntries(m[2].split(", ").map((kv) => { const [k, v] = kv.split("="); return [k, v === "(empty)" ? "" : v]; })) }));
+    const outs = [...p.system.matchAll(/^- ([\w-]+): .* OUT/gm)].map((m) => m[1]);
+    out = { possible: true, message: "Olivia is in goal for the rest of the game.", changes: ["Olivia plays GK in every block that hasn't started."], out: outs,
+      blocks: blocks.map((b) => { const l = { ...b.lineup }; if (b.locked) return l; const was = l.GK, at = Object.keys(l).find((k) => l[k] === "olivia"); l.GK = "olivia"; if (at && at !== "GK") l[at] = was; return l; }) };
+  } else {
+    const lib = [...p.system.split("Drill library")[1].matchAll(/^([\w-]+): (.+?) \(/gm)].slice(0, 2);
+    out = { possible: true, message: "Here's a 60-minute practice.", changes: ["Built a warm-up, a drill and a scrimmage."], title: "Passing night", focus: "Passing",
+      blocks: [...lib.map(([, id, title]) => ({ title, min: 15, drill: id, notes: "" })), { title: "Scrimmage", min: 30, drill: "", notes: "Free play" }] };
+  }
+  return { stop_reason: "end_turn", model: p.model, content: [{ type: "text", text: JSON.stringify(out) }] };
+}
 
 const root = normalize(new URL("..", import.meta.url).pathname.replace(/^\/([A-Z]:)/, "$1"));
 const pub = join(root, "public"), data = join(root, ".devdata");
@@ -31,6 +50,11 @@ http.createServer(async (req, res) => {
     if (url.pathname === "/api/state") {
       const chunks = []; for await (const c of req) chunks.push(c);
       const r = await handle(new Request(url, { method: req.method, headers: req.headers, body: req.method === "POST" ? Buffer.concat(chunks) : undefined }), { store, env });
+      res.writeHead(r.status, Object.fromEntries(r.headers)); res.end(Buffer.from(await r.arrayBuffer())); return;
+    }
+    if (url.pathname === "/api/voice") {
+      const chunks = []; for await (const c of req) chunks.push(c);
+      const r = await voiceHandle(new Request(url, { method: req.method, headers: req.headers, body: req.method === "POST" ? Buffer.concat(chunks) : undefined }), { store, env, ...(process.env.FAKE_AI ? { client: fakeAI } : {}) });
       res.writeHead(r.status, Object.fromEntries(r.headers)); res.end(Buffer.from(await r.arrayBuffer())); return;
     }
     if (url.pathname === "/dev/backup") { const d = await takeBackup(store); res.end("backup " + d); return; }

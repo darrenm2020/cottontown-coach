@@ -15,6 +15,14 @@ parents' positive stats, penalty shootouts, parent view, club scoreboard.
   (Players tab). Stops late-night resets and stale devices from changing results.
 - **Change history** for every save: who changed what, and when (Setup → Change history).
 
+**Talk to change a plan** (Plan tab and Practice tab)
+
+- Tap 🎤 at the bottom and say the change ("Olivia in goal the whole game", "swap the passing drill for a 4v4",
+  "plan a 75-minute passing practice"), or type it. The app shows what will change; Apply or Cancel, and Undo after.
+- Claude does the editing on the server (`netlify/functions/voice.mjs`). It needs `ANTHROPIC_API_KEY` in Netlify
+  (or Netlify's AI Gateway); `COACH_MODEL` overrides the model (default `claude-opus-5-5`), `AI_MONTHLY_LIMIT`
+  caps requests per team per month (default 150).
+
 **Practices** (Practice tab)
 
 - Build a plan from the drill library or blank blocks, set minutes, notes and attendance.

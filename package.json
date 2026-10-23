@@ -13,6 +13,7 @@
     "check": "node scripts/check.mjs"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.2.0",
     "@netlify/blobs": "8.1.0"
   }
 }
