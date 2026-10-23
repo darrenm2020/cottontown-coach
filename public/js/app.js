@@ -307,6 +307,15 @@ function migrateTeam(id,ts){
       else if(gc&&setResult(ts,'s3',teamKey(c),gc.half||40,9,0))gc.imported=true;
       addGame(c,{id:'s4',title:'Final',opp:'CSA U16 Boys',dt:'2026-10-18T11:15',field:'Field 3',place:fieldAddr('Field 3'),half:40,sub:10,out:[],note:'Final'});
       const g4=c.games.find(x=>x.id==='s4');if(g4&&setResult(ts,'s4',teamKey(c),40,5,3))g4.imported=true;place('Champion');}))ch=true;
+  // Sat 10/24: the Development team's KICKS games were never ended on this site, so they said "Awaiting final score".
+  // Finish them with the score that was tracked. Thu 10/22 vs AFC Huntsville: lost 2-3 (confirmed by the coach).
+  if(id==='cottontown'&&once(c,'dev-finals-2026-10-24',()=>{
+      ['g1','g2','g3','g4'].forEach(gid=>{const st=ts.games[gid];if(st&&st.started&&!st.fullDone)Object.assign(st,{running:false,fullDone:true,halfDone:true,pending:null});});
+      let gc=c.games.find(x=>/^2026-10-22/.test(x.dt||'')&&/huntsville/i.test((x.opp||'')+' '+(x.title||'')));
+      if(!gc){gc={id:'tr1022',title:'AFC Huntsville',opp:'AFC Huntsville (United) WU12G',dt:'2026-10-22T19:00',field:'Merrimack Turf 13S',place:'3770 Ivy Ave SW, Huntsville, AL 35805',half:30,sub:10,out:['spencer','dolly','sarah']};addGame(c,gc);}
+      const st=ts.games[gc.id];
+      if(!st||!hasData(st)){if(setResult(ts,gc.id,teamKey(c),gc.half||30,2,3))gc.imported=true;}
+      else if(st.started&&!st.fullDone)Object.assign(st,{running:false,fullDone:true,halfDone:true,pending:null});}))ch=true;
   return ch;
 }
 function importedResult(form,half,us,them){
@@ -678,7 +687,7 @@ function slug(s){return (s||'team').toLowerCase().replace(/[^a-z0-9]+/g,'-').rep
 const PUB_VER='2026-10-18e';
 /* APP_VER changes with every deploy that coach devices should pick up. When the published page's APP_VER
    differs from the running one, a coach device reloads itself if no clock is running, or shows a Refresh button. */
-const APP_VER='2026-10-20c';
+const APP_VER='2026-10-24a';
 const VER={tag:null,ready:false};
 async function checkVersion(){
   if(!SY.on||!canEdit()||document.visibilityState!=='visible')return;
