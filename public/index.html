@@ -20,7 +20,16 @@
 <link rel="stylesheet" href="css/app.css">
 <link rel="stylesheet" href="css/features.css">
 <link rel="stylesheet" href="css/polish.css">
-<link rel="icon" href="assets/logo.jpg">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<!-- Link previews (texts, email): the club's logo and name instead of the host's. -->
+<meta property="og:title" content="Cottontown Coach">
+<meta property="og:description" content="Live scores, schedules and game tools for Cottontown United teams.">
+<meta property="og:image" content="https://cottontown-coach.netlify.app/icons/icon-512.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<!-- The same app runs as the Beta site (any address with "beta" in it): it's labeled so testers know where they are. -->
+<script>if(/(^|[.-])beta([.-]|$)/i.test(location.hostname)){document.documentElement.classList.add('beta');document.title='Cottontown Beta';}</script>
 </head>
 <body>
 <div class="app">

@@ -221,3 +221,7 @@
 .shareico{display:inline-grid;place-items:center;width:26px;height:26px;border:1.5px solid var(--line);border-radius:6px;font-size:14px;vertical-align:middle}
 /* Opened from the Home Screen: keep content clear of the iPhone status bar. */
 @media (display-mode: standalone){.top,.clubtop{padding-top:calc(10px + env(safe-area-inset-top,0px))}}
+
+/* Beta site label */
+.beta .brand .t1::after{content:"BETA";margin-left:6px;font:700 11px/1 "Barlow",sans-serif;letter-spacing:.06em;background:#f5b400;color:#1a1a1a;border-radius:6px;padding:3px 6px;vertical-align:middle}
+.beta body::before{content:"Beta: new features being tested";display:block;text-align:center;font:600 12px "Barlow",sans-serif;background:#f5b400;color:#1a1a1a;padding:3px 0}

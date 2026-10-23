@@ -687,7 +687,7 @@ function slug(s){return (s||'team').toLowerCase().replace(/[^a-z0-9]+/g,'-').rep
 const PUB_VER='2026-10-18e';
 /* APP_VER changes with every deploy that coach devices should pick up. When the published page's APP_VER
    differs from the running one, a coach device reloads itself if no clock is running, or shows a Refresh button. */
-const APP_VER='2026-10-24a';
+const APP_VER='2026-10-24b';
 const VER={tag:null,ready:false};
 async function checkVersion(){
   if(!SY.on||!canEdit()||document.visibilityState!=='visible')return;
@@ -1119,7 +1119,7 @@ function renderBrand(){
   $('bname').innerHTML=`<span class="bn">${esc(teamShortTitle(c))}</span>`;$('bname').title=c.name;$('bsub').textContent=c.name;
   const ini=c.name.split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase();
   $('blogo').innerHTML=c.logo?`<img src="${esc(c.logo)}" alt="${esc(c.name)}">`:`<span class="badge">${esc(ini)}</span>`;
-  document.title=c.name+' game tracker';setAppTitle(teamShortTitle(c));
+  document.title=c.name+(document.documentElement.classList.contains('beta')?' (Beta)':' game tracker');setAppTitle(teamShortTitle(c));
 }
 function renderGames(){
   $('games').innerHTML=`<a class="gbtn clubbtn" href="${clubLink()}"><b>‹ Club</b><small>All teams</small></a>`+CFG().games.map((gc,i)=>gc.imported&&i!==curIdx()&&!(Date.now()-new Date(gc.dt).getTime()<7*864e5)?'':`<button class="gbtn" data-act="game" data-i="${i}" aria-pressed="${i===curIdx()}"><b>${esc(gc.title)}</b><small data-lv="gstat" data-i="${i}">${esc(status(gc))}</small></button>`).join('');
@@ -1890,7 +1890,7 @@ document.addEventListener('click',async e=>{const b=e.target.closest('[data-cact
     if(CLUB.data)CLUB.data.club=club;CLUB.edit=false;renderClub();clubFetch();}
 });
 function clubInit(){
-  document.querySelector('.app').style.display='none';$('club').hidden=false;document.title='Club scoreboard';
+  document.querySelector('.app').style.display='none';$('club').hidden=false;document.title=document.documentElement.classList.contains('beta')?'Cottontown Beta':'Club scoreboard';
   renderClub();clubFetch();setInterval(()=>{if(document.visibilityState==='visible'&&!CLUB.edit)clubFetch();},5000);setInterval(clubTick,1000);
 }
 
