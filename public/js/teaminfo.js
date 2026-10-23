@@ -8,6 +8,7 @@ const INFO_FIELDS = ["division", "birthYear", "ageGroup", "ident"];
 /* Suggestions read from a team's name and subtitle. Only clear-cut values are suggested;
    anything ambiguous is left blank for a coach to fill in. */
 function suggestTeamInfo(name, sub) {
+  name = String(name || "").replace(/^\s*TEST\s*·\s*/, ""); // a test team reads like the team it copies
   const text = String(name || "") + " " + String(sub || "");
   const out = { division: "", birthYear: "", ageGroup: "", ident: "" };
   const girls = /\bgirls?\b/i.test(text), boys = /\bboys?\b/i.test(text), coed = /\bco-?ed\b/i.test(text);

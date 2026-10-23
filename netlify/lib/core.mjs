@@ -85,9 +85,12 @@ export async function whoIs(store, env, team, creds) {
   }
   return null;
 }
+// A team's test copy ("ID-test") lets in the same coaches as the real team.
+export const TEST_SUFFIX = "-test";
+export const testOf = (team) => (typeof team === "string" && team.endsWith(TEST_SUFFIX) ? team.slice(0, -TEST_SUFFIX.length) : null);
 function asRole(u, team) {
   if (u.admin) return { role: "head", name: u.name, uid: u.id, admin: true };
-  const role = team && u.roles ? u.roles[team] : null;
+  const role = team && u.roles ? u.roles[team] || (testOf(team) ? u.roles[testOf(team)] : null) : null;
   return role && ROLES[role] ? { role, name: u.name, uid: u.id, admin: false } : { role: null, name: u.name, uid: u.id, admin: false };
 }
 async function userByCode(store, code) {
@@ -340,12 +343,16 @@ export async function handle(req, { store, env }) {
       if (!cur && !w.admin) return json({ error: "only the main code can create teams" }, 403);
       if (!atLeast(w, "head") && !(atLeast(w, "assistant") && cur && sameRoster(cur.team, b.config))) return json({ error: "Only a head coach can change the roster or schedule" }, 403);
       const rev = ((cur && cur.rev) || 0) + 1;
+      // A test team keeps its label and never joins the team list (club page, team switcher).
+      if (testOf(team) || (cur && cur.team && cur.team.test)) Object.assign(b.config, { test: true, testOf: testOf(team) || cur.team.testOf });
       await store.setJSON("team-" + team, { rev, team: b.config, at: now });
-      const idx = (await store.get("teams", { type: "json" })) || [];
-      const name = clip(b.config.name || team, 80);
-      const i = idx.findIndex((t) => t.id === team);
-      if (i < 0) idx.push({ id: team, name }); else idx[i].name = name;
-      await store.setJSON("teams", idx);
+      if (!b.config.test) {
+        const idx = (await store.get("teams", { type: "json" })) || [];
+        const name = clip(b.config.name || team, 80);
+        const i = idx.findIndex((t) => t.id === team);
+        if (i < 0) idx.push({ id: team, name }); else idx[i].name = name;
+        await store.setJSON("teams", idx);
+      }
       await audit(store, team, w, "config", describeConfigChange(cur && cur.team, b.config));
       return json({ ok: true, now, rev });
     }
@@ -431,6 +438,39 @@ export async function handle(req, { store, env }) {
       if (b.on) favs.add(clip(b.id, 60)); else favs.delete(clip(b.id, 60));
       await store.setJSON("club", { ...cur, favDrills: [...favs] });
       return json({ ok: true, now, favDrills: [...favs] });
+    }
+
+    // Test team: a private copy of this team (players, games, plans, practices, coach code) to try things on.
+    // Making or resetting it copies the real team again; deleting removes it. Head coaches only.
+    if (kind === "testcopy" || kind === "testdel") {
+      if (testOf(team)) return json({ error: "This is already the test team" }, 400);
+      if (!atLeast(w, "head")) return json({ error: "Only a head coach can do that" }, 403);
+      const tid = team + TEST_SUFFIX;
+      if (!okId(tid)) return json({ error: "That team's name is too long for a test copy" }, 400);
+      const old = await store.list({ prefix: "game-" + tid + "-" });
+      for (const x of old.blobs) await store.delete(x.key);
+      if (kind === "testdel") {
+        for (const k of ["team-", "practices-", "auth-", "audit-"]) await store.delete(k + tid);
+        return json({ ok: true, now });
+      }
+      const src = await store.get("team-" + team, { type: "json" });
+      if (!src || !src.team) return json({ error: "Save the team first" }, 400);
+      const c = JSON.parse(JSON.stringify(src.team));
+      const realName = c.name || team;
+      Object.assign(c, { name: "TEST · " + realName, short: "TEST", test: true, testOf: team });
+      const cur = await store.get("team-" + tid, { type: "json" });
+      await store.setJSON("team-" + tid, { rev: ((cur && cur.rev) || 0) + 1, team: c, at: now });
+      const games = await store.list({ prefix: "game-" + team + "-" });
+      let n = 0;
+      for (const x of games.blobs) {
+        const v = await store.get(x.key, { type: "json" });
+        if (!v) continue;
+        await store.setJSON("game-" + tid + "-" + x.key.slice(("game-" + team + "-").length), { ...v, rev: (v.rev || 0) + 1000, at: now });
+        n++;
+      }
+      for (const k of ["practices-", "auth-"]) { const v = await store.get(k + team, { type: "json" }); if (v) await store.setJSON(k + tid, v); else await store.delete(k + tid); }
+      await audit(store, team, w, "config", "Test team copied from this team");
+      return json({ ok: true, now, team: tid, games: n });
     }
 
     if (kind === "setcode") {

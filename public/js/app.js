@@ -687,7 +687,7 @@ function slug(s){return (s||'team').toLowerCase().replace(/[^a-z0-9]+/g,'-').rep
 const PUB_VER='2026-10-18e';
 /* APP_VER changes with every deploy that coach devices should pick up. When the published page's APP_VER
    differs from the running one, a coach device reloads itself if no clock is running, or shows a Refresh button. */
-const APP_VER='2026-10-24c';
+const APP_VER='2026-10-24d';
 const VER={tag:null,ready:false};
 async function checkVersion(){
   if(!SY.on||!canEdit()||document.visibilityState!=='visible')return;
@@ -710,6 +710,7 @@ async function publishAll(){
   let fixed=0;
   for(const id of Object.keys(S.T)){
     if(id===S.team&&SY.on&&!CLUB.on)continue; // the open team syncs on its own
+    if(S.T[id].cfg&&S.T[id].cfg.test)continue; // test teams are made from Setup, never published
     const ts=S.T[id];if(!ts.cfg)continue;
     let srv=null;try{const r=await fetch(API+'?team='+encodeURIComponent(id),{cache:'no-store'});if(r.ok)srv=await r.json();}catch(e){}
     if(!srv){failed++;continue;}
@@ -1071,6 +1072,11 @@ function act(a,ds){
     case 'puball':publishAll();return;
     case 'reload':location.reload();return;
     case 'setcode':setCode();return;
+    case 'testmake':testAction('testcopy');return;
+    case 'testopen':goTeam(testIdOf(S.team));return;
+    case 'testback':goTeam(CFG().testOf);return;
+    case 'testreset':if(armed('testreset')){UI.arm=null;testAction('testcopy');return;}arm('testreset');break;
+    case 'testdel':if(armed('testdel')){UI.arm=null;testAction('testdel');return;}arm('testdel');break;
     case 'copyclub':{try{navigator.clipboard.writeText(location.origin+clubLink()).then(()=>{say('Club link copied');renderHint();},()=>{});}catch(e){}break;}
     case 'copylink':{const link=parentLink();
       try{navigator.clipboard.writeText(link).then(()=>{say('Parent link copied');renderHint();},()=>{say('Press and hold the link to copy it');renderHint();});}catch(e){say('Press and hold the link to copy it');}
@@ -1114,8 +1120,32 @@ function status(gc){
 }
 const placeIcon=l=>/champion/i.test(l)?'🏆':/finalist/i.test(l)?'🥈':/^3rd/i.test(l)?'🥉':'🏅';
 const placeText=pl=>pl&&pl.label?placeIcon(pl.label)+' '+pl.label+(pl.event?', '+pl.event:''):'';
+/* ---------- Test team: a hidden copy of a team (ID-test) for trying things without touching real games ---------- */
+const TEST={exists:{},busy:false};
+const testIdOf=id=>id+'-test';
+async function testCheck(id){if(TEST.exists[id]!==undefined||!SY.on)return;TEST.exists[id]=null;
+  try{const r=await fetch(API+'?team='+encodeURIComponent(testIdOf(id)),{cache:'no-store'});const j=await r.json();TEST.exists[id]=!!(j&&j.config);}catch(e){TEST.exists[id]=false;}renderAll();}
+function goTeam(id){if(S.auth&&S.auth[S.team]&&!S.auth[id])S.auth[id]=S.auth[S.team];saveLocal();location.href=location.pathname+'?team='+encodeURIComponent(id);}
+async function testAction(kind){const c=CFG();const src=c.test?c.testOf:S.team;TEST.busy=true;renderAll();
+  const r=await apiPost(Object.assign({kind,team:src},creds()));TEST.busy=false;
+  if(!r.ok){say(r.j.error||'Couldn’t do that');renderAll();return;}
+  if(kind==='testdel'){TEST.exists[src]=false;delete S.T[testIdOf(src)];saveLocal();say('Test team deleted');if(c.test){goTeam(src);return;}renderAll();return;}
+  TEST.exists[src]=true;
+  // Take the fresh copy as-is on this device too.
+  if(S.T[testIdOf(src)])delete S.T[testIdOf(src)];saveLocal();
+  if(c.test){location.reload();return;}
+  say('Test team ready ('+r.j.games+' games copied)');goTeam(testIdOf(src));}
+function testTeamHTML(){const c=CFG();if(!SY.on)return '';
+  if(c.test){const real=(S.T[c.testOf]&&S.T[c.testOf].cfg&&S.T[c.testOf].cfg.name)||'the real team';
+    return `<div class="card testcard"><h3>🧪 This is a test team</h3><p class="fine" style="margin-top:-4px">A private copy of ${esc(real)}. Try plans, voice changes, practices and games here; the real team isn’t affected and parents never see this team.</p>
+      <div class="gacts"><button class="btn small primary-s" data-act="testback">‹ Back to ${esc(real)}</button><button class="btn small ${armed('testreset')?'danger-s armed':''}" data-act="testreset" ${TEST.busy?'disabled':''}>${armed('testreset')?'Tap again: copy the real team again':'Reset from the real team'}</button>
+      <button class="btn small ${armed('testdel')?'danger-s armed':''}" data-act="testdel" ${TEST.busy?'disabled':''}>${armed('testdel')?'Tap again to delete':'Delete test team'}</button></div></div>`;}
+  testCheck(S.team);const ex=TEST.exists[S.team];
+  return `<div class="card testcard"><h3>🧪 Test team</h3><p class="fine" style="margin-top:-4px">A private copy of ${esc(c.name)} (players, games, plans, practices) to try things on. It never shows on the club page or the team list; open it from here. The same coach code works there.</p>
+    <div class="gacts">${ex?`<button class="btn small primary-s" data-act="testopen">Open test team</button><button class="btn small ${armed('testreset')?'danger-s armed':''}" data-act="testreset" ${TEST.busy?'disabled':''}>${armed('testreset')?'Tap again: start over from today’s team':'Reset from this team'}</button>`
+      :ex===false?`<button class="btn small primary-s" data-act="testmake" ${TEST.busy?'disabled':''}>${TEST.busy?'Copying…':'Make a test team'}</button>`:'<span class="fine">Checking…</span>'}</div></div>`;}
 function renderBrand(){
-  const c=CFG();
+  const c=CFG();document.documentElement.classList.toggle('testteam',!!c.test);
   $('bname').innerHTML=`<span class="bn">${esc(teamShortTitle(c))}</span>`;$('bname').title=c.name;$('bsub').textContent=c.name;
   const ini=c.name.split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase();
   $('blogo').innerHTML=c.logo?`<img src="${esc(c.logo)}" alt="${esc(c.name)}">`:`<span class="badge">${esc(ini)}</span>`;
@@ -1595,6 +1625,7 @@ function renderSetup(part){
   if(SY.on)h+=`<p class="fine">Team coach code: lets another coach run this team’s games without your main code. The main code from Netlify works for every team.</p>
     <div class="codebox"><input id="newcode" type="password" autocomplete="off" placeholder="New team code (4+ characters)"><button class="btn small" data-act="setcode">Set code</button></div>`;
   h+='</div>';
+  h+=testTeamHTML();
   h+=`<div class="card"><h3>Teams</h3>${SY.on&&S.master?`<button class="btn small primary-s" data-act="puball" ${UI.pubBusy?'disabled':''} style="margin-bottom:8px">${UI.pubBusy?'Loading teams…':'Load all teams to the live site'}</button><p class="fine" style="margin-top:0">Adds every team on this iPad to the club page in one step. Teams already on the live site aren’t changed.</p>`:''}${teamsList().map(t=>`<div class="set"><span>${esc(t.name)}${t.id===S.team?' <span class="tag">Open now</span>':''}</span>${t.id===S.team?'':`<button class="btn small" data-act="teamgo" data-id="${t.id}">Open</button>`}</div>`).join('')}
     ${UI.newTeam?`<div class="newteam"><label class="fld">New team name<input id="nt-name" placeholder="e.g. U10 Boys Blue" value="${esc(UI.ntName||'')}"></label><div class="seg">${FORMATS.map(f=>`<button data-act="ntfmt" data-f="${f}" aria-pressed="${UI.ntFmt===f}">${f}</button>`).join('')}</div>
       <div class="gacts"><button class="btn small primary-s" data-act="teamcreate">Create team</button><button class="btn small" data-act="teamnewcancel">Cancel</button></div></div>`

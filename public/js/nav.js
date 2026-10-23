@@ -51,7 +51,7 @@ function gamePickHTML(){
 function pickerTeams(){
   const m=new Map();
   (UI.teamList||[]).forEach(t=>m.set(t.id,Object.assign({},t)));
-  Object.keys(S.T).forEach(id=>{const c=S.T[id].cfg;if(!c)return;const t=Object.assign({id},m.get(id)||{},{name:c.name,short:c.short||'',sub:c.sub||''});INFO_FIELDS.forEach(k=>{if(typeof c[k]==='string')t[k]=c[k];});t.program=c.program||'';m.set(id,t);});
+  Object.keys(S.T).forEach(id=>{const c=S.T[id].cfg;if(!c||c.test)return; /* test teams are only reached from Setup */const t=Object.assign({id},m.get(id)||{},{name:c.name,short:c.short||'',sub:c.sub||''});INFO_FIELDS.forEach(k=>{if(typeof c[k]==='string')t[k]=c[k];});t.program=c.program||'';m.set(id,t);});
   return [...m.values()];
 }
 function teamPickListHTML(){

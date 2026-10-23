@@ -357,3 +357,37 @@ test("feedback: anyone can send it, only admins can read or manage it", async ()
   assert.equal((await a.post({ kind: "feedback-done", id: list[0].id, done: true, code: "main-1234" })).body.feedback[0].done, true);
   assert.equal((await a.post({ kind: "feedback-del", id: list[0].id, code: "main-1234" })).body.feedback.length, 0);
 });
+
+test("test team: a hidden copy of a team that the same coaches can use, and that can be reset or deleted", async () => {
+  const { store, a } = await setup();
+  await a.post({ kind: "setcode", team: "t1", newCode: "team-5678", code: "main-1234" });
+  await a.post({ kind: "game", team: "t1", gid: "g1", game: { started: true, goals: [goal("us", "ana")] }, code: "main-1234" });
+  await a.post({ kind: "practice", team: "t1", practice: { id: "p1", title: "Tuesday", blocks: [] }, code: "main-1234" });
+  assert.equal((await a.post({ kind: "testcopy", team: "t1" })).status, 401);
+  const r = await a.post({ kind: "testcopy", team: "t1", code: "team-5678" });
+  assert.equal(r.status, 200);
+  assert.equal(r.body.team, "t1-test");
+  // Same players, games and practices, clearly labeled.
+  const t = await a.get("?team=t1-test");
+  assert.equal(t.body.config.team.name, "TEST · Test Team");
+  assert.equal(t.body.config.team.test, true);
+  assert.equal(t.body.games.g1.game.goals.length, 1);
+  assert.equal((await a.get("?practices=t1-test", { "x-code": "team-5678" })).body.practices[0].title, "Tuesday");
+  // Hidden from the team list and the club page.
+  assert.deepEqual((await a.get("?list=1")).body.teams.map((x) => x.id), ["cottontown", "t1"]);
+  assert.ok(!(await a.get("?club=1")).body.teams.some((x) => x.id === "t1-test"));
+  // The team's coach code works there; changes stay on the test team and it stays hidden.
+  const tc = JSON.parse(JSON.stringify(t.body.config.team)); tc.name = "renamed"; delete tc.test;
+  assert.equal((await a.post({ kind: "config", team: "t1-test", config: tc, code: "team-5678" })).status, 200);
+  await a.post({ kind: "game", team: "t1-test", gid: "g1", game: { started: true, goals: [] }, code: "team-5678" });
+  assert.equal((await a.get("?team=t1-test")).body.config.team.test, true, "stays a test team");
+  assert.equal((await a.get("?team=t1")).body.games.g1.game.goals.length, 1, "real game untouched");
+  assert.deepEqual((await a.get("?list=1")).body.teams.map((x) => x.id), ["cottontown", "t1"]);
+  // Reset copies the real team again; delete removes it.
+  await a.post({ kind: "testcopy", team: "t1", code: "team-5678" });
+  assert.equal((await a.get("?team=t1-test")).body.games.g1.game.goals.length, 1);
+  assert.equal((await a.post({ kind: "testcopy", team: "t1-test", code: "main-1234" })).status, 400, "no test copy of a test copy");
+  await a.post({ kind: "testdel", team: "t1", code: "team-5678" });
+  assert.equal((await a.get("?team=t1-test")).body.config, null);
+  assert.ok(![...store.m.keys()].some((k) => k.includes("t1-test")), "nothing left behind");
+});
