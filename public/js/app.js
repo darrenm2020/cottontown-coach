@@ -407,7 +407,8 @@ function defaultGameIdx(){const L=CFG().games.map((gc,i)=>({i,st:gStatus(gc),t:k
 /* Opening a team picks the default game, unless a game link asked for one or the coach/parent picked one recently. */
 function curIdx(){const gs=CFG().games,n=gs.length;UI.curSet=UI.curSet||{};
   if(!UI.curSet[S.team]){UI.curSet[S.team]=true;const p=S.pick&&S.pick[S.team];
-    const pi=p&&Date.now()-p.at<6*3600000?gs.findIndex(x=>x.id===p.id):-1;S.cur[S.team]=pi>=0?pi:defaultGameIdx();}
+    let pi=p&&Date.now()-p.at<6*3600000?gs.findIndex(x=>x.id===p.id):-1;
+    if(pi>=0&&TS().games[gs[pi].id]&&TS().games[gs[pi].id].fullDone)pi=-1;S.cur[S.team]=pi>=0?pi:defaultGameIdx();}
   let i=S.cur[S.team]||0;if(i>=n)i=n-1;if(i<0)i=0;return i;}
 const GC=()=>CFG().games[curIdx()];
 function stateOf(gc){const ts=TS();if(!ts.games[gc.id])ts.games[gc.id]=freshGame(gc);return ts.games[gc.id];}
@@ -644,7 +645,8 @@ function applyServer(j){
   if(j.config&&j.config.team){
     if(!busy('cfg')&&(first||(SY.rev.cfg||0)<j.config.rev)){
       SY.rev.cfg=j.config.rev;const nc=fixCfg(j.config.team);
-      if(JSON.stringify(nc)!==JSON.stringify(ts.cfg)){ts.cfg=nc;changed=true;}
+      if(JSON.stringify(nc)!==JSON.stringify(ts.cfg)){const was=ts.cfg&&ts.cfg.games[S.cur[S.team]||0];ts.cfg=nc;changed=true;
+        if(was){const i=nc.games.findIndex(x=>x.id===was.id);if(i>=0)S.cur[S.team]=i;}}
       SY.lastSent.cfg=JSON.stringify(ts.cfg);
     }
   }else if(first)SY.lastSent.cfg='';
@@ -728,7 +730,7 @@ function slug(s){return (s||'team').toLowerCase().replace(/[^a-z0-9]+/g,'-').rep
 const PUB_VER='2026-10-18e';
 /* APP_VER changes with every deploy that coach devices should pick up. When the published page's APP_VER
    differs from the running one, a coach device reloads itself if no clock is running, or shows a Refresh button. */
-const APP_VER='2026-10-24g';
+const APP_VER='2026-10-24h';
 const VER={tag:null,ready:false};
 async function checkVersion(){
   if(!SY.on||!canEdit()||document.visibilityState!=='visible')return;
@@ -1096,7 +1098,6 @@ function act(a,ds){
     case 'guest':{const p=P[ds.id];if(p){p.guest=!p.guest;save();}break;}
     case 'pladd':{const c=CFG();const p={id:uid('p'),name:'New player',gr:['MID']};c.players.push(p);useTeam();UI.focus='pl-'+p.id;save();break;}
     case 'pldel':{if(armed('pldel'+ds.id)){const c=CFG();c.players=c.players.filter(p=>p.id!==ds.id);useTeam();UI.arm=null;say('Player removed');save();}else arm('pldel'+ds.id);break;}
-    case 'gmadd':{const c=CFG();const last=c.games[c.games.length-1]||{};c.games.push({id:uid('g'),title:'Game '+(c.games.length+1),opp:'',dt:'',field:'',place:last.place||'',half:last.half||30,sub:last.sub||10,out:[]});say('Game added');save();break;}
     case 'gmdel':{const c=CFG();if(c.games.length<2){say('A team needs at least one game');break;}
       if(armed('gmdel'+ds.gid)){c.games=c.games.filter(x=>x.id!==ds.gid);delete TS().games[ds.gid];S.cur[S.team]=Math.min(curIdx(),c.games.length-1);useTeam();UI.arm=null;say('Game removed');save();}
       else arm('gmdel'+ds.gid);break;}
@@ -1619,10 +1620,11 @@ function renderSetup(part){
   if(gl.length){h+=guestsWrap('roster',`Guest players (${gl.length})`,'Tap Guest on a player to move them back');gl.forEach(rosterRow);h+='</details>';}
   h+=`<button class="btn small" data-act="pladd" style="margin-top:10px">+ Add player</button></div>`;
   out.roster+=h;h='';
-  h+=`<div class="card"><h3>Games</h3><p class="fine" style="margin-top:-4px">Parents see the kickoff time, field and a map link.</p>`;
+  h+=`<div class="card"><h3>Games</h3><p class="fine" style="margin-top:-4px">Parents see the kickoff time, field and a map link.</p><button class="btn primary-s" data-act="gmadd" style="margin-bottom:8px">+ Add game</button>`;
   const gcard=gc=>{const st=TS().games[gc.id];const ol=oppLogoOf(gc);let h='';
     h+=`<div class="gcard"><div class="grid2"><label class="fld">Name<input data-cfg="gm" data-f="title" data-gid="${gc.id}" value="${esc(gc.title)}"></label><label class="fld">Opponent<input data-cfg="gm" data-f="opp" data-gid="${gc.id}" value="${esc(gc.opp||'')}"></label>
       <label class="fld">Date<input type="date" data-cfg="gm" data-f="dtdate" data-gid="${gc.id}" value="${esc(String(gc.dt||'').slice(0,10))}"></label><label class="fld">Kickoff time <small class="fine">(blank = TBD)</small><input type="time" data-cfg="gm" data-f="dttime" data-gid="${gc.id}" value="${esc(String(gc.dt||'').slice(11,16))}"></label></div>
+      <div class="grid2"><label class="fld">Home or away<select data-cfg="gm" data-f="ha" data-gid="${gc.id}"><option value="">Not set</option>${Object.entries(HOME_AWAY).map(([v,l])=>`<option value="${v}" ${gc.ha===v?'selected':''}>${l}</option>`).join('')}</select></label><label class="fld">Our jerseys<input data-cfg="gm" data-f="jersey" data-gid="${gc.id}" value="${esc(gc.jersey||'')}" placeholder="e.g. Red" list="jersey-list"></label></div>
       <label class="fld">Field<input data-cfg="gm" data-f="field" data-gid="${gc.id}" value="${esc(gc.field||'')}" placeholder="e.g. Field 12A"></label>
       <label class="fld">Address or park name (for the map link)<input data-cfg="gm" data-f="place" data-gid="${gc.id}" value="${esc(gc.place||'')}"></label>
       <div class="grid2"><label class="fld">Half length (min)<input type="number" inputmode="numeric" min="5" max="60" data-cfg="gm" data-f="half" data-gid="${gc.id}" value="${gc.half||30}"></label><label class="fld">Sub every (min)<input type="number" inputmode="numeric" min="2" max="30" data-cfg="gm" data-f="sub" data-gid="${gc.id}" value="${gc.sub||10}"></label></div>
@@ -1630,8 +1632,8 @@ function renderSetup(part){
       ${gameExtrasHTML(gc)}
       <div class="fld">Opponent logo<div class="logorow">${ol?`<img src="${esc(ol)}" alt="">`:'<span class="muted">None</span>'}<label class="btn small filebtn">Upload<input type="file" accept="image/*" data-cfg="opplogo" data-gid="${gc.id}" hidden></label>${gc.oppLogo?`<button class="btn small" data-act="opplogodel" data-gid="${gc.id}">Use default</button>`:''}</div></div></div>`;return h;};
   const cur=c.games.filter(gc=>!gc.imported),past=c.games.filter(gc=>gc.imported).sort((a,b)=>String(b.dt).localeCompare(String(a.dt)));
+  h+=`<datalist id="jersey-list">${JERSEYS.map(j=>`<option value="${j[0]}">`).join('')}</datalist>`;
   cur.forEach(gc=>{h+=gcard(gc);});
-  h+=`<button class="btn small" data-act="gmadd">+ Add game</button>`;
   if(past.length)h+=`<details class="past"><summary>Past results (${past.length})</summary>${past.map(gcard).join('')}</details>`;
   h+='</div>';
   out.schedule+=tournamentsCardHTML()+h;h='';
@@ -1691,7 +1693,7 @@ function schedRowHTML(x){
     :k==='live'||k==='halftime'?`<span class="livepill">${k==='halftime'?'Halftime':'Live'}</span> <b>${sc.us}–${sc.them}</b>`
     :k==='awaiting'||k==='postponed'?`<span class="stpill">${esc(statusLabel(k,st))}</span>`:'';
   const i=CFG().games.indexOf(x);
-  return `<div class="sched ${i===curIdx()?'cur':''}"><button class="schbtn" data-act="opengame" data-i="${i}">${logoImg(oppLogoOf(x),'cls')}<span class="sgrow"><b>${x.opp?esc(x.opp):esc(x.title)}</b><span class="fine">${esc(whenText(x))}${x.field?' · '+esc(x.field):''}</span></span><span class="sres">${right}</span></button>${!st.fullDone&&x.place&&!['awaiting','postponed'].includes(k)?`<a class="maplink" href="${mapUrl(x.place)}" target="_blank" rel="noopener">Directions</a>`:''}</div>`;
+  return `<div class="sched ${i===curIdx()?'cur':''}"><button class="schbtn" data-act="opengame" data-i="${i}">${logoImg(oppLogoOf(x),'cls')}<span class="sgrow"><b>${x.opp?esc(x.opp):esc(x.title)}</b><span class="fine">${esc(whenText(x))}${x.field?' · '+esc(x.field):''}${gameMeta(x)?' · '+esc(gameMeta(x)):''}</span></span><span class="sres">${right}</span></button>${!st.fullDone&&x.place&&!['awaiting','postponed'].includes(k)?`<a class="maplink" href="${mapUrl(x.place)}" target="_blank" rel="noopener">Directions</a>`:''}</div>`;
 }
 /* Games in order, with a heading wherever a run of games belongs to a tournament. */
 function schedListHTML(list){

@@ -35,17 +35,18 @@ function gamePickHTML(){
   const asc=(a,b)=>a.t-b.t,desc=(a,b)=>b.t-a.t;
   const live=by('live'),today=by('today').sort(asc),up=by('upcoming').sort(asc),needs=by('needs-result').sort(desc),undated=by('undated');
   const done=by('final').sort((a,b)=>(Number.isFinite(b.t)?b.t:0)-(Number.isFinite(a.t)?a.t:0));
-  const row=x=>`<button class="grow ${x.i===curIdx()?'cur':''}" data-act="navgame" data-i="${x.i}">${logoImg(oppLogoOf(x.gc),'glg')}<span class="grt"><b>${esc(gameLabel(x.gc))}</b><small>${esc(whenText(x.gc))}${x.gc.field?', '+esc(x.gc.field):''}</small></span><span class="grr">${resultChip(x.st,x.gc)}</span></button>`;
+  const row=x=>`<button class="grow ${x.i===curIdx()?'cur':''}" data-act="navgame" data-i="${x.i}">${logoImg(oppLogoOf(x.gc),'glg')}<span class="grt"><b>${esc(gameLabel(x.gc))}</b><small>${esc(whenText(x.gc))}${x.gc.field?', '+esc(x.gc.field):''}${gameMeta(x.gc)?' · '+esc(gameMeta(x.gc)):''}</small></span><span class="grr">${resultChip(x.st,x.gc)}</span></button>`;
   const sec=(t,l,note)=>l.length?`<h4>${t}</h4>${note?`<p class="fine">${note}</p>`:''}${l.map(row).join('')}`:'';
   const shown=NAV.allRes?done:done.slice(0,8);
   return `<div class="ovbg" data-act="navclose"></div><div class="ovp navp" role="dialog" aria-label="Games">
     <div class="sh"><div><b>${esc(teamShortTitle(CFG()))}</b><div class="fine">${games.length} game${games.length===1?'':'s'}</div></div><button class="btn small" data-act="navclose">Close</button></div>
+    ${canEdit()&&isHead()?'<button class="btn primary-s agtop" data-act="navaddgame">+ Add game</button>':''}
     ${sec('Live now',live)}${sec('Today',today)}${sec('Coming up',up)}
     ${sec('Needs result',needs,'These dates have passed without a result. Open one to enter the score.')}
     ${sec('Date not set',undated)}${sec('Results',shown)}
     ${done.length>shown.length?`<button class="btn small" data-act="navallres">Show all ${done.length} results</button>`:''}
     ${!games.length?'<p class="fine">No games yet.</p>':''}
-    ${canEdit()&&isHead()?'<div class="gacts"><button class="btn small" data-act="navaddgame">+ Add a game</button></div>':''}</div>`;
+</div>`;
 }
 /* Every team with its info: the live list from the server, plus teams on this device. */
 function pickerTeams(){
