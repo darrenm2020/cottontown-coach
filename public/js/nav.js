@@ -55,15 +55,16 @@ function pickerTeams(){
   return [...m.values()];
 }
 function teamPickListHTML(){
-  const all=pickerTeams(),list=all.filter(t=>teamMatches(t,clubFilter(),clubQuery()));
+  const all=pickerTeams(),list=all.filter(t=>teamMatches(t,clubFilter(),clubQuery())).sort(teamSortCmp);
   const mine=t=>isAdmin()||!!myRole(t.id)||(t.id===S.team&&!!myCode())||!!S.auth[t.id];
   const favs=list.filter(t=>isFavTeam(t.id)),rest=list.filter(t=>!isFavTeam(t.id));
   const yours=rest.filter(mine),others=rest.filter(t=>!mine(t));
   const row=t=>`<div class="grow trow ${t.id===S.team?'cur':''}"><button class="trbtn" data-act="navteam" data-id="${esc(t.id)}"><span class="grt"><b>${esc(teamShortTitle(t))}</b><small>${programOf(t)?esc(programOf(t))+' · ':''}${teamBadgeList(t).map(esc).join(' · ')}${teamBadgeList(t).length?' · ':''}${t.id===S.team?'Open now':myRole(t.id)?ROLE_NAME[myRole(t.id)]:isAdmin()?'Admin':'View only'}</small></span></button>${starHTML(t,'act')}</div>`;
   if(!list.length)return `<div class="empty"><p>No teams match.</p><button class="btn small primary-s" data-act="navclear">Clear filters</button></div>`;
-  return (favs.length?`<h4>My teams</h4>${favs.map(row).join('')}`:'')
-    +(yours.length&&(others.length||favs.length)?'<h4>Your teams</h4>':'')+yours.map(row).join('')
-    +(others.length?`<h4>${yours.length||favs.length?'Other teams':'Teams'}</h4>${others.map(row).join('')}`:'');
+  const rows=ts=>{const mixed=new Set(ts.map(teamDivisionKey)).size>1;let last=null;return ts.map(t=>{const d=teamDivisionKey(t),h=mixed&&d!==last?`<div class="gdiv">${esc(divisionLabel(d==='unspecified'?'':d))}</div>`:'';last=d;return h+row(t);}).join('');};
+  return (favs.length?`<h4>My teams</h4>${rows(favs)}`:'')
+    +(yours.length&&(others.length||favs.length)?'<h4>Your teams</h4>':'')+rows(yours)
+    +(others.length?`<h4>${yours.length||favs.length?'Other teams':'Teams'}</h4>${rows(others)}`:'');
 }
 function teamPickHTML(){
   if(NAV.open!=='team')return '';

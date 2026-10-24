@@ -140,6 +140,24 @@ function nextGameOf(games, stateOf, now, atOf) {
 }
 
 /* ---------- filtering ---------- */
+/* Picker order: Girls, Boys, Coed, then unspecified; oldest (earliest birth year) first; then name. */
+const DIV_ORDER = { girls: 0, boys: 1, coed: 2 };
+function teamBirthKey(t) {
+  const i = teamInfo(t);
+  let m = String(i.birthYear || "").match(/20\d\d/);
+  if (m) return +m[0];
+  m = String(i.ageGroup || "").match(/U\s*(\d{1,2})/i);
+  if (m) return 2027 - +m[1];
+  const txt = [i.ident, t && t.name, t && t.sub, programOf(t)].join(" ");
+  if (/varsity/i.test(txt)) return 2009;
+  if (/\bJV\b|junior varsity/i.test(txt)) return 2011;
+  if (/middle school/i.test(txt)) return 2013;
+  return 9999;
+}
+function teamSortCmp(a, b) {
+  const da = DIV_ORDER[teamInfo(a).division] ?? 3, db = DIV_ORDER[teamInfo(b).division] ?? 3;
+  return (da - db) || (teamBirthKey(a) - teamBirthKey(b)) || teamShortTitle(a).localeCompare(teamShortTitle(b));
+}
 function teamDivisionKey(t) { const d = teamInfo(t).division; return d || "unspecified"; }
 function teamSearchText(t) {
   const i = teamInfo(t);
