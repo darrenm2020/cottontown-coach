@@ -391,3 +391,18 @@ test("test team: a hidden copy of a team that the same coaches can use, and that
   assert.equal((await a.get("?team=t1-test")).body.config, null);
   assert.ok(![...store.m.keys()].some((k) => k.includes("t1-test")), "nothing left behind");
 });
+
+test("a finished game's result can't be wiped by an ordinary save, even right after it ends", async () => {
+  const { store, a } = await setup();
+  const pk = { us: [{ id: "ana", made: true }], them: [true, false], order: ["us", "them", "them"], first: "us" };
+  const fin = { started: true, fullDone: true, goals: [], pk };
+  assert.equal((await a.post({ kind: "game", team: "t1", gid: "g1", game: fin, code: "main-1234" })).status, 200);
+  // A stale phone sends a blank game, or the same game with the shootout gone: refused.
+  assert.equal((await a.post({ kind: "game", team: "t1", gid: "g1", game: { started: false, fullDone: false, goals: [] }, code: "main-1234" })).status, 409);
+  assert.equal((await a.post({ kind: "game", team: "t1", gid: "g1", game: { ...fin, pk: null }, code: "main-1234" })).status, 409);
+  assert.deepEqual((await store.get("game-t1-g1")).game.pk, pk, "shootout kept");
+  // Undoing kicks one at a time during the shootout still works.
+  assert.equal((await a.post({ kind: "game", team: "t1", gid: "g1", game: { ...fin, pk: { ...pk, them: [true], order: ["us", "them"] } }, code: "main-1234" })).status, 200);
+  // A head coach who unlocks it can still reset it on purpose.
+  assert.equal((await a.post({ kind: "game", team: "t1", gid: "g1", game: { started: false, fullDone: false, goals: [] }, code: "main-1234", unlock: true })).status, 200);
+});

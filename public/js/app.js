@@ -3,6 +3,22 @@
 const LOGO='assets/logo.jpg';
 const GOAL_SONG='assets/goal-song.mp3';
 const API='/api/state';
+/* Test mode (Settings): the app works as normal, but nothing is saved, not to the server and not on this device.
+   Saves answer "ok" without being sent; turning it off (or reloading) goes back to the real, untouched data. */
+const TEST={on:false};
+const TEST_PASS=new Set(['verify','login','login-email','login-link','logout','feedback']); // sign-in and problem reports still go through
+const realFetch=window.fetch.bind(window);
+window.fetch=(url,o)=>{
+  if(TEST.on&&o&&String(o.method||'GET').toUpperCase()==='POST'&&String(url).split('?')[0]===API){let k='';try{k=JSON.parse(o.body).kind;}catch(e){}
+    if(!TEST_PASS.has(k))return Promise.resolve(new Response(JSON.stringify({ok:true,now:Date.now()+OFF,rev:0,test:true}),{status:200,headers:{'Content-Type':'application/json'}}));}
+  return realFetch(url,o);};
+function testModeHTML(){
+  return `<div class="card testcard"><div class="set"><span><b>🧪 Test mode</b><small class="fine" style="display:block">Try anything on any team: games, subs, plans, practices, voice. Nothing is saved, and turning it off puts everything back the way it was.</small></span>
+    <button class="tog ${TEST.on?'on':''}" data-act="testmode" aria-pressed="${TEST.on}">${TEST.on?'On':'Off'}</button></div></div>`;}
+function testModeOn(on){
+  if(on){saveLocal();TEST.on=true;document.documentElement.classList.add('testmode');say('Test mode on. Nothing you do is saved.');renderAll();}
+  else{TEST.on=false;location.reload();} // the saved data was never touched, so a reload is the real thing again
+}
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
@@ -287,9 +303,7 @@ function migrateTeam(id,ts){
       const gc=c.games.find(x=>x.id==='g4');
       if(gc)Object.assign(gc,{title:'Final',opp:'Vero FC NASC U12G Select',dt:'2026-10-18T13:00',field:'Field 13B',place:fieldAddr('Field 13B'),when:'',note:''});
       // Final was 0-0 and lost 2-3 on penalty kicks; the kicks had been typed in as goals at 60:00.
-      const st=ts.games.g4;
-      if(st&&!st.pk&&st.goals.length===5&&st.goals.every(x=>x.t>=st.acc-1000)&&st.goals.filter(x=>x.side==='us').map(x=>x.by).sort().join()==='alexa,dm'){
-        reset(st,[]);st.pk={us:[{id:'dm',made:true},{id:'alexa',made:true}],them:[true,true,true],order:['us','them','us','them','them'],first:'us'};st.fullDone=true;}
+      kicksToShootout(ts.games.g4);
       place('Finalist');}))ch=true;
   if(id==='cottontown-1314-girls'&&once(c,'kicks-final-2026-10-18',()=>{
       const gc=c.games.find(x=>x.id==='s1');if(gc&&setResult(ts,'s1',teamKey(c),gc.half||35,2,1))gc.imported=true;place('3rd place');}))ch=true;
@@ -317,6 +331,32 @@ function migrateTeam(id,ts){
       if(!st||!hasData(st)){if(setResult(ts,gc.id,teamKey(c),gc.half||30,2,3))gc.imported=true;}
       else if(st.started&&!st.fullDone)Object.assign(st,{running:false,fullDone:true,halfDone:true,pending:null});}))ch=true;
   return ch;
+}
+/* KICKS Final (Sun 10/18): 0-0, lost 2-3 on penalty kicks (Dolly M and Alexa scored). */
+const FINAL_PK=()=>({us:[{id:'dm',made:true},{id:'alexa',made:true}],them:[true,true,true],order:['us','them','us','them','them'],first:'us'});
+// The kicks had been typed in as five goals at the final whistle; move them into the shootout.
+function kicksToShootout(st){
+  if(!(st&&!st.pk&&st.goals.length===5&&st.goals.every(x=>x.t>=st.acc-1000)&&st.goals.filter(x=>x.side==='us').map(x=>x.by).sort().join()==='alexa,dm'))return false;
+  st.goals.forEach(x=>{if(x.u&&!st.del.includes(x.u))st.del.push(x.u);});st.goals=[];st.pk=FINAL_PK();st.fullDone=true;return true;}
+const noResult=st=>!st||(!st.goals.length&&!(st.pk&&(st.pk.us.length||st.pk.them.length)));
+/* The Final was wiped more than once. Whenever it shows no result, an admin's device puts it back from the newest
+   nightly backup that still has it (subs, minutes and all), or, if no backup has it, enters the score alone. */
+const FORCE_UNLOCK=new Set();let finalFixed=false;
+async function repairFinal(){
+  if(finalFixed||S.team!=='cottontown'||!SY.on||(typeof TEST!=='undefined'&&TEST.on)||!isAdmin())return;
+  const ts=TS();if(!ts||!ts.cfg||!ts.cfg.games.some(x=>x.id==='g4')||!noResult(ts.games.g4))return;
+  finalFixed=true;let date=null;
+  try{const r=await apiGet('backups=1');const list=((r.ok&&r.j.backups)||[]).filter(d=>d>='2026-10-19');
+    for(const d of list){const b=await apiGet('backup='+encodeURIComponent(d));const v=b.ok&&b.j&&b.j.data&&b.j.data['game-cottontown-g4'];
+      if(v&&v.game&&!noResult(fixGame(JSON.parse(JSON.stringify(v.game))))){date=d;break;}}}catch(e){}
+  if(S.team!=='cottontown')return;
+  if(date){const r=await apiPost(Object.assign({kind:'restore-game',team:'cottontown',gid:'g4',date},creds()));
+    if(r.ok){SY.rev.g4=0;UI.revert.g4=true;try{applyServer(await getState('cottontown'));}catch(e){}
+      const st=TS().games.g4;if(kicksToShootout(st)){FORCE_UNLOCK.add('g4');save();}
+      say('Restored the Final from the '+date+' backup');renderAll();return;}}
+  const g=TS().games.g4||freshGame(TS().cfg.games.find(x=>x.id==='g4'));const H=(g.half||30)*60000;
+  Object.assign(g,{started:true,running:false,halfDone:true,fullDone:true,acc:2*H,stops:[H,2*H],pending:null,ot:null,pk:FINAL_PK()});
+  TS().games.g4=g;FORCE_UNLOCK.add('g4');save();say('Restored the Final: 0–0, lost 2–3 on penalty kicks');renderAll();
 }
 function importedResult(form,half,us,them){
   const H=half*60000;const goals=[];for(let i=0;i<us;i++)goals.push({side:'us',t:0});for(let i=0;i<them;i++)goals.push({side:'them',t:0});
@@ -350,7 +390,7 @@ function load(){
   }catch(e){}
   return seedTeams(s);
 }
-function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function saveLocal(){if(TEST.on)return;try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
 
 /* ---------- Accessors ---------- */
 const TS=()=>S.T[S.team];
@@ -571,7 +611,7 @@ function save(){
 }
 async function push(key){
   const team=S.team;const ts=TS();const obj=key==='cfg'?ts.cfg:ts.games[key];if(!obj)return;
-  const body=key==='cfg'?Object.assign({kind:'config',team,config:obj},creds()):Object.assign({kind:'game',team,gid:key,game:obj,unlock:!!UI.unlock[key]},creds());
+  const body=key==='cfg'?Object.assign({kind:'config',team,config:obj},creds()):Object.assign({kind:'game',team,gid:key,game:obj,unlock:!!(UI.unlock[key]||FORCE_UNLOCK.delete(key))},creds());
   // This save's own session: its records stay with it even if the coach switches teams before it finishes.
   const ses={sid:SY.sid,lastSent:SY.lastSent,rev:SY.rev,inflight:SY.inflight,editT:SY.editT};
   const current=()=>ses.sid===SY.sid&&SY.team===team&&S.team===team;
@@ -627,6 +667,7 @@ function applyServer(j){
     SY.lastSent[gc.id]=sv;
   });
   if(migrateTeam(S.team,ts))changed=true;
+  setTimeout(repairFinal,0);
   // The first time this team's games arrive, choose the opening game from real game states (not a stale saved choice).
   UI.loaded=UI.loaded||{};
   if(first&&!UI.loaded[S.team]){UI.loaded[S.team]=true;if(!UI.linked&&UI.curSet)UI.curSet[S.team]=false;changed=true;}
@@ -687,7 +728,7 @@ function slug(s){return (s||'team').toLowerCase().replace(/[^a-z0-9]+/g,'-').rep
 const PUB_VER='2026-10-18e';
 /* APP_VER changes with every deploy that coach devices should pick up. When the published page's APP_VER
    differs from the running one, a coach device reloads itself if no clock is running, or shows a Refresh button. */
-const APP_VER='2026-10-24f';
+const APP_VER='2026-10-24g';
 const VER={tag:null,ready:false};
 async function checkVersion(){
   if(!SY.on||!canEdit()||document.visibilityState!=='visible')return;
@@ -1043,9 +1084,10 @@ function act(a,ds){
     case 'set':{const k=ds.key,dl=+ds.d;
       if(k==='half')g.half=Math.min(60,Math.max(5,g.half+dl));if(k==='sub')g.sub=Math.min(30,Math.max(2,g.sub+dl));
       if(k==='otLen')g.otLen=Math.min(15,Math.max(1,g.otLen+dl));if(k==='otN')g.otN=Math.min(2,Math.max(1,g.otN+dl));save();break;}
+    case 'testmode':testModeOn(!TEST.on);return;
     case 'beep':S.beep=!S.beep;if(S.beep){unlockAudio();lastAlarm=0;alarm();}saveLocal();break;
     case 'reset':
-      if(armed('reset')){const ng=freshGame(GC(),g);ng.del=g.del.concat(g.goals,g.stats,g.saves).map(x=>x.u||x).filter((x,i,a)=>typeof x==='string'&&a.indexOf(x)===i);TS().games[GC().id]=ng;UI.pick=null;UI.arm=null;UI.sel=null;UI.goal=null;UI.pk=null;useTeam();say(GC().title+' reset');save();}
+      if(armed('reset')){if(g.fullDone)FORCE_UNLOCK.add(GC().id);const ng=freshGame(GC(),g);ng.del=g.del.concat(g.goals,g.stats,g.saves).map(x=>x.u||x).filter((x,i,a)=>typeof x==='string'&&a.indexOf(x)===i);TS().games[GC().id]=ng;UI.pick=null;UI.arm=null;UI.sel=null;UI.goal=null;UI.pk=null;useTeam();say(GC().title+' reset');save();}
       else arm('reset');break;
     /* setup */
     case 'fmt':{const c=CFG();if(c.format!==ds.f){c.format=ds.f;c.formation=Object.keys(FORMS[ds.f])[0];applyForm();save();}break;}
@@ -1072,11 +1114,6 @@ function act(a,ds){
     case 'puball':publishAll();return;
     case 'reload':location.reload();return;
     case 'setcode':setCode();return;
-    case 'testmake':testAction('testcopy');return;
-    case 'testopen':goTeam(testIdOf(S.team));return;
-    case 'testback':goTeam(CFG().testOf);return;
-    case 'testreset':if(armed('testreset')){UI.arm=null;testAction('testcopy');return;}arm('testreset');break;
-    case 'testdel':if(armed('testdel')){UI.arm=null;testAction('testdel');return;}arm('testdel');break;
     case 'copyclub':{try{navigator.clipboard.writeText(location.origin+clubLink()).then(()=>{say('Club link copied');renderHint();},()=>{});}catch(e){}break;}
     case 'copylink':{const link=parentLink();
       try{navigator.clipboard.writeText(link).then(()=>{say('Parent link copied');renderHint();},()=>{say('Press and hold the link to copy it');renderHint();});}catch(e){say('Press and hold the link to copy it');}
@@ -1123,30 +1160,6 @@ function status(gc){
 }
 const placeIcon=l=>/champion/i.test(l)?'🏆':/finalist/i.test(l)?'🥈':/^3rd/i.test(l)?'🥉':'🏅';
 const placeText=pl=>pl&&pl.label?placeIcon(pl.label)+' '+pl.label+(pl.event?', '+pl.event:''):'';
-/* ---------- Test team: a hidden copy of a team (ID-test) for trying things without touching real games ---------- */
-const TEST={exists:{},busy:false};
-const testIdOf=id=>id+'-test';
-async function testCheck(id){if(TEST.exists[id]!==undefined||!SY.on)return;TEST.exists[id]=null;
-  try{const r=await fetch(API+'?team='+encodeURIComponent(testIdOf(id)),{cache:'no-store'});const j=await r.json();TEST.exists[id]=!!(j&&j.config);}catch(e){TEST.exists[id]=false;}renderAll();}
-function goTeam(id){if(S.auth&&S.auth[S.team]&&!S.auth[id])S.auth[id]=S.auth[S.team];saveLocal();location.href=location.pathname+'?team='+encodeURIComponent(id);}
-async function testAction(kind){const c=CFG();const src=c.test?c.testOf:S.team;TEST.busy=true;renderAll();
-  const r=await apiPost(Object.assign({kind,team:src},creds()));TEST.busy=false;
-  if(!r.ok){say(r.j.error||'Couldn’t do that');renderAll();return;}
-  if(kind==='testdel'){TEST.exists[src]=false;delete S.T[testIdOf(src)];saveLocal();say('Test team deleted');if(c.test){goTeam(src);return;}renderAll();return;}
-  TEST.exists[src]=true;
-  // Take the fresh copy as-is on this device too.
-  if(S.T[testIdOf(src)])delete S.T[testIdOf(src)];saveLocal();
-  if(c.test){location.reload();return;}
-  say('Test team ready ('+r.j.games+' games copied)');goTeam(testIdOf(src));}
-function testTeamHTML(){const c=CFG();if(!SY.on)return '';
-  if(c.test){const real=(S.T[c.testOf]&&S.T[c.testOf].cfg&&S.T[c.testOf].cfg.name)||'the real team';
-    return `<div class="card testcard"><h3>🧪 This is a test team</h3><p class="fine" style="margin-top:-4px">A private copy of ${esc(real)}. Try plans, voice changes, practices and games here; the real team isn’t affected and parents never see this team.</p>
-      <div class="gacts"><button class="btn small primary-s" data-act="testback">‹ Back to ${esc(real)}</button><button class="btn small ${armed('testreset')?'danger-s armed':''}" data-act="testreset" ${TEST.busy?'disabled':''}>${armed('testreset')?'Tap again: copy the real team again':'Reset from the real team'}</button>
-      <button class="btn small ${armed('testdel')?'danger-s armed':''}" data-act="testdel" ${TEST.busy?'disabled':''}>${armed('testdel')?'Tap again to delete':'Delete test team'}</button></div></div>`;}
-  testCheck(S.team);const ex=TEST.exists[S.team];
-  return `<div class="card testcard"><h3>🧪 Test team</h3><p class="fine" style="margin-top:-4px">A private copy of ${esc(c.name)} (players, games, plans, practices) to try things on. It never shows on the club page or the team list; open it from here. The same coach code works there.</p>
-    <div class="gacts">${ex?`<button class="btn small primary-s" data-act="testopen">Open test team</button><button class="btn small ${armed('testreset')?'danger-s armed':''}" data-act="testreset" ${TEST.busy?'disabled':''}>${armed('testreset')?'Tap again: start over from today’s team':'Reset from this team'}</button>`
-      :ex===false?`<button class="btn small primary-s" data-act="testmake" ${TEST.busy?'disabled':''}>${TEST.busy?'Copying…':'Make a test team'}</button>`:'<span class="fine">Checking…</span>'}</div></div>`;}
 function renderBrand(){
   const c=CFG();document.documentElement.classList.toggle('testteam',!!c.test);
   $('bname').innerHTML=`<span class="bn">${esc(teamShortTitle(c))}</span>`;$('bname').title=c.name;$('bsub').textContent=c.name;
@@ -1583,9 +1596,10 @@ function gradeSelectHTML(p){
 /* Team mode: Roster, Schedule and Settings tabs (Season has its own renderer). */
 function renderSetup(part){
   part=part||'setup';const c=CFG();let h='';
-  if(SY.on&&!isHead())return `<div class="notice">You’re signed in as ${esc(ROLE_NAME[myRole()]||'a coach')} for this team. Only a head coach can change the roster, schedule and team settings.</div>`+(part==='setup'?authSetupHTML():'');
-  const note=`<p class="savednote">Changes save on their own when you tap out of a box.</p>`;
-  const out={setup:'',roster:'',schedule:''};
+  const tm=part==='setup'?testModeHTML():'';
+  if(SY.on&&!isHead())return tm+`<div class="notice">You’re signed in as ${esc(ROLE_NAME[myRole()]||'a coach')} for this team. Only a head coach can change the roster, schedule and team settings.</div>`+(part==='setup'?authSetupHTML():'');
+  const note=TEST.on?`<p class="savednote">Test mode is on: changes work here but aren’t saved.</p>`:`<p class="savednote">Changes save on their own when you tap out of a box.</p>`;
+  const out={setup:tm,roster:'',schedule:''};
   h+=`<div class="card"><h3>Team</h3>
     <label class="fld">Team name<input data-cfg="team" data-f="name" value="${esc(c.name)}"></label>
     <div class="grid2"><label class="fld">Short name for the scoreboard<input data-cfg="team" data-f="short" value="${esc(c.short||'')}"></label><label class="fld">Subtitle<input data-cfg="team" data-f="sub" value="${esc(c.sub||'')}" placeholder="e.g. Girls 2014/15"></label></div>
@@ -1628,7 +1642,6 @@ function renderSetup(part){
   if(SY.on)h+=`<p class="fine">Team coach code: lets another coach run this team’s games without your main code. The main code from Netlify works for every team.</p>
     <div class="codebox"><input id="newcode" type="password" autocomplete="off" placeholder="New team code (4+ characters)"><button class="btn small" data-act="setcode">Set code</button></div>`;
   h+='</div>';
-  h+=testTeamHTML();
   h+=`<div class="card"><h3>Teams</h3>${SY.on&&S.master?`<button class="btn small primary-s" data-act="puball" ${UI.pubBusy?'disabled':''} style="margin-bottom:8px">${UI.pubBusy?'Loading teams…':'Load all teams to the live site'}</button><p class="fine" style="margin-top:0">Adds every team on this iPad to the club page in one step. Teams already on the live site aren’t changed.</p>`:''}${teamsList().map(t=>`<div class="set"><span>${esc(t.name)}${t.id===S.team?' <span class="tag">Open now</span>':''}</span>${t.id===S.team?'':`<button class="btn small" data-act="teamgo" data-id="${t.id}">Open</button>`}</div>`).join('')}
     ${UI.newTeam?`<div class="newteam"><label class="fld">New team name<input id="nt-name" placeholder="e.g. U10 Boys Blue" value="${esc(UI.ntName||'')}"></label><div class="seg">${FORMATS.map(f=>`<button data-act="ntfmt" data-f="${f}" aria-pressed="${UI.ntFmt===f}">${f}</button>`).join('')}</div>
       <div class="gacts"><button class="btn small primary-s" data-act="teamcreate">Create team</button><button class="btn small" data-act="teamnewcancel">Cancel</button></div></div>`

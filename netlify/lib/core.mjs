@@ -29,6 +29,9 @@ const LOCKED = ["goals", "saves", "events", "start", "acc", "started", "fullDone
 const STATS_ONLY = new Set(["goals", "stats", "saves", "del"]);
 export const LOCK_AFTER = 2 * 3600000;
 // A finished game locks 2 hours after it went final. Games finished before doneAt existed count as locked.
+const kicks = (g) => !!(g && g.pk && ((g.pk.us || []).length || (g.pk.them || []).length));
+export const wipesResult = (old, g) => !!(old && old.fullDone && (old.started || (old.goals || []).length || kicks(old)) &&
+  ((!g.started && !(g.goals || []).length && !kicks(g)) || (kicks(old) && !g.pk)));
 export const isLocked = (rec, now = Date.now()) => !!(rec && rec.game && rec.game.fullDone && (!rec.doneAt || now - rec.doneAt > LOCK_AFTER));
 const DAY = 86400000;
 
@@ -374,6 +377,12 @@ export async function handle(req, { store, env }) {
       const lockedIds = isLocked(cur, now) ? new Set([...(old.goals || []), ...(old.saves || [])].map((x) => x && x.u).filter(Boolean)) : null;
       const delsLocked = lockedIds && (Array.isArray(b.game.del) ? b.game.del : []).some((u) => lockedIds.has(u));
       if (isLocked(cur, now) && (delsLocked || LOCKED.some((k) => !same(old[k], b.game[k])))) {
+        if (!b.unlock) return json({ error: "locked", message: "This game is final. Unlock it to change the result." }, 409);
+        if (!atLeast(w, "head")) return json({ error: "Only a head coach can change a finished game" }, 403);
+      }
+      // A finished game's result is never cleared by an ordinary save (a stale phone, a reset, a bad update):
+      // wiping it back to not-started, or dropping its shootout, takes a head coach who unlocked it.
+      if (wipesResult(old, b.game)) {
         if (!b.unlock) return json({ error: "locked", message: "This game is final. Unlock it to change the result." }, 409);
         if (!atLeast(w, "head")) return json({ error: "Only a head coach can change a finished game" }, 403);
       }
