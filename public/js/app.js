@@ -687,7 +687,7 @@ function slug(s){return (s||'team').toLowerCase().replace(/[^a-z0-9]+/g,'-').rep
 const PUB_VER='2026-10-18e';
 /* APP_VER changes with every deploy that coach devices should pick up. When the published page's APP_VER
    differs from the running one, a coach device reloads itself if no clock is running, or shows a Refresh button. */
-const APP_VER='2026-10-24e';
+const APP_VER='2026-10-24f';
 const VER={tag:null,ready:false};
 async function checkVersion(){
   if(!SY.on||!canEdit()||document.visibilityState!=='visible')return;
@@ -1086,7 +1086,10 @@ function act(a,ds){
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&UI.sheet){UI.sheet=null;renderSheet();}});
 document.addEventListener('submit',e=>{if(e.target&&e.target.dataset&&e.target.dataset.form==='unlock'){e.preventDefault();unlock();}});
-document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b||b.disabled)return;act(b.dataset.act,b.dataset);});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b||b.disabled)return;
+  /* iPhone keeps focus in a text box when a button is tapped, which would hold off every redraw. */
+  const ae=document.activeElement;if(ae&&ae!==b&&!b.contains(ae)&&/^(INPUT|TEXTAREA)$/.test(ae.tagName)&&/^(BUTTON|A)$/.test(b.tagName))ae.blur();
+  act(b.dataset.act,b.dataset);});
 document.addEventListener('input',e=>{if(e.target&&e.target.id==='nt-name')UI.ntName=e.target.value;});
 document.addEventListener('change',e=>{
   const el=e.target;const k=el&&el.dataset&&el.dataset.cfg;if(!k||!CFG()||!canEdit())return;

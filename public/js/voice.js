@@ -32,15 +32,27 @@ function voiceBar(kind){
     <button class="btn small primary-s" data-act="vsend" data-k="${kind}" ${busy?'disabled':''}>Go</button></div></div>`;
   return h;
 }
+/* iPhone Safari can switch the mic on and then never send words or an end event, so every way out is
+   guarded: Stop always works, and if nothing is heard we fall back to typing (the keyboard's own 🎤 works). */
+function voiceDone(kind,msg){const v=VOX;clearTimeout(v.tmr);clearTimeout(v.hard);if(v.state!=='listening')return;
+  try{v.rec&&v.rec.abort();}catch(e){}v.rec=null;v.state='idle';
+  if(v.text.trim())voiceSend(kind,v.text.trim());
+  else{if(msg)say(msg);vRender();if(msg)renderHint();}}
+const typeHint='Didn’t hear anything. Tap the box and use the 🎤 on your keyboard instead, then tap Go.';
 function voiceListen(kind){
-  if(!SpeechRec){say('Voice isn’t available in this browser. Type the change instead.');renderHint();const el=$('vtext');if(el)el.focus();return;}
-  if(VOX.state==='listening'){try{VOX.rec.stop();}catch(e){}return;}
-  const rec=new SpeechRec();VOX.rec=rec;rec.lang='en-US';rec.interimResults=true;rec.continuous=false;
+  if(!SpeechRec){say('Voice isn’t available here. Tap the box and use the 🎤 on your keyboard, then tap Go.');renderHint();const el=$('vtext');if(el)el.focus();return;}
+  if(VOX.state==='listening'){voiceDone(kind,'');return;}
+  let rec;try{rec=new SpeechRec();}catch(e){say(typeHint);renderHint();return;}
+  VOX.rec=rec;rec.lang='en-US';rec.interimResults=true;rec.continuous=false;
   Object.assign(VOX,{kind,state:'listening',text:''});vRender();
-  rec.onresult=e=>{let t='';for(const r of e.results)t+=r[0].transcript;VOX.text=t;const el=$('vtext');if(el)el.value=t;};
-  rec.onerror=e=>{VOX.state='idle';say(e.error==='not-allowed'?'Allow the microphone for this site to use voice.':'Didn’t catch that. Try again or type it.');vRender();};
-  rec.onend=()=>{if(VOX.state!=='listening')return;VOX.state='idle';if(VOX.text.trim())voiceSend(kind,VOX.text.trim());else vRender();};
-  try{rec.start();}catch(e){VOX.state='idle';vRender();}
+  VOX.tmr=setTimeout(()=>{if(!VOX.text)voiceDone(kind,typeHint);},8000);
+  VOX.hard=setTimeout(()=>voiceDone(kind,typeHint),30000);
+  rec.onresult=e=>{if(VOX.rec!==rec)return;let t='';for(const r of e.results)t+=r[0].transcript;VOX.text=t;const el=$('vtext');if(el)el.value=t;
+    clearTimeout(VOX.tmr);VOX.tmr=setTimeout(()=>voiceDone(kind,''),2500); /* a pause ends it even if Safari never does */};
+  rec.onerror=e=>{if(VOX.rec!==rec)return;const er=e.error;
+    voiceDone(kind,er==='not-allowed'?'Allow the microphone for this site (Settings › Safari › Microphone), or use the 🎤 on your keyboard.':er==='aborted'?'':typeHint);};
+  rec.onend=()=>{if(VOX.rec===rec)voiceDone(kind,VOX.text.trim()?'':typeHint);};
+  try{rec.start();}catch(e){voiceDone(kind,typeHint);}
 }
 function gameCtx(){const g=G(),gc=GC(),cb=g.started?blockAt(g,clock(g)):-1;
   return {team:CFG().name,opp:gc.opp||gc.title,format:String(g.form).split('/')[0],half:g.half,sub:g.sub,started:g.started,
