@@ -611,7 +611,8 @@ export async function handle(req, { store, env }) {
       return json({ ok: true, now, date });
     }
     if (kind === "restore-game") {
-      if (!w.admin) return json({ error: "Admins only" }, 403);
+      // Admins, or a head coach putting back one of their own team's games.
+      if (!atLeast(w, "head")) return json({ error: "Head coaches only" }, 403);
       if (!okGid(b.gid) || !/^\d{4}-\d{2}-\d{2}$/.test(String(b.date || ""))) return json({ error: "bad request" }, 400);
       const snap = await store.get("backup/" + b.date, { type: "json" });
       const v = snap && snap.data && snap.data["game-" + team + "-" + b.gid];
@@ -672,6 +673,25 @@ export async function handle(req, { store, env }) {
     if (!atLeast(w, "stats")) return json({ error: "Coaches only" }, 403);
     if (q.get("audit")) return json({ now, audit: ((await store.get("audit-" + team, { type: "json" })) || []).slice(-200).reverse() });
     return json({ now, practices: (await store.get("practices-" + team, { type: "json" })) || [] });
+  }
+  // One game across the nightly backups (newest first), so a head coach can put a wiped game back.
+  // Only that team's game is read out; the rest of the club's data stays private.
+  if (q.get("gamehist")) {
+    const team = q.get("gamehist"), gid = q.get("gid") || "";
+    if (!okId(team) || !okGid(gid)) return json({ error: "bad request" }, 400);
+    const w = await whoIs(store, env, team, creds);
+    if (!atLeast(w, "head")) return json({ error: "Head coaches only" }, 403);
+    const { blobs } = await store.list({ prefix: "backup/" });
+    const dates = blobs.map((x) => x.key.slice(7)).sort().reverse().slice(0, 45);
+    const out = [];
+    for (const date of dates) {
+      const snap = await store.get("backup/" + date, { type: "json" });
+      const v = snap && snap.data && snap.data["game-" + team + "-" + gid];
+      if (!v || !v.game) continue;
+      const g = v.game, pk = g.pk && ((g.pk.us || []).length || (g.pk.them || []).length);
+      out.push({ date, started: !!g.started, fullDone: !!g.fullDone, goals: (g.goals || []).length, pk: !!pk, events: (g.events || []).length, score: scoreOf(g) });
+    }
+    return json({ now, versions: out });
   }
   if (q.get("backups") || q.get("backup")) {
     const w = await whoIs(store, env, "", creds);

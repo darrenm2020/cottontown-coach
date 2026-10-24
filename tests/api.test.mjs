@@ -406,3 +406,19 @@ test("a finished game's result can't be wiped by an ordinary save, even right af
   // A head coach who unlocks it can still reset it on purpose.
   assert.equal((await a.post({ kind: "game", team: "t1", gid: "g1", game: { started: false, fullDone: false, goals: [] }, code: "main-1234", unlock: true })).status, 200);
 });
+
+test("a head coach can find one of their games in the nightly backups and put it back", async () => {
+  const { store, a } = await setup();
+  assert.equal((await a.post({ kind: "setcode", team: "t1", newCode: "team-5678", code: "main-1234" })).status, 200);
+  const good = { started: true, fullDone: true, goals: [goal("us", "ana"), goal("them")] };
+  await store.setJSON("backup/2026-10-19", { data: { "game-t1-g1": { rev: 2, game: good }, "game-other-g1": { rev: 1, game: { secret: true } } } });
+  await store.setJSON("backup/2026-10-23", { data: { "game-t1-g1": { rev: 5, game: { started: false, goals: [] } } } });
+  await a.post({ kind: "game", team: "t1", gid: "g1", game: { started: false, goals: [] }, code: "main-1234" });
+  const h = await a.get("?gamehist=t1&gid=g1", { "x-code": "team-5678" });
+  assert.equal(h.status, 200);
+  assert.deepEqual(h.body.versions.map((v) => [v.date, v.goals]), [["2026-10-23", 0], ["2026-10-19", 2]]);
+  assert.ok(!JSON.stringify(h.body).includes("secret"), "other teams' data never comes back");
+  assert.equal((await a.get("?gamehist=t1&gid=g1")).status, 403, "parents can't");
+  assert.equal((await a.post({ kind: "restore-game", team: "t1", gid: "g1", date: "2026-10-19", code: "team-5678" })).status, 200);
+  assert.equal((await store.get("game-t1-g1")).game.goals.length, 2);
+});

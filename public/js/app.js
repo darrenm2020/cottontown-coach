@@ -344,13 +344,12 @@ const noResult=st=>!st||(!st.goals.length&&!(st.pk&&(st.pk.us.length||st.pk.them
    the Final, its score is entered alone; Game 3's score isn't known, so the coach is asked to enter it. */
 const FORCE_UNLOCK=new Set();let finalFixed=false;
 async function repairFinal(){
-  if(finalFixed||S.team!=='cottontown'||!SY.on||(typeof TEST!=='undefined'&&TEST.on)||!isAdmin())return;
+  if(finalFixed||S.team!=='cottontown'||!SY.on||(typeof TEST!=='undefined'&&TEST.on)||!(isAdmin()||isHead()))return;
   const ts=TS();if(!ts||!ts.cfg)return;
   const gids=['g3','g4'].filter(gid=>ts.cfg.games.some(x=>x.id===gid)&&noResult(ts.games[gid]));if(!gids.length)return;
   finalFixed=true;const found={};
-  try{const r=await apiGet('backups=1');const list=((r.ok&&r.j.backups)||[]).filter(d=>d>='2026-10-19');
-    for(const d of list){if(gids.every(g=>found[g]))break;const b=await apiGet('backup='+encodeURIComponent(d));const data=b.ok&&b.j&&b.j.data;if(!data)continue;
-      gids.forEach(gid=>{const v=data['game-cottontown-'+gid];if(!found[gid]&&v&&v.game&&!noResult(fixGame(JSON.parse(JSON.stringify(v.game)))))found[gid]=d;});}}catch(e){}
+  for(const gid of gids){try{const r=await apiGet('gamehist=cottontown&gid='+gid);
+    const v=((r.ok&&r.j.versions)||[]).find(x=>x.date>='2026-10-19'&&(x.goals||x.pk));if(v)found[gid]=v.date;}catch(e){}}
   if(S.team!=='cottontown')return;const said=[];
   for(const gid of gids){const gc=TS().cfg.games.find(x=>x.id===gid);const label=gid==='g4'?'the Final':gc.title||'Game 3';
     if(found[gid]){const r=await apiPost(Object.assign({kind:'restore-game',team:'cottontown',gid,date:found[gid]},creds()));
@@ -735,7 +734,7 @@ function slug(s){return (s||'team').toLowerCase().replace(/[^a-z0-9]+/g,'-').rep
 const PUB_VER='2026-10-18e';
 /* APP_VER changes with every deploy that coach devices should pick up. When the published page's APP_VER
    differs from the running one, a coach device reloads itself if no clock is running, or shows a Refresh button. */
-const APP_VER='2026-10-24i';
+const APP_VER='2026-10-24j';
 const VER={tag:null,ready:false};
 async function checkVersion(){
   if(!SY.on||!canEdit()||document.visibilityState!=='visible')return;
