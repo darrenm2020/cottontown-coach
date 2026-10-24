@@ -4,6 +4,11 @@
    on the server (/api/voice); nothing changes until the coach taps Apply, and Undo puts it back. */
 const VOX={kind:null,state:'idle',text:'',res:null,undo:null,rec:null};
 const SpeechRec=window.SpeechRecognition||window.webkitSpeechRecognition;
+/* iPhone and iPad: Safari's speech recognition is unreliable, and the keyboard's own dictation (the same one used
+   for texting) is better. A web page can't start dictation itself, so the mic opens the keyboard on the box and
+   points to the keyboard's 🎤; the keyboard's Go key (or the Go button) sends it. */
+const IOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const useKeyboardMic=()=>IOS||!SpeechRec;
 // The app holds off redrawing while someone types; let go of the voice box first so the answer shows.
 function vRender(){const a=document.activeElement;if(a&&a.id==='vtext')a.blur();renderAll();}
 
@@ -28,8 +33,9 @@ function voiceBar(kind){
   const listening=mine&&v.state==='listening',busy=mine&&v.state==='thinking';
   const ph=kind==='game'?'e.g. “Olivia in goal the whole game”':PR.edit?'e.g. “Swap the passing drill for a 4v4”':'e.g. “Plan a 75-minute passing practice”';
   h+=`<div class="vrow"><button class="vmic ${listening?'on':''}" data-act="vmic" data-k="${kind}" aria-label="${listening?'Stop':'Talk to change the plan'}">${listening?'■':'🎤'}</button>
-    <input id="vtext" class="vtext" data-k="${kind}" placeholder="${listening?'Listening…':esc(ph)}" value="${esc(listening?v.text:'')}" ${busy?'disabled':''}>
-    <button class="btn small primary-s" data-act="vsend" data-k="${kind}" ${busy?'disabled':''}>Go</button></div></div>`;
+    <input id="vtext" class="vtext" data-k="${kind}" placeholder="${listening?'Listening…':esc(ph)}" value="${esc(listening?v.text:'')}" enterkeyhint="go" autocomplete="off" ${busy?'disabled':''}>
+    <button class="btn small primary-s" data-act="vsend" data-k="${kind}" ${busy?'disabled':''}>Go</button></div>
+    ${useKeyboardMic()?`<p class="vtip fine" data-k="${kind}" ${VOX.kbd===kind?'':'hidden'}>Tap the 🎤 on your keyboard (bottom corner), say the change, then tap Go.</p>`:''}</div>`;
   return h;
 }
 /* iPhone Safari can switch the mic on and then never send words or an end event, so every way out is
@@ -40,7 +46,8 @@ function voiceDone(kind,msg){const v=VOX;clearTimeout(v.tmr);clearTimeout(v.hard
   else{if(msg)say(msg);vRender();if(msg)renderHint();}}
 const typeHint='Didn’t hear anything. Tap the box and use the 🎤 on your keyboard instead, then tap Go.';
 function voiceListen(kind){
-  if(!SpeechRec){say('Voice isn’t available here. Tap the box and use the 🎤 on your keyboard, then tap Go.');renderHint();const el=$('vtext');if(el)el.focus();return;}
+  if(useKeyboardMic()){const el=$('vtext');if(el){el.placeholder='Tap 🎤 on the keyboard and talk';el.focus();}
+    VOX.kbd=kind;const tip=document.querySelector('.vtip[data-k="'+kind+'"]');if(tip)tip.hidden=false;return;}
   if(VOX.state==='listening'){voiceDone(kind,'');return;}
   let rec;try{rec=new SpeechRec();}catch(e){say(typeHint);renderHint();return;}
   VOX.rec=rec;rec.lang='en-US';rec.interimResults=true;rec.continuous=false;
@@ -68,7 +75,7 @@ async function voiceSend(kind,text){
   if(!SY.on){say('Connect to the live site to change plans by voice.');renderHint();return;}
   if(kind==='game'&&gameLocked()){say('This game is final and locked. Unlock it on the Players tab first.');renderHint();return;}
   if(kind==='practice'){if(typeof syncPracticeForm==='function')syncPracticeForm();if(!DR.lib)await loadDrills();}
-  Object.assign(VOX,{kind,state:'thinking',text,res:null});vRender();
+  Object.assign(VOX,{kind,state:'thinking',text,res:null,kbd:null});vRender();
   try{const r=await fetch('/api/voice',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},authHeaders()),
       body:JSON.stringify(Object.assign({team:S.team,kind,request:text,ctx:kind==='game'?gameCtx():practiceCtx()},creds()))});
     const j=await r.json().catch(()=>({}));

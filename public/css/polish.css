@@ -259,3 +259,4 @@
 .jchip i{width:16px;height:16px;border-radius:50%;border:1px solid rgba(127,127,127,.6);display:inline-block}
 .jchip[aria-pressed="true"]{border-color:var(--crimson);box-shadow:0 0 0 2px var(--crimson) inset}
 .nextbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:var(--surface-2);border:1.5px solid var(--line);border-radius:12px;padding:8px 12px;margin:8px 0;font-size:14px}
+.vtip{margin:6px 2px 0}
