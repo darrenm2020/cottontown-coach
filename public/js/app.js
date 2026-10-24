@@ -339,24 +339,29 @@ function kicksToShootout(st){
   if(!(st&&!st.pk&&st.goals.length===5&&st.goals.every(x=>x.t>=st.acc-1000)&&st.goals.filter(x=>x.side==='us').map(x=>x.by).sort().join()==='alexa,dm'))return false;
   st.goals.forEach(x=>{if(x.u&&!st.del.includes(x.u))st.del.push(x.u);});st.goals=[];st.pk=FINAL_PK();st.fullDone=true;return true;}
 const noResult=st=>!st||(!st.goals.length&&!(st.pk&&(st.pk.us.length||st.pk.them.length)));
-/* The Final was wiped more than once. Whenever it shows no result, an admin's device puts it back from the newest
-   nightly backup that still has it (subs, minutes and all), or, if no backup has it, enters the score alone. */
+/* Sunday's KICKS games (Game 3 and the Final) were wiped more than once. Whenever one shows no result, an admin's
+   device puts it back from the newest nightly backup that still has it (subs, minutes and all). If no backup has
+   the Final, its score is entered alone; Game 3's score isn't known, so the coach is asked to enter it. */
 const FORCE_UNLOCK=new Set();let finalFixed=false;
 async function repairFinal(){
   if(finalFixed||S.team!=='cottontown'||!SY.on||(typeof TEST!=='undefined'&&TEST.on)||!isAdmin())return;
-  const ts=TS();if(!ts||!ts.cfg||!ts.cfg.games.some(x=>x.id==='g4')||!noResult(ts.games.g4))return;
-  finalFixed=true;let date=null;
+  const ts=TS();if(!ts||!ts.cfg)return;
+  const gids=['g3','g4'].filter(gid=>ts.cfg.games.some(x=>x.id===gid)&&noResult(ts.games[gid]));if(!gids.length)return;
+  finalFixed=true;const found={};
   try{const r=await apiGet('backups=1');const list=((r.ok&&r.j.backups)||[]).filter(d=>d>='2026-10-19');
-    for(const d of list){const b=await apiGet('backup='+encodeURIComponent(d));const v=b.ok&&b.j&&b.j.data&&b.j.data['game-cottontown-g4'];
-      if(v&&v.game&&!noResult(fixGame(JSON.parse(JSON.stringify(v.game))))){date=d;break;}}}catch(e){}
-  if(S.team!=='cottontown')return;
-  if(date){const r=await apiPost(Object.assign({kind:'restore-game',team:'cottontown',gid:'g4',date},creds()));
-    if(r.ok){SY.rev.g4=0;UI.revert.g4=true;try{applyServer(await getState('cottontown'));}catch(e){}
-      const st=TS().games.g4;if(kicksToShootout(st)){FORCE_UNLOCK.add('g4');save();}
-      say('Restored the Final from the '+date+' backup');renderAll();return;}}
-  const g=TS().games.g4||freshGame(TS().cfg.games.find(x=>x.id==='g4'));const H=(g.half||30)*60000;
-  Object.assign(g,{started:true,running:false,halfDone:true,fullDone:true,acc:2*H,stops:[H,2*H],pending:null,ot:null,pk:FINAL_PK()});
-  TS().games.g4=g;FORCE_UNLOCK.add('g4');save();say('Restored the Final: 0–0, lost 2–3 on penalty kicks');renderAll();
+    for(const d of list){if(gids.every(g=>found[g]))break;const b=await apiGet('backup='+encodeURIComponent(d));const data=b.ok&&b.j&&b.j.data;if(!data)continue;
+      gids.forEach(gid=>{const v=data['game-cottontown-'+gid];if(!found[gid]&&v&&v.game&&!noResult(fixGame(JSON.parse(JSON.stringify(v.game)))))found[gid]=d;});}}catch(e){}
+  if(S.team!=='cottontown')return;const said=[];
+  for(const gid of gids){const gc=TS().cfg.games.find(x=>x.id===gid);const label=gid==='g4'?'the Final':gc.title||'Game 3';
+    if(found[gid]){const r=await apiPost(Object.assign({kind:'restore-game',team:'cottontown',gid,date:found[gid]},creds()));
+      if(r.ok){SY.rev[gid]=0;UI.revert[gid]=true;said.push('Restored '+label+' from the '+found[gid]+' backup');continue;}}
+    if(gid==='g4'){const g=TS().games.g4||freshGame(gc);const H=(g.half||30)*60000;
+      Object.assign(g,{started:true,running:false,halfDone:true,fullDone:true,acc:2*H,stops:[H,2*H],pending:null,ot:null,pk:FINAL_PK()});
+      TS().games.g4=g;FORCE_UNLOCK.add('g4');said.push('Restored the Final: 0–0, lost 2–3 on penalty kicks');}
+    else said.push(label+' isn’t in any backup. Open it and enter the score');}
+  try{applyServer(await getState('cottontown'));}catch(e){}
+  const st=TS().games.g4;if(kicksToShootout(st))FORCE_UNLOCK.add('g4');
+  save();say(said.join('. ')+'.');renderAll();
 }
 function importedResult(form,half,us,them){
   const H=half*60000;const goals=[];for(let i=0;i<us;i++)goals.push({side:'us',t:0});for(let i=0;i<them;i++)goals.push({side:'them',t:0});
@@ -730,7 +735,7 @@ function slug(s){return (s||'team').toLowerCase().replace(/[^a-z0-9]+/g,'-').rep
 const PUB_VER='2026-10-18e';
 /* APP_VER changes with every deploy that coach devices should pick up. When the published page's APP_VER
    differs from the running one, a coach device reloads itself if no clock is running, or shows a Refresh button. */
-const APP_VER='2026-10-24h';
+const APP_VER='2026-10-24i';
 const VER={tag:null,ready:false};
 async function checkVersion(){
   if(!SY.on||!canEdit()||document.visibilityState!=='visible')return;
