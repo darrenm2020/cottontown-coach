@@ -88,7 +88,35 @@ Wherever the script runs needs network access to `secure.rec1.com`. A Claude clo
 - No charge, but the form must be completed.
 - **No online cancelling or changes.** To cancel or change, call 256-233-8740 or email parksfrontdesk@athensal.us.
 
+## What 81 past receipts show (Aug 2025 – Oct 2026)
+
+Read from the receipt PDFs in the Outlook inbox. Each one shows when it was booked and the slot booked.
+
+- **72 of 81 were booked exactly 7 days ahead**, on the same weekday as the practice. Almost all were Soccer Field #1, 5:00–7:00 PM (5:30–7:30 PM on some summer Tuesdays). The pattern was Mon/Thu in 2025 and spring 2026, and Tue/Thu since July 2026.
+- **New dates are open by 1:52 AM.** Two 7-days-ahead bookings were made at 1:52 AM and 2:19 AM, so the date opens at midnight or soon after. Most bookings were made around 7:50–8:30 AM, which leaves the slot open to other teams overnight. The schedule below starts at 11:55 PM and keeps checking until the date opens.
+- **Nov evenings:** 5–7 PM was booked through Nov 17 last year. Those bookings used the Sept–Oct rate, though, and this year has a separate Nov–Dec rate, so check the Nov–Dec hours with `--check-only` before relying on 5–7 PM.
+- The team name used most often was "COTTONTOWN". The approved name now is Cottontown Girls 2014/2015.
+
+## Set up on the Mac mini
+
+Rec1 is blocked from Claude's cloud sessions, and the work PC's Chrome blocks automation, so this runs on the Mac mini.
+
+1. Install Node.js (LTS) from nodejs.org, and clone this repo.
+2. Run `bash scripts/field-booking/setup-mac.sh` from the repo folder. It:
+   - installs Playwright into `~/.field-booking`
+   - asks for the waiver signature
+   - opens a window where you sign in to Rec1 yourself. Copy the password from the LastPass app; the extension isn't in that window.
+   - schedules the booking with launchd: Monday and Wednesday at 11:55 PM, booking the Tuesday and Thursday a week out, 5–7 PM, and checking for up to 30 minutes until the date opens. Change the settings at the top of the script, then run it again.
+3. Keep the Mac awake for it: `sudo pmset repeat wakeorpoweron MTWRFSU 23:45:00`.
+4. Before the first scheduled run, do a dry run and a check-only run (with `NODE_PATH=~/.field-booking/runtime/node_modules`) and look at the screenshots. The page steps were written from the recording and haven't run against the real site yet.
+
+Each run adds one JSON line to `~/.field-booking/logs/runs.log`. Screenshots of the last run are in `~/.field-booking/runs/latest`.
+
+## Morning check
+
+A Claude routine, "Field booking check (Tue/Thu)", runs Tuesday and Thursday at 6:13 AM Central. It reads the Rec1 receipt emails that arrived overnight and checks that one is for the date a week out. If not, it pushes "NOT BOOKED" to your phone, early enough to book by hand. It only reads email; it never books or cancels. Pause or delete it in the Routines list on claude.ai.
+
 ## Still to find out
 
-- **What time of day the next date opens:** midnight is likely but not confirmed. To check, look at the date 7 days out just before midnight, then at 12:05 AM, 6 AM and 8 AM, and note when it turns from gray to green. Schedule the booking for just after that time.
-- **Nov–Dec field hours:** the Nov 1 calendar listed blocks of 8:00 AM–2:00 PM and 4:00–5:00 PM, which suggests a 5 PM close. If so, the usual 5–7 PM weekday slot won't be bookable after Oct 31.
+- **The exact minute new dates open** (by 1:52 AM; midnight is likely). The first scheduled runs record it as `openedAt` in the log.
+- **Nov–Dec field hours** (see above).

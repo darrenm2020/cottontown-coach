@@ -3,6 +3,8 @@
 //   node scripts/field-booking/book-field.mjs --login          (once: opens a window, you sign in yourself)
 //   node scripts/field-booking/book-field.mjs --date 2026-11-03 --from "4pm" --to "5pm" \
 //     [--team "Cottontown Girls 2014/2015"] [--field "Wavaho Field"] [--wait 15] [--dry-run] [--out dir]
+//   node scripts/field-booking/book-field.mjs --in-days 7 --from 5pm --to 7pm --wait 20   (for a schedule: a week out)
+//   node scripts/field-booking/book-field.mjs --in-days 7 --check-only                     (is that date open yet?)
 //
 // The password is never stored: --login saves the signed-in session to --session (default ~/.field-booking/rec1-session.json),
 // and later runs reuse it; when it has expired the run stops with "signed-out". FIELD_BOOKING_SIGNATURE (or --signature)
@@ -16,7 +18,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { homedir } from "node:os";
 import { existsSync } from "node:fs";
-import { checkRequest, pickRate, totalCharges, findBookingOnDashboard, personalDetailsAsked } from "./lib.mjs";
+import { addDays, todayInAthens, checkRequest, pickRate, totalCharges, findBookingOnDashboard, personalDetailsAsked } from "./lib.mjs";
 
 const BASE = "https://secure.rec1.com/AL/athens-al";
 
@@ -29,11 +31,12 @@ for (let i = 2; i < process.argv.length; i++) {
   else args[a.slice(2)] = next, i++;
 }
 const dryRun = !!args["dry-run"];
+const checkOnly = !!args["check-only"];
 const sessionFile = args.session || join(homedir(), ".field-booking", "rec1-session.json");
 const waitMinutes = Math.max(0, +args.wait || 0);
 const { chromium } = createRequire(import.meta.url)("playwright");
 
-// --login: a visible window where you sign in yourself (LastPass works); the session is saved, never the password.
+// --login: a visible window where you sign in yourself (copy the password from the LastPass app); the session is saved, never the password.
 if (args.login) {
   const win = await chromium.launch({ headless: false });
   const ctx = await win.newContext();
@@ -50,16 +53,19 @@ if (args.login) {
 const out = args.out || `field-booking-runs/${new Date().toISOString().replace(/[:.]/g, "-")}`;
 mkdirSync(out, { recursive: true });
 
-const result = { status: "failed", dryRun, booking: null, receipt: null, receiptUrl: null, step: null, problems: [], screenshots: out };
+const result = { status: "failed", dryRun, checkOnly, booking: null, receipt: null, receiptUrl: null, step: null, problems: [], screenshots: out };
 let browser;
 const finish = async (status) => {
   result.status = status;
   writeFileSync(join(out, "result.json"), JSON.stringify(result, null, 2));
   console.log(JSON.stringify(result));
   await browser?.close().catch(() => {});
-  process.exit(["booked", "already-booked", "dry-run-ok"].includes(status) ? 0 : 1);
+  process.exit(["booked", "already-booked", "dry-run-ok", "open", "not-open"].includes(status) ? 0 : 1);
 };
 
+// --in-days counts from the day the wait ends, so a job started at 11:55 PM Monday books the Tuesday a week out.
+if (args["in-days"]) args.date = addDays(todayInAthens(new Date(Date.now() + waitMinutes * 60000)), +args["in-days"]);
+if (checkOnly) { args.from ??= "8am"; args.to ??= "9am"; }
 // With --wait, a date that opens during the wait (for example at midnight) counts as bookable.
 const req = checkRequest({ date: args.date, from: args.from, to: args.to, field: args.field, team: args.team }, new Date(Date.now() + waitMinutes * 60000));
 result.booking = req.booking;
@@ -133,7 +139,7 @@ try {
     await page.goto(`${BASE}/dashboard`);
     return findBookingOnDashboard(await bodyText(), b);
   });
-  if (before.found) {
+  if (before.found && !checkOnly) {
     result.receipt = before.receipt;
     result.problems.push(`already booked: ${before.line}`);
     await finish("already-booked");
@@ -146,11 +152,17 @@ try {
       await pickFieldAndDate();
       result.problems = [];
       result.attempts = attempt;
+      result.openedAt = new Date().toLocaleString("en-US", { timeZone: "America/Chicago" });
       break;
     } catch (err) {
-      if (Date.now() > deadline) throw err;
-      await page.waitForTimeout(20000);
+      if (Date.now() <= deadline) { await page.waitForTimeout(20000); continue; }
+      if (checkOnly) await finish("not-open");
+      throw err;
     }
+  }
+  if (checkOnly) {
+    result.availableTimes = (await bodyText()).match(/AVAILABLE TIMES:?\s*([\s\S]{0,300})/i)?.[1].trim().split(/\n+/).slice(0, 8) ?? [];
+    await finish("open");
   }
   async function pickFieldAndDate() {
   await step("pick-field", async () => {
