@@ -5,6 +5,7 @@ const PR={team:null,list:null,err:'',view:'plans',edit:null,run:null,tick:null};
 
 async function loadPractices(){
   const team=S.team;PR.team=team;PR.list=null;PR.err='';
+  loadDrills(); // practice blocks show their drill's diagram, here and in Run it
   if(!SY.on){PR.list=((S.prac||{})[team]||[]).slice();renderAll();return;}
   try{const r=await apiGet('practices='+encodeURIComponent(team));if(PR.team!==team)return;
     PR.list=r.ok?(r.j.practices||[]):[];PR.err=r.ok?'':(r.j.error||'Couldn’t load practices');}

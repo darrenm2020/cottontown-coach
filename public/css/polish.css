@@ -227,7 +227,7 @@
 .beta body::before{content:"Beta: new features being tested";display:block;text-align:center;font:600 12px "Barlow",sans-serif;background:#f5b400;color:#1a1a1a;padding:3px 0}
 
 /* Talk to change the plan */
-.vbar{position:sticky;bottom:0;z-index:3;background:var(--surface);border-top:1.5px solid var(--line);margin:12px -14px 0;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));box-shadow:0 -6px 14px rgba(0,0,0,.06)}
+.vbar{position:relative;background:var(--surface);border-top:1.5px solid var(--line);margin:12px -14px 0;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));box-shadow:0 -6px 14px rgba(0,0,0,.06)}
 .vrow{display:flex;gap:8px;align-items:center}
 .vmic{flex:none;width:52px;height:52px;border-radius:50%;border:0;background:var(--crimson);color:#fff;font-size:24px;cursor:pointer}
 .vmic.on{background:#b91c1c;animation:vpulse 1s infinite}@keyframes vpulse{0%,100%{box-shadow:0 0 0 0 rgba(185,28,28,.5)}50%{box-shadow:0 0 0 10px rgba(185,28,28,0)}}
@@ -261,3 +261,4 @@
 .nextbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:var(--surface-2);border:1.5px solid var(--line);border-radius:12px;padding:8px 12px;margin:8px 0;font-size:14px}
 .vtip{margin:6px 2px 0}
 .runnote{white-space:pre-line}
+.vbar{box-shadow:none}
