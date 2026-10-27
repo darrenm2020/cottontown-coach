@@ -674,6 +674,7 @@ function applyServer(j){
   });
   if(migrateTeam(S.team,ts))changed=true;
   setTimeout(repairFinal,0);
+  if(typeof seedPractice==='function')setTimeout(seedPractice,0);
   // The first time this team's games arrive, choose the opening game from real game states (not a stale saved choice).
   UI.loaded=UI.loaded||{};
   if(first&&!UI.loaded[S.team]){UI.loaded[S.team]=true;if(!UI.linked&&UI.curSet)UI.curSet[S.team]=false;changed=true;}
@@ -734,7 +735,7 @@ function slug(s){return (s||'team').toLowerCase().replace(/[^a-z0-9]+/g,'-').rep
 const PUB_VER='2026-10-18e';
 /* APP_VER changes with every deploy that coach devices should pick up. When the published page's APP_VER
    differs from the running one, a coach device reloads itself if no clock is running, or shows a Refresh button. */
-const APP_VER='2026-10-24k';
+const APP_VER='2026-10-27a';
 const VER={tag:null,ready:false};
 async function checkVersion(){
   if(!SY.on||!canEdit()||document.visibilityState!=='visible')return;
