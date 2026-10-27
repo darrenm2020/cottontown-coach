@@ -25,7 +25,7 @@ for (const d of drills) {
   if (!d.title) bad("no title");
   if (!TOPICS.has(d.topic)) bad("unknown topic " + d.topic);
   if (!Array.isArray(d.ages) || !d.ages.length || d.ages.some((a) => !["7v7", "9v9", "11v11"].includes(a))) bad("bad ages");
-  if (!(d.minutes >= 5 && d.minutes <= 30)) bad("minutes " + d.minutes);
+  if (!(d.minutes >= 5 && d.minutes <= 60)) bad("minutes " + d.minutes); // same limit as club drills on the server
   if (!Array.isArray(d.how) || d.how.length < 2) bad("needs how steps");
   if (!Array.isArray(d.coaching) || !d.coaching.length) bad("needs coaching points");
   const text = JSON.stringify(d).toLowerCase();

@@ -3,12 +3,19 @@
     "id": "warmup-check-turn-3s",
     "title": "Passing in 3s: Check, Shoulder, Turn",
     "topic": "warmup",
-    "ages": ["7v7", "9v9", "11v11"],
+    "ages": [
+      "7v7",
+      "9v9",
+      "11v11"
+    ],
     "players": "6-18",
     "minutes": 10,
     "intensity": "low",
     "space": "20 x 15 yards",
-    "equipment": ["1 ball per group of 3", "cones for each line"],
+    "equipment": [
+      "1 ball per group of 3",
+      "cones for each line"
+    ],
     "summary": "Dynamic movement, then passing in threes where the middle player checks, looks over her shoulder and receives facing forward.",
     "setup": "4 minutes of dynamic movement first (jog, high knees, butt kicks, side shuffles, carioca, short sprints). Then groups of three in a line, 10-12 yards apart, one ball per group.",
     "how": [
@@ -26,87 +33,371 @@
     "easier": "The middle player can take two touches and doesn't have to turn on the first touch.",
     "harder": "The coach calls 'man on' as the ball travels: the middle player must play it straight back instead of turning.",
     "video": "",
-    "diagram": {"w": 20, "h": 15, "items": [
-      {"t": "cone", "x": 2, "y": 4}, {"t": "cone", "x": 10, "y": 4}, {"t": "cone", "x": 18, "y": 4},
-      {"t": "player", "team": "a", "x": 2, "y": 4, "label": "A"},
-      {"t": "player", "team": "a", "x": 10, "y": 6, "label": "M"},
-      {"t": "player", "team": "a", "x": 18, "y": 4, "label": "C"},
-      {"t": "ball", "x": 3, "y": 4},
-      {"t": "run", "from": [10, 6], "to": [9, 4.5]},
-      {"t": "pass", "from": [3, 4], "to": [8.5, 4.5]},
-      {"t": "pass", "from": [10, 4], "to": [17, 4]},
-      {"t": "cone", "x": 2, "y": 11}, {"t": "cone", "x": 10, "y": 11}, {"t": "cone", "x": 18, "y": 11},
-      {"t": "player", "team": "b", "x": 2, "y": 11, "label": "A"},
-      {"t": "player", "team": "b", "x": 10, "y": 13, "label": "M"},
-      {"t": "player", "team": "b", "x": 18, "y": 11, "label": "C"},
-      {"t": "run", "from": [10, 13], "to": [11, 11.5]},
-      {"t": "pass", "from": [17, 11], "to": [11.5, 11.5]}
-    ]}
+    "diagram": {
+      "w": 20,
+      "h": 15,
+      "items": [
+        {
+          "t": "cone",
+          "x": 2,
+          "y": 4
+        },
+        {
+          "t": "cone",
+          "x": 10,
+          "y": 4
+        },
+        {
+          "t": "cone",
+          "x": 18,
+          "y": 4
+        },
+        {
+          "t": "player",
+          "team": "a",
+          "x": 2,
+          "y": 4,
+          "label": "A"
+        },
+        {
+          "t": "player",
+          "team": "a",
+          "x": 10,
+          "y": 6,
+          "label": "M"
+        },
+        {
+          "t": "player",
+          "team": "a",
+          "x": 18,
+          "y": 4,
+          "label": "C"
+        },
+        {
+          "t": "ball",
+          "x": 3,
+          "y": 4
+        },
+        {
+          "t": "run",
+          "from": [
+            10,
+            6
+          ],
+          "to": [
+            9,
+            4.5
+          ]
+        },
+        {
+          "t": "pass",
+          "from": [
+            3,
+            4
+          ],
+          "to": [
+            8.5,
+            4.5
+          ]
+        },
+        {
+          "t": "pass",
+          "from": [
+            10,
+            4
+          ],
+          "to": [
+            17,
+            4
+          ]
+        },
+        {
+          "t": "cone",
+          "x": 2,
+          "y": 11
+        },
+        {
+          "t": "cone",
+          "x": 10,
+          "y": 11
+        },
+        {
+          "t": "cone",
+          "x": 18,
+          "y": 11
+        },
+        {
+          "t": "player",
+          "team": "b",
+          "x": 2,
+          "y": 11,
+          "label": "A"
+        },
+        {
+          "t": "player",
+          "team": "b",
+          "x": 10,
+          "y": 13,
+          "label": "M"
+        },
+        {
+          "t": "player",
+          "team": "b",
+          "x": 18,
+          "y": 11,
+          "label": "C"
+        },
+        {
+          "t": "run",
+          "from": [
+            10,
+            13
+          ],
+          "to": [
+            11,
+            11.5
+          ]
+        },
+        {
+          "t": "pass",
+          "from": [
+            17,
+            11
+          ],
+          "to": [
+            11.5,
+            11.5
+          ]
+        }
+      ]
+    }
   },
   {
     "id": "build-out-cb-cm-gates",
-    "title": "Build Out Through the Center Back and Center Mid",
+    "title": "Build Out: Center Back Pick and Center Mid",
     "topic": "build-out",
-    "ages": ["9v9", "11v11"],
+    "ages": [
+      "9v9",
+      "11v11"
+    ],
     "players": "9-12",
     "minutes": 18,
     "intensity": "medium",
     "space": "Half field",
-    "equipment": ["1 full goal", "6 cones for 3 gates", "pinnies", "balls with the keeper"],
-    "summary": "The keeper, back three and center mid build out against three pressers and score through gates on the halfway line.",
+    "equipment": [
+      "1 full goal",
+      "6 cones for 3 gates",
+      "pinnies",
+      "balls with the keeper"
+    ],
+    "summary": "The keeper plays out to a fullback while the center back sets a pick on the pressing forward to give her space; the center mid shows to receive and play forward through gates on the halfway line.",
     "setup": "Half field. Keeper plus left back, center back, right back and center mid against 3 pressers (2 forwards and a mid). Three small cone gates across the halfway line.",
     "how": [
-      "The keeper starts every ball.",
-      "The building team scores by passing or dribbling through a gate on the halfway line.",
-      "The pressing team scores by winning the ball and shooting on the big goal.",
-      "First 8 minutes: the center mid must touch the ball before it goes through a gate.",
-      "Then add a fourth presser who marks the center mid."
+      "The keeper starts every ball and plays it to the left or right back, not to the center back.",
+      "As the keeper gets the ball, the center back steps into the running lane of the forward who would press that fullback, setting a pick so the fullback has time and space.",
+      "The fullback carries it forward or finds the center mid, who checks in, turns and plays forward.",
+      "The building team scores by passing or dribbling through a gate on the halfway line. The pressing team scores by winning the ball and shooting on the big goal.",
+      "First 8 minutes: the center mid must touch the ball before it goes through a gate. Then add a fourth presser who marks the center mid."
     ],
     "coaching": [
-      "Center mid: show in the space ahead of the center back, never right next to her",
+      "Center back: you're not an option to receive here; your job is to make space for the fullback",
+      "Center back: read which side the keeper is going, then get into that forward's path early",
+      "Center back: set the pick by standing in her path; don't step into her, hold or push (that's a foul)",
+      "Center back: once the fullback is away, drop back central behind the ball as cover",
+      "Fullback: take your first touch forward into the space the pick made",
+      "Center mid: show in the space ahead of the fullback and center back, never right next to them",
       "Center mid: if a defender is between you and the ball, move into a passing lane",
-      "Center mid: check your shoulder and turn forward when you can; if not, play back or wide and show again",
-      "Center back: split wide of the keeper with the fullbacks spread out",
-      "Center back: no pressure? Dribble forward into midfield to pull a defender and free a teammate",
-      "Center back looks in order: center mid's feet, the wide back, a ball into space for a forward",
-      "Center back: when the ball goes wide, stay central and slightly behind; talk and direct",
-      "Lose it: center back gets goal-side and delays instead of diving in"
+      "Center mid: check your shoulder and turn forward when you can; if not, play back or wide and show again"
     ],
-    "easier": "Start with 2 pressers, or let the building team use a 6th player (a wide mid).",
+    "easier": "Start with 2 pressers so the pick and the fullback's first touch are easy to see.",
     "harder": "Add the 4th presser on the center mid from the start, or give the builders 10 seconds to reach a gate.",
     "video": "",
-    "diagram": {"w": 50, "h": 40, "items": [
-      {"t": "zone", "x": 0, "y": 1, "w": 50, "h": 1, "label": "Halfway"},
-      {"t": "minigoal", "x": 11, "y": 1.5, "w": 6, "side": "top"},
-      {"t": "minigoal", "x": 25, "y": 1.5, "w": 6, "side": "top"},
-      {"t": "minigoal", "x": 39, "y": 1.5, "w": 6, "side": "top"},
-      {"t": "goal", "x": 25, "y": 40, "w": 8},
-      {"t": "gk", "team": "a", "x": 25, "y": 37.5},
-      {"t": "player", "team": "a", "x": 9, "y": 29, "label": "LB"},
-      {"t": "player", "team": "a", "x": 25, "y": 31, "label": "CB"},
-      {"t": "player", "team": "a", "x": 41, "y": 29, "label": "RB"},
-      {"t": "player", "team": "a", "x": 25, "y": 21, "label": "CM"},
-      {"t": "player", "team": "b", "x": 18, "y": 26, "label": "F"},
-      {"t": "player", "team": "b", "x": 33, "y": 26, "label": "F"},
-      {"t": "player", "team": "b", "x": 28, "y": 15, "label": "M"},
-      {"t": "ball", "x": 25, "y": 36},
-      {"t": "pass", "from": [25, 36], "to": [25, 32]},
-      {"t": "dribble", "from": [25, 31], "to": [25, 27]},
-      {"t": "run", "from": [25, 21], "to": [21, 19]},
-      {"t": "pass", "from": [25, 26.5], "to": [21.5, 19.5]},
-      {"t": "pass", "from": [21, 19], "to": [12, 3]}
-    ]}
+    "diagram": {
+      "w": 50,
+      "h": 40,
+      "items": [
+        {
+          "t": "zone",
+          "x": 0,
+          "y": 1,
+          "w": 50,
+          "h": 1,
+          "label": "Halfway"
+        },
+        {
+          "t": "minigoal",
+          "x": 11,
+          "y": 1.5,
+          "w": 6,
+          "side": "top"
+        },
+        {
+          "t": "minigoal",
+          "x": 25,
+          "y": 1.5,
+          "w": 6,
+          "side": "top"
+        },
+        {
+          "t": "minigoal",
+          "x": 39,
+          "y": 1.5,
+          "w": 6,
+          "side": "top"
+        },
+        {
+          "t": "goal",
+          "x": 25,
+          "y": 40,
+          "w": 8
+        },
+        {
+          "t": "gk",
+          "team": "a",
+          "x": 25,
+          "y": 37.5
+        },
+        {
+          "t": "player",
+          "team": "a",
+          "x": 9,
+          "y": 32,
+          "label": "LB"
+        },
+        {
+          "t": "player",
+          "team": "a",
+          "x": 25,
+          "y": 30,
+          "label": "CB"
+        },
+        {
+          "t": "player",
+          "team": "a",
+          "x": 41,
+          "y": 32,
+          "label": "RB"
+        },
+        {
+          "t": "player",
+          "team": "a",
+          "x": 25,
+          "y": 20,
+          "label": "CM"
+        },
+        {
+          "t": "player",
+          "team": "b",
+          "x": 17,
+          "y": 25,
+          "label": "F"
+        },
+        {
+          "t": "player",
+          "team": "b",
+          "x": 33,
+          "y": 25,
+          "label": "F"
+        },
+        {
+          "t": "player",
+          "team": "b",
+          "x": 28,
+          "y": 14,
+          "label": "M"
+        },
+        {
+          "t": "ball",
+          "x": 24,
+          "y": 36.5
+        },
+        {
+          "t": "pass",
+          "from": [
+            24,
+            36.5
+          ],
+          "to": [
+            10,
+            32.5
+          ]
+        },
+        {
+          "t": "run",
+          "from": [
+            25,
+            30
+          ],
+          "to": [
+            15.5,
+            27.5
+          ]
+        },
+        {
+          "t": "dribble",
+          "from": [
+            9,
+            32
+          ],
+          "to": [
+            9,
+            23
+          ]
+        },
+        {
+          "t": "run",
+          "from": [
+            25,
+            20
+          ],
+          "to": [
+            17,
+            18
+          ]
+        },
+        {
+          "t": "pass",
+          "from": [
+            9.5,
+            22.5
+          ],
+          "to": [
+            16.5,
+            18.5
+          ]
+        },
+        {
+          "t": "pass",
+          "from": [
+            17,
+            17.5
+          ],
+          "to": [
+            13,
+            3
+          ]
+        }
+      ]
+    }
   },
   {
     "id": "possession-into-space-endzones",
     "title": "Balls Into Space: End Zone Game",
     "topic": "possession",
-    "ages": ["7v7", "9v9", "11v11"],
+    "ages": [
+      "7v7",
+      "9v9",
+      "11v11"
+    ],
     "players": "10-12",
     "minutes": 15,
     "intensity": "high",
     "space": "40 x 30 yards with 5-yard end zones",
-    "equipment": ["8 cones", "pinnies in 3 colors", "balls"],
+    "equipment": [
+      "8 cones",
+      "pinnies in 3 colors",
+      "balls"
+    ],
     "summary": "4v4 plus 2 neutrals. A goal only counts when a teammate runs onto a pass into the end zone.",
     "setup": "40 x 30 yard grid with a 5-yard end zone at each end. Two teams of 4, plus 2 neutral players who play for whoever has the ball.",
     "how": [
@@ -125,35 +416,156 @@
     "easier": "Make the grid wider, or add a third neutral player.",
     "harder": "Two-touch limit, or the runner must finish with one touch into a mini goal at the back of the end zone.",
     "video": "",
-    "diagram": {"w": 40, "h": 30, "items": [
-      {"t": "zone", "x": 0, "y": 0, "w": 40, "h": 5, "label": "End zone"},
-      {"t": "zone", "x": 0, "y": 25, "w": 40, "h": 5, "label": "End zone"},
-      {"t": "cone", "x": 0, "y": 0}, {"t": "cone", "x": 40, "y": 0}, {"t": "cone", "x": 0, "y": 30}, {"t": "cone", "x": 40, "y": 30},
-      {"t": "player", "team": "a", "x": 14, "y": 17},
-      {"t": "player", "team": "a", "x": 26, "y": 11},
-      {"t": "player", "team": "a", "x": 8, "y": 10},
-      {"t": "player", "team": "a", "x": 32, "y": 18},
-      {"t": "player", "team": "b", "x": 20, "y": 13},
-      {"t": "player", "team": "b", "x": 28, "y": 7},
-      {"t": "player", "team": "b", "x": 12, "y": 21},
-      {"t": "player", "team": "b", "x": 33, "y": 12},
-      {"t": "player", "team": "n", "x": 4, "y": 15, "label": "N"},
-      {"t": "player", "team": "n", "x": 37, "y": 24, "label": "N"},
-      {"t": "ball", "x": 15, "y": 16},
-      {"t": "run", "from": [26, 11], "to": [22, 3]},
-      {"t": "pass", "from": [15, 16], "to": [21.5, 3.5]}
-    ]}
+    "diagram": {
+      "w": 40,
+      "h": 30,
+      "items": [
+        {
+          "t": "zone",
+          "x": 0,
+          "y": 0,
+          "w": 40,
+          "h": 5,
+          "label": "End zone"
+        },
+        {
+          "t": "zone",
+          "x": 0,
+          "y": 25,
+          "w": 40,
+          "h": 5,
+          "label": "End zone"
+        },
+        {
+          "t": "cone",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "t": "cone",
+          "x": 40,
+          "y": 0
+        },
+        {
+          "t": "cone",
+          "x": 0,
+          "y": 30
+        },
+        {
+          "t": "cone",
+          "x": 40,
+          "y": 30
+        },
+        {
+          "t": "player",
+          "team": "a",
+          "x": 14,
+          "y": 17
+        },
+        {
+          "t": "player",
+          "team": "a",
+          "x": 26,
+          "y": 11
+        },
+        {
+          "t": "player",
+          "team": "a",
+          "x": 8,
+          "y": 10
+        },
+        {
+          "t": "player",
+          "team": "a",
+          "x": 32,
+          "y": 18
+        },
+        {
+          "t": "player",
+          "team": "b",
+          "x": 20,
+          "y": 13
+        },
+        {
+          "t": "player",
+          "team": "b",
+          "x": 28,
+          "y": 7
+        },
+        {
+          "t": "player",
+          "team": "b",
+          "x": 12,
+          "y": 21
+        },
+        {
+          "t": "player",
+          "team": "b",
+          "x": 33,
+          "y": 12
+        },
+        {
+          "t": "player",
+          "team": "n",
+          "x": 4,
+          "y": 15,
+          "label": "N"
+        },
+        {
+          "t": "player",
+          "team": "n",
+          "x": 37,
+          "y": 24,
+          "label": "N"
+        },
+        {
+          "t": "ball",
+          "x": 15,
+          "y": 16
+        },
+        {
+          "t": "run",
+          "from": [
+            26,
+            11
+          ],
+          "to": [
+            22,
+            3
+          ]
+        },
+        {
+          "t": "pass",
+          "from": [
+            15,
+            16
+          ],
+          "to": [
+            21.5,
+            3.5
+          ]
+        }
+      ]
+    }
   },
   {
     "id": "finishing-through-ball-runs",
     "title": "Finishing Through Balls",
     "topic": "finishing",
-    "ages": ["9v9", "11v11"],
+    "ages": [
+      "9v9",
+      "11v11"
+    ],
     "players": "8-14",
     "minutes": 15,
     "intensity": "medium",
     "space": "Final third with a full goal",
-    "equipment": ["1 full goal", "2 cones for the gate", "lots of balls", "a keeper"],
+    "equipment": [
+      "1 full goal",
+      "2 cones for the gate",
+      "lots of balls",
+      "a keeper"
+    ],
     "summary": "A passer slides a through ball between two cones; the forward times a curved run, takes one touch toward goal and finishes.",
     "setup": "Keeper in a full goal. A line of passers at the top (center mids get extra turns) and a line of forwards near the sideline about 30 yards out. A cone gate about 22 yards out stands in for the defense.",
     "how": [
@@ -173,73 +585,352 @@
     "easier": "No chasing defender, and the forward can take two touches.",
     "harder": "Start the chasing defender level with the forward, or add a recovering center back in front of the gate.",
     "video": "",
-    "diagram": {"w": 40, "h": 35, "items": [
-      {"t": "goal", "x": 20, "y": 0, "w": 8},
-      {"t": "gk", "team": "a", "x": 20, "y": 2},
-      {"t": "zone", "x": 8, "y": 0, "w": 24, "h": 12, "label": "Box"},
-      {"t": "cone", "x": 17, "y": 18}, {"t": "cone", "x": 23, "y": 18},
-      {"t": "player", "team": "a", "x": 20, "y": 32, "label": "P"},
-      {"t": "player", "team": "a", "x": 34, "y": 24, "label": "F"},
-      {"t": "player", "team": "b", "x": 36, "y": 27, "label": "D"},
-      {"t": "ball", "x": 20, "y": 30.5},
-      {"t": "pass", "from": [20, 30.5], "to": [21, 12]},
-      {"t": "run", "from": [34, 24], "to": [27, 18]},
-      {"t": "run", "from": [27, 18], "to": [22, 12.5]},
-      {"t": "run", "from": [36, 27], "to": [29, 20]},
-      {"t": "shot", "from": [21, 11], "to": [17.5, 0.8]}
-    ]}
+    "diagram": {
+      "w": 40,
+      "h": 35,
+      "items": [
+        {
+          "t": "goal",
+          "x": 20,
+          "y": 0,
+          "w": 8
+        },
+        {
+          "t": "gk",
+          "team": "a",
+          "x": 20,
+          "y": 2
+        },
+        {
+          "t": "zone",
+          "x": 8,
+          "y": 0,
+          "w": 24,
+          "h": 12,
+          "label": "Box"
+        },
+        {
+          "t": "cone",
+          "x": 17,
+          "y": 18
+        },
+        {
+          "t": "cone",
+          "x": 23,
+          "y": 18
+        },
+        {
+          "t": "player",
+          "team": "a",
+          "x": 20,
+          "y": 32,
+          "label": "P"
+        },
+        {
+          "t": "player",
+          "team": "a",
+          "x": 34,
+          "y": 24,
+          "label": "F"
+        },
+        {
+          "t": "player",
+          "team": "b",
+          "x": 36,
+          "y": 27,
+          "label": "D"
+        },
+        {
+          "t": "ball",
+          "x": 20,
+          "y": 30.5
+        },
+        {
+          "t": "pass",
+          "from": [
+            20,
+            30.5
+          ],
+          "to": [
+            21,
+            12
+          ]
+        },
+        {
+          "t": "run",
+          "from": [
+            34,
+            24
+          ],
+          "to": [
+            27,
+            18
+          ]
+        },
+        {
+          "t": "run",
+          "from": [
+            27,
+            18
+          ],
+          "to": [
+            22,
+            12.5
+          ]
+        },
+        {
+          "t": "run",
+          "from": [
+            36,
+            27
+          ],
+          "to": [
+            29,
+            20
+          ]
+        },
+        {
+          "t": "shot",
+          "from": [
+            21,
+            11
+          ],
+          "to": [
+            17.5,
+            0.8
+          ]
+        }
+      ]
+    }
   },
   {
     "id": "small-sided-scrimmage-buildout-rules",
     "title": "Scrimmage With Build-Out and Through-Ball Rules",
     "topic": "small-sided",
-    "ages": ["9v9", "11v11"],
+    "ages": [
+      "9v9",
+      "11v11"
+    ],
     "players": "16-22",
-    "minutes": 30,
+    "minutes": 35,
     "intensity": "high",
     "space": "Full 9v9 field",
-    "equipment": ["2 full goals", "pinnies"],
-    "summary": "A full scrimmage against another team, with rules for the first 15 minutes that reward building out and through balls.",
+    "equipment": [
+      "2 full goals",
+      "pinnies"
+    ],
+    "summary": "A full scrimmage against another team, with rules for the first 15 minutes that reward building out through the fullbacks and through balls.",
     "setup": "Full field, 9v9 against the visiting team. Normal restarts except as below.",
     "how": [
-      "First 15 minutes: every goal kick is played short to the center back or a fullback, no long kicks.",
+      "First 15 minutes: every goal kick is played short to the left or right back, no long kicks. The center back sets a pick on the forward pressing that side.",
       "First 15 minutes: a goal scored from a through ball counts double.",
       "After that, play normally.",
       "Coaches give quick sideline comments; don't stop play."
     ],
     "coaching": [
       "Center mid: show and turn when the keeper has it",
-      "Center back: dribble forward into midfield when no one presses you",
+      "Center back: on goal kicks, set the pick so the fullback has space; then drop back as cover",
       "Forwards: time your runs so you're onside and moving onto the ball",
       "Shoot early once you're through"
     ],
     "easier": "Allow the keeper to roll the ball out to anyone on goal kicks.",
     "harder": "Keep the build-out rule for the whole scrimmage, or require 3 passes in your own half before crossing midfield.",
     "video": "",
-    "diagram": {"w": 45, "h": 60, "items": [
-      {"t": "zone", "x": 0, "y": 29.5, "w": 45, "h": 1, "label": "Halfway"},
-      {"t": "goal", "x": 22.5, "y": 0, "w": 7},
-      {"t": "goal", "x": 22.5, "y": 60, "w": 7},
-      {"t": "gk", "team": "a", "x": 22.5, "y": 57.5},
-      {"t": "player", "team": "a", "x": 8, "y": 50, "label": "LB"},
-      {"t": "player", "team": "a", "x": 22.5, "y": 51, "label": "CB"},
-      {"t": "player", "team": "a", "x": 37, "y": 50, "label": "RB"},
-      {"t": "player", "team": "a", "x": 22.5, "y": 40, "label": "CM"},
-      {"t": "player", "team": "a", "x": 8, "y": 37, "label": "LM"},
-      {"t": "player", "team": "a", "x": 37, "y": 37, "label": "RM"},
-      {"t": "player", "team": "a", "x": 16, "y": 24, "label": "S"},
-      {"t": "player", "team": "a", "x": 29, "y": 24, "label": "S"},
-      {"t": "gk", "team": "b", "x": 22.5, "y": 2.5},
-      {"t": "player", "team": "b", "x": 14, "y": 12},
-      {"t": "player", "team": "b", "x": 22.5, "y": 11},
-      {"t": "player", "team": "b", "x": 31, "y": 12},
-      {"t": "player", "team": "b", "x": 31, "y": 33},
-      {"t": "ball", "x": 22.5, "y": 56},
-      {"t": "pass", "from": [22.5, 56], "to": [22.5, 52]},
-      {"t": "pass", "from": [22.5, 50], "to": [22.5, 41]},
-      {"t": "pass", "from": [22.5, 39], "to": [27, 15]},
-      {"t": "run", "from": [29, 24], "to": [27.5, 15.5]},
-      {"t": "shot", "from": [27, 14.5], "to": [21, 0.8]}
-    ]}
+    "diagram": {
+      "w": 45,
+      "h": 60,
+      "items": [
+        {
+          "t": "zone",
+          "x": 0,
+          "y": 29.5,
+          "w": 45,
+          "h": 1,
+          "label": "Halfway"
+        },
+        {
+          "t": "goal",
+          "x": 22.5,
+          "y": 0,
+          "w": 7
+        },
+        {
+          "t": "goal",
+          "x": 22.5,
+          "y": 60,
+          "w": 7
+        },
+        {
+          "t": "gk",
+          "team": "a",
+          "x": 22.5,
+          "y": 57.5
+        },
+        {
+          "t": "player",
+          "team": "a",
+          "x": 8,
+          "y": 50,
+          "label": "LB"
+        },
+        {
+          "t": "player",
+          "team": "a",
+          "x": 22.5,
+          "y": 51,
+          "label": "CB"
+        },
+        {
+          "t": "player",
+          "team": "a",
+          "x": 37,
+          "y": 50,
+          "label": "RB"
+        },
+        {
+          "t": "player",
+          "team": "a",
+          "x": 22.5,
+          "y": 40,
+          "label": "CM"
+        },
+        {
+          "t": "player",
+          "team": "a",
+          "x": 8,
+          "y": 37,
+          "label": "LM"
+        },
+        {
+          "t": "player",
+          "team": "a",
+          "x": 37,
+          "y": 37,
+          "label": "RM"
+        },
+        {
+          "t": "player",
+          "team": "a",
+          "x": 16,
+          "y": 24,
+          "label": "S"
+        },
+        {
+          "t": "player",
+          "team": "a",
+          "x": 29,
+          "y": 24,
+          "label": "S"
+        },
+        {
+          "t": "gk",
+          "team": "b",
+          "x": 22.5,
+          "y": 2.5
+        },
+        {
+          "t": "player",
+          "team": "b",
+          "x": 14,
+          "y": 12
+        },
+        {
+          "t": "player",
+          "team": "b",
+          "x": 22.5,
+          "y": 11
+        },
+        {
+          "t": "player",
+          "team": "b",
+          "x": 31,
+          "y": 12
+        },
+        {
+          "t": "player",
+          "team": "b",
+          "x": 31,
+          "y": 33
+        },
+        {
+          "t": "player",
+          "team": "b",
+          "x": 31,
+          "y": 44,
+          "label": "F"
+        },
+        {
+          "t": "ball",
+          "x": 23,
+          "y": 56
+        },
+        {
+          "t": "pass",
+          "from": [
+            23,
+            56
+          ],
+          "to": [
+            36,
+            50.5
+          ]
+        },
+        {
+          "t": "run",
+          "from": [
+            22.5,
+            51
+          ],
+          "to": [
+            29.5,
+            46
+          ]
+        },
+        {
+          "t": "pass",
+          "from": [
+            36.5,
+            49
+          ],
+          "to": [
+            24,
+            41
+          ]
+        },
+        {
+          "t": "pass",
+          "from": [
+            22.5,
+            39
+          ],
+          "to": [
+            27,
+            15
+          ]
+        },
+        {
+          "t": "run",
+          "from": [
+            29,
+            24
+          ],
+          "to": [
+            27.5,
+            15.5
+          ]
+        },
+        {
+          "t": "shot",
+          "from": [
+            27,
+            14.5
+          ],
+          "to": [
+            21,
+            0.8
+          ]
+        }
+      ]
+    }
   }
 ]
